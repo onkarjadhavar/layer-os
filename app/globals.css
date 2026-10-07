@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --primary: #1F4D3A;
+    --primary-hover: #173A2C;
+    --primary-light: #2D6B52;
+    --primary-faint: #EAF3EF;
+    
+    --accent: #D9A441;
+    --accent-hover: #C69234;
+    --accent-faint: #FCF6E9;
+
+    --bg-main: #FAF8F3;
+    --surface: #FFFFFF;
+    --surface-card: #FFFFFF;
+    --border: #E7E2D6;
+    --border-light: #F0EDE5;
+
+    --text-ink: #0B1E15;
+    --text-muted: #2D4538;
+    --text-subtle: #4D6558;
+
+    --success: #2E7D5B;
+    --success-bg: #E8F5EE;
+    --warning: #D98E04;
+    --warning-bg: #FEF7E8;
+    --danger: #B3382C;
+    --danger-bg: #FBEBEA;
+    --info: #2F6F9F;
+    --info-bg: #EBF4FA;
+
+    --shadow-soft: 0 4px 20px -2px rgba(27, 42, 36, 0.06);
+    --shadow-card: 0 8px 30px -4px rgba(27, 42, 36, 0.08);
+  }
+
+  .dark {
+    --primary: #2D6B52;
+    --primary-hover: #3B8668;
+    --primary-light: #4A9C7B;
+    --primary-faint: #182B22;
+
+    --accent: #E5B252;
+    --accent-hover: #D9A441;
+    --accent-faint: #2E2413;
+
+    --bg-main: #0F1A15;
+    --surface: #16241D;
+    --surface-card: #1B2D24;
+    --border: #263B30;
+    --border-light: #1F3027;
+
+    --text-ink: #FFFFFF;
+    --text-muted: #CBDCD4;
+    --text-subtle: #95ACA0;
+
+    --success: #3BA378;
+    --success-bg: #142D21;
+    --warning: #E8A11C;
+    --warning-bg: #302307;
+    --danger: #D2473B;
+    --danger-bg: #311311;
+    --info: #468CBF;
+    --info-bg: #122838;
+
+    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+  }
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Number inputs without browser arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Glassmorphism & Card styling */
+.card-layer {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-layer-interactive:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+
+/* Bottom safe-area for iOS / mobile navigation */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+}
+
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
