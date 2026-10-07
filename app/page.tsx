@@ -92,7 +92,7 @@ export default function LayerOSHomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF6] dark:bg-[#0A1A16] transition-colors">
       {/* Top Bar Navigation */}
       <TopBar
         onOpenNotifications={() => setShowNotificationsDrawer(true)}
@@ -115,8 +115,8 @@ export default function LayerOSHomePage() {
         <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-28 lg:pb-12 space-y-6">
           {/* Supervisor / Role Context Ribbon */}
           {user?.role === 'supervisor' && (
-            <div className="p-3.5 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/30 flex items-center justify-between text-xs font-bold">
-              <span className="text-[#1F4D3A] dark:text-[#3BA378]">
+            <div className="p-3.5 rounded-2xl bg-[#E8F3F1] dark:bg-[#0C2B26] border border-[#025E52]/30 flex items-center justify-between text-xs font-bold">
+              <span className="text-[#013E37] dark:text-[#3DAE7E]">
                 👷 सुपरवायझर मोड: केवळ दैनंदिन नोंदी व कामकाजाचा ॲक्सेस उपलब्ध आहे.
               </span>
               <button
@@ -202,17 +202,17 @@ export default function LayerOSHomePage() {
       <div className="fixed bottom-20 left-4 z-40 flex items-center gap-2">
         <button
           onClick={() => setShowAskLayerOsModal(true)}
-          className="bg-white dark:bg-[#16241D] text-[#1F4D3A] dark:text-[#3BA378] px-3.5 py-2.5 rounded-full shadow-xl border border-[#E7E2D6] dark:border-[#263B30] flex items-center gap-2 text-xs font-bold hover:scale-105 transition-transform"
+          className="bg-white dark:bg-[#122A23] text-[#013E37] dark:text-[#3DAE7E] px-3.5 py-2.5 rounded-full shadow-xl border border-[#E8E4DA] dark:border-[#1E3F36] flex items-center gap-2 text-xs font-bold hover:scale-105 transition-transform"
         >
-          <Sparkles className="w-4 h-4 text-[#D9A441]" />
+          <Sparkles className="w-4 h-4 text-[#C9A23C]" />
           <span className="hidden sm:inline">LayerOS ला विचारा</span>
         </button>
 
         <button
           onClick={() => setShowDailyAdvisorModal(true)}
-          className="bg-[#1F4D3A] text-white px-3.5 py-2.5 rounded-full shadow-xl border border-[#D9A441] flex items-center gap-1.5 text-xs font-bold hover:scale-105 transition-transform"
+          className="bg-[#013E37] text-white px-3.5 py-2.5 rounded-full shadow-xl border border-[#FFEFB3]/50 flex items-center gap-1.5 text-xs font-bold hover:scale-105 transition-transform"
         >
-          <Zap className="w-3.5 h-3.5 text-[#D9A441] fill-[#D9A441]" />
+          <Zap className="w-3.5 h-3.5 text-[#FFEFB3] fill-[#FFEFB3]" />
           <span>AI सल्लागार</span>
         </button>
       </div>

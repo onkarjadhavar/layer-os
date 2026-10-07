@@ -55,24 +55,24 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-[#1F4D3A] text-white flex-shrink-0 h-screen sticky top-0 border-r border-[#173A2C] shadow-lg">
+    <aside className="hidden lg:flex flex-col w-[260px] bg-[#013E37] text-white flex-shrink-0 h-screen sticky top-0 shadow-xl">
       {/* Brand Header */}
-      <div className="p-5 border-b border-white/10 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#D9A441] text-[#0B1E15] flex items-center justify-center font-black text-xl shadow-md">
+      <div className="px-5 py-5 border-b border-white/[0.08] flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#FFEFB3] text-[#013E37] flex items-center justify-center font-black text-xl shadow-sm">
           🥚
         </div>
         <div>
-          <div className="text-xl font-black tracking-tight flex items-center gap-1">
-            Layer<span className="text-[#D9A441]">OS</span>
+          <div className="text-lg font-extrabold tracking-tight flex items-center gap-0.5" style={{ fontFamily: '"DM Sans", Inter, sans-serif' }}>
+            Layer<span className="text-[#FFEFB3]">OS</span>
           </div>
-          <div className="text-[11px] text-emerald-100 font-bold leading-tight">
+          <div className="text-[10px] text-white/60 font-medium leading-tight tracking-wide uppercase">
             {t.tagline}
           </div>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
         {navigationItems.map(item => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -80,22 +80,22 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onSelectTab(item.id)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all ${
                 isActive
-                  ? 'bg-white text-[#1F4D3A] shadow-md font-black'
-                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+                  ? 'bg-[#FFEFB3] text-[#013E37] shadow-sm font-bold'
+                  : 'text-white/80 hover:bg-white/[0.07] hover:text-white'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#1F4D3A]' : 'text-emerald-300'}`} />
+                <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#013E37]' : 'text-white/50'}`} />
                 <span className="truncate">{item.label}</span>
               </div>
               {item.badge && (
                 <span
-                  className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${
+                  className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                     isActive
-                      ? 'bg-[#1F4D3A] text-white'
-                      : 'bg-[#D9A441] text-[#0B1E15]'
+                      ? 'bg-[#013E37] text-[#FFEFB3]'
+                      : 'bg-[#FFEFB3]/20 text-[#FFEFB3]'
                   }`}
                 >
                   {item.badge}
@@ -107,12 +107,15 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
       </div>
 
       {/* Footer Info */}
-      <div className="p-4 border-t border-white/10 bg-[#173A2C]/60 text-xs text-emerald-100">
-        <div className="flex items-center justify-between font-bold">
+      <div className="px-5 py-3.5 border-t border-white/[0.08] text-[11px] text-white/50">
+        <div className="flex items-center justify-between font-semibold">
           <span>LayerOS v2.4</span>
-          <span className="text-emerald-400">● ऑनलाईन</span>
+          <span className="flex items-center gap-1 text-[#3DAE7E]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3DAE7E] animate-pulse" />
+            ऑनलाईन
+          </span>
         </div>
-        <div className="text-[11px] mt-0.5 font-medium">महाराष्ट्रातील पोल्ट्रीसाठी विशेष डिझाईन</div>
+        <div className="text-[10px] mt-0.5 font-normal text-white/40">महाराष्ट्रातील पोल्ट्रीसाठी विशेष डिझाईन</div>
       </div>
     </aside>
   );

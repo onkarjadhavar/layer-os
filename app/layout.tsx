@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1F4D3A",
+  themeColor: "#013E37",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -49,11 +49,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#FAF8F3] dark:bg-[#0F1A15] text-[#0B1E15] dark:text-[#F0F5F2]">
+      <body className="min-h-full flex flex-col bg-[#FAFAF6] dark:bg-[#0A1A16] text-[#0C1F1A] dark:text-[#F2F7F5]">
         <ThemeProvider>
           <I18nProvider>
             <LayerOSProvider>

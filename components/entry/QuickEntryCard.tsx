@@ -82,7 +82,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#1F4D3A', '#D9A441', '#2E7D5B', '#FFFFFF'],
+        colors: ['#013E37', '#FFEFB3', '#1A6B4A', '#FFFFFF'],
       });
 
       setSavedSuccess(true);
@@ -97,42 +97,42 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
   };
 
   return (
-    <div className="card-layer p-5 md:p-7 max-w-3xl mx-auto border-2 border-[#1F4D3A]/20 shadow-xl bg-white dark:bg-[#16241D]">
+    <div className="card-layer p-5 md:p-7 max-w-3xl mx-auto border border-[#E8E4DA] dark:border-[#1E3F36] shadow-lg bg-white dark:bg-[#122A23]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E7E2D6] dark:border-[#263B30] gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E4DA] dark:border-[#1E3F36] gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] text-[#1F4D3A] dark:text-[#3BA378] flex items-center justify-center font-bold text-xl flex-shrink-0">
-            <Zap className="w-6 h-6 fill-[#D9A441] text-[#D9A441]" />
+          <div className="w-11 h-11 rounded-xl bg-[#E8F3F1] dark:bg-[#0C2B26] text-[#013E37] dark:text-[#3DAE7E] flex items-center justify-center font-bold text-xl flex-shrink-0">
+            <Zap className="w-5 h-5 fill-[#C9A23C] text-[#C9A23C]" />
           </div>
           <div>
-            <h2 className="text-lg md:text-xl font-black text-[#0B1E15] dark:text-white flex items-center gap-2">
+            <h2 className="text-lg md:text-xl font-bold text-[#0C1F1A] dark:text-white flex items-center gap-2">
               <span>{t.quickLogTitle}</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-black bg-[#D9A441] text-[#0B1E15]">
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-[#FFEFB3] text-[#7A5C0F]">
                 ३० सेकंद
               </span>
             </h2>
-            <p className="text-xs text-[#2D4538] dark:text-[#CBDCD4] font-medium mt-0.5">
+            <p className="text-xs text-[#6B8A7F] dark:text-[#6E9487] font-normal mt-0.5">
               {t.quickLogSubtitle}
             </p>
           </div>
         </div>
 
         {/* Date Selector */}
-        <div className="flex items-center gap-2 bg-[#F8F6F0] dark:bg-[#1A2D23] px-3.5 py-2 rounded-xl border border-[#DCD3C3] dark:border-[#2C4435]">
-          <Calendar className="w-4 h-4 text-[#1F4D3A] dark:text-[#3BA378]" />
+        <div className="flex items-center gap-2 bg-[#F5F3EE] dark:bg-[#152E27] px-3.5 py-2 rounded-lg border border-[#E8E4DA] dark:border-[#1E3F36]">
+          <Calendar className="w-4 h-4 text-[#013E37] dark:text-[#3DAE7E]" />
           <input
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            className="bg-transparent text-xs font-bold text-[#0B1E15] dark:text-white focus:outline-none"
+            className="bg-transparent text-xs font-medium text-[#0C1F1A] dark:text-white focus:outline-none"
           />
         </div>
       </div>
 
       {savedSuccess && (
-        <div className="mt-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 flex items-center gap-3 animate-in zoom-in-95">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
-          <div className="text-xs font-bold">
+        <div className="mt-4 p-4 rounded-xl bg-[#E8F5EE] dark:bg-[#0F2E21] border border-[#1A6B4A]/20 text-[#145A3D] dark:text-[#5AC897] flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <div className="text-xs font-semibold">
             {t.dayClosedSuccess}
           </div>
         </div>
@@ -140,13 +140,13 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
 
       {/* Warnings Banner if any */}
       {warnings.length > 0 && (
-        <div className="mt-4 p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 space-y-1">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-400">
+        <div className="mt-4 p-3.5 rounded-xl bg-[#FDF8EA] dark:bg-[#2A2210] border border-[#B88B1A]/20 text-[#7A5C0F] dark:text-[#F0CC66] space-y-1">
+          <div className="flex items-center gap-1.5 text-xs font-semibold">
             <AlertTriangle className="w-4 h-4" />
             <span>पडताळणी सूचना (Verification Notice):</span>
           </div>
           {warnings.map((w, idx) => (
-            <div key={idx} className="text-xs pl-5 list-disc text-amber-900 dark:text-amber-200 font-medium">
+            <div key={idx} className="text-xs pl-5 font-normal">
               • {w}
             </div>
           ))}
@@ -157,12 +157,12 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* 1. Eggs Collected */}
-          <div className="p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#1F4D3A] dark:hover:border-[#3BA378] transition-colors shadow-xs">
+          <div className="p-4 rounded-xl bg-[#FAFAF6] dark:bg-[#152E27] border border-[#E8E4DA] dark:border-[#1E3F36] hover:border-[#013E37] dark:hover:border-[#3DAE7E] transition-colors">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[#0C1F1A] dark:text-white">
                 {t.eggsCollectedLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#4D6558] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[#6B8A7F] dark:text-[#6E9487]">
                 {t.yesterdayHint} {yesterdayRecord ? yesterdayRecord.totalEggsCollected.toLocaleString('en-IN') : '27,300'}
               </span>
             </div>
@@ -174,21 +174,21 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={eggs}
                 onChange={e => setEggs(e.target.value)}
                 placeholder="27300"
-                className="w-full text-2xl font-black text-[#1F4D3A] dark:text-[#42BF87] bg-transparent border-b-2 border-[#1F4D3A]/40 dark:border-[#3BA378]/50 focus:border-[#1F4D3A] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[#013E37] dark:text-[#3DAE7E] bg-transparent border-b-2 border-[#013E37]/20 dark:border-[#3DAE7E]/30 focus:border-[#013E37] dark:focus:border-[#3DAE7E] py-1 focus:outline-none"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#3D5246] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[#6B8A7F]">
                 अंडी ({Math.floor(eggsNum / 30)} ट्रे)
               </span>
             </div>
           </div>
 
           {/* 2. Feed Used (Kg) */}
-          <div className="p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#1F4D3A] dark:hover:border-[#3BA378] transition-colors shadow-xs">
+          <div className="p-4 rounded-xl bg-[#FAFAF6] dark:bg-[#152E27] border border-[#E8E4DA] dark:border-[#1E3F36] hover:border-[#013E37] dark:hover:border-[#3DAE7E] transition-colors">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[#0C1F1A] dark:text-white">
                 {t.feedUsedLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#4D6558] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[#6B8A7F] dark:text-[#6E9487]">
                 {t.yesterdayHint} {yesterdayRecord ? yesterdayRecord.feedIssuedKg.toLocaleString('en-IN') : '3,300'} kg
               </span>
             </div>
@@ -200,21 +200,21 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={feedKg}
                 onChange={e => setFeedKg(e.target.value)}
                 placeholder="3300"
-                className="w-full text-2xl font-black text-[#1F4D3A] dark:text-[#42BF87] bg-transparent border-b-2 border-[#1F4D3A]/40 dark:border-[#3BA378]/50 focus:border-[#1F4D3A] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[#013E37] dark:text-[#3DAE7E] bg-transparent border-b-2 border-[#013E37]/20 dark:border-[#3DAE7E]/30 focus:border-[#013E37] dark:focus:border-[#3DAE7E] py-1 focus:outline-none"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#3D5246] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[#6B8A7F]">
                 kg ({Math.round(feedNum / 50)} पोती)
               </span>
             </div>
           </div>
 
           {/* 3. Mortality */}
-          <div className="p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-red-500 transition-colors shadow-xs">
+          <div className="p-4 rounded-xl bg-[#FAFAF6] dark:bg-[#152E27] border border-[#E8E4DA] dark:border-[#1E3F36] hover:border-[#A63229] transition-colors">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[#0C1F1A] dark:text-white">
                 {t.mortalityLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#4D6558] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[#6B8A7F] dark:text-[#6E9487]">
                 {t.yesterdayHint} {yesterdayRecord ? yesterdayRecord.mortality : '15'} पक्षी
               </span>
             </div>
@@ -226,21 +226,21 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={mortality}
                 onChange={e => setMortality(e.target.value)}
                 placeholder="15"
-                className="w-full text-2xl font-black text-red-600 dark:text-red-400 bg-transparent border-b-2 border-red-300 dark:border-red-500/50 focus:border-red-500 py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[#A63229] dark:text-[#E05A50] bg-transparent border-b-2 border-[#A63229]/20 dark:border-[#E05A50]/30 focus:border-[#A63229] py-1 focus:outline-none"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-red-600 dark:text-red-400">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[#A63229] dark:text-[#E05A50]">
                 पक्षी मृत
               </span>
             </div>
           </div>
 
           {/* 4. Selling Rate (Optional / Pre-filled) */}
-          <div className="p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#D9A441] transition-colors shadow-xs">
+          <div className="p-4 rounded-xl bg-[#FAFAF6] dark:bg-[#152E27] border border-[#E8E4DA] dark:border-[#1E3F36] hover:border-[#C9A23C] transition-colors">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[#0C1F1A] dark:text-white">
                 {t.saleRateLabel}
               </label>
-              <span className="text-[11px] font-bold text-[#B07B18] dark:text-[#E5B252]">
+              <span className="text-[11px] font-medium text-[#B88B1A] dark:text-[#E5B84A]">
                 आजचा बाजार दर: ₹५.४०
               </span>
             </div>
@@ -252,9 +252,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={sellingRate}
                 onChange={e => setSellingRate(e.target.value)}
                 placeholder="5.40"
-                className="w-full text-2xl font-black text-[#B07B18] dark:text-[#E5B252] bg-transparent border-b-2 border-[#D9A441]/40 focus:border-[#D9A441] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[#B88B1A] dark:text-[#E5B84A] bg-transparent border-b-2 border-[#C9A23C]/30 focus:border-[#C9A23C] py-1 focus:outline-none"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#3D5246] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[#6B8A7F]">
                 ₹ प्रति अंडे (= ₹{Math.round(rateNum * 100)} / १००)
               </span>
             </div>
@@ -262,34 +262,34 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
         </div>
 
         {/* Live Automatic KPI Preview Ribbon */}
-        <div className="p-4 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/20">
-          <div className="text-[11px] font-bold text-[#1F4D3A] dark:text-[#3BA378] uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1 font-black">
-              <Sparkles className="w-3.5 h-3.5 text-[#D9A441]" />
+        <div className="p-4 rounded-xl bg-[#E8F3F1] dark:bg-[#0C2B26] border border-[#013E37]/10 dark:border-[#3DAE7E]/10">
+          <div className="text-[11px] font-semibold text-[#013E37] dark:text-[#3DAE7E] uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#C9A23C]" />
               आपोआप तयार होणारा अंदाज (Live Math Preview)
             </span>
-            <span className="font-semibold text-[#2D4538] dark:text-[#CBDCD4]">रेफरन्स मानकानुसार</span>
+            <span className="font-normal text-[#6B8A7F] dark:text-[#6E9487] normal-case">रेफरन्स मानकानुसार</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#2D4538] dark:text-[#CBDCD4] font-bold">हेन-डे (HD%)</div>
-              <div className="text-base font-black text-[#1F4D3A] dark:text-[#3BA378] mt-0.5">{hdPct}%</div>
+            <div className="bg-white dark:bg-[#122A23] p-2.5 rounded-lg border border-[#E8E4DA]/60 dark:border-[#1E3F36]">
+              <div className="text-[11px] text-[#6B8A7F] dark:text-[#6E9487] font-medium">हेन-डे (HD%)</div>
+              <div className="text-base font-bold text-[#013E37] dark:text-[#3DAE7E] mt-0.5">{hdPct}%</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#2D4538] dark:text-[#CBDCD4] font-bold">प्रति पक्षी खुराक</div>
-              <div className="text-base font-black text-[#1F4D3A] dark:text-[#3BA378] mt-0.5">{feedPerBirdG} g</div>
+            <div className="bg-white dark:bg-[#122A23] p-2.5 rounded-lg border border-[#E8E4DA]/60 dark:border-[#1E3F36]">
+              <div className="text-[11px] text-[#6B8A7F] dark:text-[#6E9487] font-medium">प्रति पक्षी खुराक</div>
+              <div className="text-base font-bold text-[#013E37] dark:text-[#3DAE7E] mt-0.5">{feedPerBirdG} g</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#2D4538] dark:text-[#CBDCD4] font-bold">प्रति अंडे खर्च</div>
-              <div className="text-base font-black text-[#0B1E15] dark:text-white mt-0.5">₹{operatingCostPerEgg}</div>
+            <div className="bg-white dark:bg-[#122A23] p-2.5 rounded-lg border border-[#E8E4DA]/60 dark:border-[#1E3F36]">
+              <div className="text-[11px] text-[#6B8A7F] dark:text-[#6E9487] font-medium">प्रति अंडे खर्च</div>
+              <div className="text-base font-bold text-[#0C1F1A] dark:text-white mt-0.5">₹{operatingCostPerEgg}</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#2D4538] dark:text-[#CBDCD4] font-bold">साधा नफा (Cash)</div>
-              <div className="text-base font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+            <div className="bg-white dark:bg-[#122A23] p-2.5 rounded-lg border border-[#E8E4DA]/60 dark:border-[#1E3F36]">
+              <div className="text-[11px] text-[#6B8A7F] dark:text-[#6E9487] font-medium">साधा नफा (Cash)</div>
+              <div className="text-base font-bold text-[#1A6B4A] dark:text-[#3DAE7E] mt-0.5">
                 ₹{simpleOperatingProfit.toLocaleString('en-IN')}
               </div>
             </div>
@@ -302,7 +302,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
             <button
               type="button"
               onClick={onSwitchToFullEntry}
-              className="py-3.5 px-4 rounded-xl border border-[#DCD3C3] dark:border-[#263B30] text-xs font-bold text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] transition-colors"
+              className="py-3 px-4 rounded-xl border border-[#E8E4DA] dark:border-[#1E3F36] text-xs font-semibold text-[#3D5C53] dark:text-[#9BB5AB] hover:bg-[#F5F3EE] dark:hover:bg-[#183530] transition-colors"
             >
               तपशीलवार नोंद हवी आहे? (Full 2-Min Entry)
             </button>
@@ -311,9 +311,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 py-4 px-6 rounded-xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white text-base font-black flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99] touch-target"
+            className="flex-1 py-3.5 px-6 rounded-xl bg-[#013E37] hover:bg-[#012E29] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99] touch-target"
           >
-            <CheckCircle2 className="w-5 h-5 text-[#D9A441]" />
+            <CheckCircle2 className="w-5 h-5 text-[#FFEFB3]" />
             <span>{isSubmitting ? t.saving : t.saveAndCloseDay}</span>
           </button>
         </div>

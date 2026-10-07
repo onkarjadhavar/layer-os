@@ -4,81 +4,123 @@
 
 @layer base {
   :root {
-    --primary: #1F4D3A;
-    --primary-hover: #173A2C;
-    --primary-light: #2D6B52;
-    --primary-faint: #EAF3EF;
-    
-    --accent: #D9A441;
-    --accent-hover: #C69234;
-    --accent-faint: #FCF6E9;
+    /* ── Brand Core ── */
+    --brand-deep: #013E37;
+    --brand-deep-hover: #012E29;
+    --brand-deep-light: #025E52;
+    --brand-deep-faint: #E8F3F1;
 
-    --bg-main: #FAF8F3;
+    --butter: #FFEFB3;
+    --butter-hover: #FFE78A;
+    --butter-muted: #FFF8DC;
+    --butter-deep: #C9A23C;
+
+    /* ── Surfaces ── */
+    --bg-main: #FAFAF6;
+    --bg-warm: #F5F3EE;
     --surface: #FFFFFF;
     --surface-card: #FFFFFF;
-    --border: #E7E2D6;
+    --surface-raised: #FEFDFB;
+
+    /* ── Borders ── */
+    --border: #E8E4DA;
     --border-light: #F0EDE5;
+    --border-subtle: #EDEAE3;
 
-    --text-ink: #0B1E15;
-    --text-muted: #2D4538;
-    --text-subtle: #4D6558;
+    /* ── Typography ── */
+    --text-ink: #0C1F1A;
+    --text-primary: #1A3B34;
+    --text-muted: #3D5C53;
+    --text-subtle: #6B8A7F;
 
-    --success: #2E7D5B;
+    /* ── Semantic ── */
+    --success: #1A6B4A;
     --success-bg: #E8F5EE;
-    --warning: #D98E04;
-    --warning-bg: #FEF7E8;
-    --danger: #B3382C;
-    --danger-bg: #FBEBEA;
-    --info: #2F6F9F;
-    --info-bg: #EBF4FA;
+    --success-text: #145A3D;
+    --warning: #B88B1A;
+    --warning-bg: #FDF8EA;
+    --warning-text: #7A5C0F;
+    --danger: #A63229;
+    --danger-bg: #FBF0EF;
+    --danger-text: #8C2B23;
+    --info: #2A6490;
+    --info-bg: #EDF5FA;
 
-    --shadow-soft: 0 4px 20px -2px rgba(27, 42, 36, 0.06);
-    --shadow-card: 0 8px 30px -4px rgba(27, 42, 36, 0.08);
+    /* ── Elevation ── */
+    --shadow-xs: 0 1px 2px 0 rgba(1, 62, 55, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(1, 62, 55, 0.06), 0 1px 2px -1px rgba(1, 62, 55, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(1, 62, 55, 0.06), 0 2px 4px -2px rgba(1, 62, 55, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(1, 62, 55, 0.06), 0 4px 6px -4px rgba(1, 62, 55, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(1, 62, 55, 0.08), 0 8px 10px -6px rgba(1, 62, 55, 0.04);
+    --shadow-card: 0 1px 3px 0 rgba(1, 62, 55, 0.04), 0 0 0 1px rgba(1, 62, 55, 0.02);
+    --shadow-card-hover: 0 4px 12px -2px rgba(1, 62, 55, 0.08), 0 0 0 1px rgba(1, 62, 55, 0.04);
+
+    /* ── Radius ── */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
   }
 
   .dark {
-    --primary: #2D6B52;
-    --primary-hover: #3B8668;
-    --primary-light: #4A9C7B;
-    --primary-faint: #182B22;
+    --brand-deep: #013E37;
+    --brand-deep-hover: #025E52;
+    --brand-deep-light: #03796A;
+    --brand-deep-faint: #0C2B26;
 
-    --accent: #E5B252;
-    --accent-hover: #D9A441;
-    --accent-faint: #2E2413;
+    --butter: #FFEFB3;
+    --butter-hover: #FFE78A;
+    --butter-muted: #3D3416;
+    --butter-deep: #D4AC40;
 
-    --bg-main: #0F1A15;
-    --surface: #16241D;
-    --surface-card: #1B2D24;
-    --border: #263B30;
-    --border-light: #1F3027;
+    --bg-main: #0A1A16;
+    --bg-warm: #0E211B;
+    --surface: #122A23;
+    --surface-card: #152E27;
+    --surface-raised: #183530;
 
-    --text-ink: #FFFFFF;
-    --text-muted: #CBDCD4;
-    --text-subtle: #95ACA0;
+    --border: #1E3F36;
+    --border-light: #19342D;
+    --border-subtle: #1B3930;
 
-    --success: #3BA378;
-    --success-bg: #142D21;
-    --warning: #E8A11C;
-    --warning-bg: #302307;
-    --danger: #D2473B;
-    --danger-bg: #311311;
-    --info: #468CBF;
-    --info-bg: #122838;
+    --text-ink: #F2F7F5;
+    --text-primary: #D0E0DA;
+    --text-muted: #9BB5AB;
+    --text-subtle: #6E9487;
 
-    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-    --shadow-card: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+    --success: #3DAE7E;
+    --success-bg: #0F2E21;
+    --success-text: #5AC897;
+    --warning: #E5B84A;
+    --warning-bg: #2A2210;
+    --warning-text: #F0CC66;
+    --danger: #E05A50;
+    --danger-bg: #2E1412;
+    --danger-text: #F07A70;
+    --info: #5A9EC7;
+    --info-bg: #112838;
+
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.25);
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    --shadow-card-hover: 0 4px 12px -2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 }
 
+/* ── Global Base ── */
 body {
   background-color: var(--bg-main);
   color: var(--text-ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans", sans-serif;
+  font-family: "Inter", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Number inputs without browser arrows */
+/* ── Number inputs without browser arrows ── */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -88,22 +130,46 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Glassmorphism & Card styling */
+/* ── Card System ── */
 .card-layer {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .card-layer-interactive:hover {
-  border-color: var(--accent);
-  box-shadow: var(--shadow-card);
+  border-color: var(--butter-deep);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-1px);
 }
 
-/* Bottom safe-area for iOS / mobile navigation */
+/* ── KPI Card Accent ── */
+.kpi-accent {
+  border-left: 3px solid var(--butter);
+}
+
+/* ── Butter Highlight Chip ── */
+.chip-butter {
+  background: var(--butter-muted);
+  color: var(--butter-deep);
+  border: 1px solid rgba(201, 162, 60, 0.2);
+  font-weight: 700;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Section Divider ── */
+.section-divider {
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ── Bottom safe-area for iOS / mobile navigation ── */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 24px);
 }
@@ -111,4 +177,37 @@ input[type="number"] {
 .touch-target {
   min-height: 48px;
   min-width: 48px;
+}
+
+/* ── Smooth scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
+/* ── Focus Ring ── */
+*:focus-visible {
+  outline: 2px solid var(--butter);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Smooth transitions for theme toggle ── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+/* Opt out transition for transform and box-shadow (cards handle their own) */
+.card-layer, .card-layer-interactive, button, a, input {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
