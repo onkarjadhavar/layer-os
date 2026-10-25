@@ -1,0 +1,76 @@
+name: LayerOS CI Pipeline (Phase 7)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-unit-tests:
+    name: Code Hygiene, Vitest & Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Code Hygiene & Linter
+        run: npm run lint
+
+      - name: TypeScript Static Typecheck
+        run: npx tsc --noEmit
+
+      - name: Run Vitest Unit & Integration Suites
+        run: npm test
+
+      - name: Production Build (Next.js 16 Turbopack)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+          NODE_ENV: 'production'
+
+  playwright-e2e:
+    name: Playwright End-to-End Suite
+    needs: lint-and-unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Playwright Chromium with dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        run: npx playwright test --project=chromium-desktop --project=mobile-farmer-360px
+        env:
+          CI: 'true'
+
+      - name: Upload Playwright Test Report on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
