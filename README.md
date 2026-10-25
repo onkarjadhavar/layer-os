@@ -1,21 +1,69 @@
 # LayerOS 🥚
-### AI-Powered Layer Poultry & Egg Business Management Web App (Maharashtra, India)
+### AI-Powered Layer Poultry & Egg Business Management System (Maharashtra, India)
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.4.0-black?style=flat&logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.3.0-blue?style=flat&logo=react)](https://react.dev/)
+[![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=flat&logo=vite)](https://vite.dev/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-D71F00?style=flat)](https://www.sqlalchemy.org/)
+[![Alembic](https://img.shields.io/badge/Alembic-Migrations-red?style=flat)](https://alembic.sqlalchemy.org/)
 [![Vitest](https://img.shields.io/badge/Vitest-Passing-brightgreen?style=flat&logo=vitest)](https://vitest.dev/)
+[![Pytest](https://img.shields.io/badge/Pytest-Passing-brightgreen?style=flat&logo=pytest)](https://docs.pytest.org/)
 [![Language](https://img.shields.io/badge/Language-Marathi%20%7C%20English%20%7C%20Hindi-gold)](#)
 
 > **"Every egg counted. Profit maximised."**  
-> LayerOS is a mobile-first, installable Progressive Web Application (PWA) designed specifically for commercial layer farm owners (~30,000+ birds) in Maharashtra, India. It enables farm supervisors to log a day in **30 seconds** (Quick Mode) or **2 minutes** (Full Mode), and delivers AI-driven daily advice, multi-unit egg trade conversion, and 30-day profit/loss forecasting.
+> LayerOS is an enterprise-grade, mobile-first layer poultry ERP designed specifically for commercial layer farm owners (~30,000+ birds) in Maharashtra, India. It enables farm supervisors to log daily production in **30 seconds** (Quick Mode) or **2 minutes** (Full Mode), and delivers AI-driven daily advice, multi-unit egg trade conversion, and 30-day profit/loss forecasting.
 
 ---
 
-## 1. Reference Day Benchmark (Unit-Tested Fixture)
+## 1. System Architecture
 
-The calculation engine (`/lib/calc`) is strictly verified against the following reference standard:
+LayerOS is decoupled into an independent frontend, an independent backend, and a PostgreSQL database:
+
+```text
+layer-os/
+├── frontend/                 # Standalone React 19 + TypeScript + Vite SPA
+│   ├── src/
+│   │   ├── app/              # Core app bootstrapping
+│   │   ├── components/       # Preserved Marathi-first UI components
+│   │   ├── lib/              # Calculation engine, i18n, store, themes
+│   │   ├── pages/            # Home, Login, Enroll, Admin, AdminLogin
+│   │   ├── routes/           # React Router 7 client routing
+│   │   └── services/         # Centralized API clients (/api/v1)
+│   ├── public/               # Manifest, PWA icons, assets
+│   ├── vite.config.ts        # Vite build configuration
+│   └── package.json
+│
+├── backend/                  # Standalone Python + FastAPI application
+│   ├── app/
+│   │   ├── api/v1/           # REST endpoints (/auth, /farms, /records, /sales, /market-rates, /ai, /admin, /billing)
+│   │   ├── core/             # Config, JWT auth, BV-300 calculation engine
+│   │   ├── db/               # PostgreSQL engine & session manager
+│   │   ├── models/           # 24 SQLAlchemy 2.x relational models
+│   │   └── schemas/          # Pydantic v2 validation models
+│   ├── migrations/           # Alembic database migrations
+│   ├── tests/                # Pytest unit & integration test suite
+│   ├── requirements.txt      # Python dependencies
+│   └── pyproject.toml
+│
+├── docs/architecture/        # Architecture & migration documentation
+│   ├── ARCHITECTURE.md
+│   ├── MIGRATION_PLAN.md
+│   ├── DATABASE_SCHEMA.md
+│   ├── API_SPECIFICATION.md
+│   └── MIGRATION_RISKS.md
+│
+├── docker-compose.yml        # PostgreSQL 17 + Backend + Frontend orchestration
+└── README.md
+```
+
+---
+
+## 2. Reference Day Benchmark (Unit-Tested Fixture)
+
+Both the Python backend engine (`backend/app/core/calc.py`) and TypeScript frontend engine (`frontend/src/lib/calc`) are strictly verified against the standard BV-300 reference day benchmark:
 
 | Metric | Reference Value | Mathematical Formula |
 | :--- | :--- | :--- |
@@ -36,127 +84,97 @@ The calculation engine (`/lib/calc`) is strictly verified against the following 
 
 ---
 
-## 2. Where LayerOS Wins
-
-1. **Marathi-First, Farmer-Simple UX**: Authentic Devanagari terminology (मृत्यू, अंडी उत्पादन, खुराक, विक्री, उधारी/थकबाकी, नफा/तोटा, बंद दिवस) with large 48px+ touch targets.
-2. **30-Second Quick Entry & 2-Minute Full Entry**: 4 required inputs on a single mobile screen; all other metrics derived deterministically.
-3. **Operating Profit vs. True Profit**: Separates cash-in-hand operating profit from true economic profit (accounting for bird depreciation, pullet amortisation over 14 months, mortality book-value loss, and EMI interest).
-4. **Always-Visible Break-Even Status**: Answers in 3 seconds: *Am I making or losing money today?* Traffic-light indicators compare selling price with break-even threshold and published mandi rates.
-5. **Configurable Regional Units**: Never hardcodes pack sizes. Owners define what a *gatta/peti/case* means locally (e.g. 7 trays = 210 eggs in Pune/Western Maharashtra; 6 trays = 180 eggs; or 12 trays = 360 eggs).
-6. **AI Daily Advisor & 30-Day Forecast**: Explains tomorrow's top 3 actions in plain language, calculates exact feed requirements, and provides interactive *What-If* sliders with instant recomputation.
-7. **Hold vs. Sell Mandi Indicator**: Compares today's rate against 7/14/30-day moving averages across 5 mandis (Pune, Mumbai, Nashik, Nagpur, Namakkal).
-8. **Sandbox "Try Demo" Mode**: Instant access with 90 days of realistic history for *Sahyadri Layer Farm* without signing up.
-
----
-
-## 3. Technology Stack
-
-- **Frontend**: Next.js 16 (App Router with Turbopack), React 19, TypeScript, Tailwind CSS v4, Lucide Icons, Recharts, Canvas Confetti.
-- **PWA & Offline**: Web App Manifest (`/public/manifest.json`), IndexedDB / LocalStorage queue with last-write-wins conflict resolution.
-- **Testing**: Vitest unit test suite verifying mathematical formulas and reference day assertions.
-- **Backend / Database**: PostgreSQL schema with Row Level Security (RLS) across 32 multi-tenant tables (`/supabase/migrations/001_init_schema.sql`).
-- **AI Service**: Provider-agnostic service (`/lib/ai`) supporting Gemini API and fallback rule-based analytical engine.
-- **i18n**: Marathi (`mr`, default), English (`en`), and Hindi (`hi`).
-
----
-
-## 4. Entity-Relationship (ER) Diagram
-
-```mermaid
-erDiagram
-    FARMS ||--o{ USERS : "has members"
-    FARMS ||--o{ SHEDS : "operates"
-    FARMS ||--|| UNIT_SETTINGS : "defines units"
-    SHEDS ||--o{ FLOCKS : "houses"
-    FLOCKS ||--o{ DAILY_RECORDS : "tracks daily"
-    FARMS ||--o{ CUSTOMERS : "sells to"
-    CUSTOMERS ||--o{ SALES : "billed"
-    SALES ||--o{ PAYMENTS : "collected"
-    FARMS ||--o{ EXPENSES : "incurs"
-    FLOCKS ||--o{ EXPENSES : "allocated to"
-    FARMS ||--o{ LOANS : "finances"
-    FARMS ||--o{ EMPLOYEES : "employs"
-    FLOCKS ||--o{ VACCINATION_TASKS : "schedules"
-    FARMS ||--o{ AI_RUNS : "analyzed by"
-    FARMS ||--o{ ALERTS : "receives"
-```
-
----
-
-## 5. Design System
-
-- **Primary Deep Forest Green**: `#1F4D3A` (hover `#173A2C`)
-- **Accent Egg-Gold**: `#D9A441` (hover `#C69234`)
-- **Background Warm Ivory**: `#FAF8F3`, surface `#FFFFFF`, border `#E7E2D6`
-- **Text Ink**: `#1B2A24`, muted `#6B7A72`
-- **Status Colors**: Success `#2E7D5B`, warning `#D98E04`, danger `#B3382C`, info `#2F6F9F`
-- **Dark Mode**: Background `#0F1A15`, surface `#16241D`, border `#263B30`
-- **Typography**: Inter + Noto Sans Devanagari; tabular numerals for KPIs; minimum 48px touch targets.
-- **Number Formats**: Indian currency ₹ with Lakh/Crore grouping (`₹1,47,420`).
-
----
-
-## 6. Roles & Permissions
-
-| Role | Access Permissions |
-| :--- | :--- |
-| **Owner (मालक)** | Everything: all financial reports, AI forecasts, settings, user permissions |
-| **Manager (व्यवस्थापक)** | Operational approvals, records, daily closing, reports; restricted billing settings |
-| **Supervisor (सुपरवायझर)** | Quick Log, Full Daily Entry, egg collection, mortality logging, feed issues |
-| **Accountant (हिशोबनीस)** | Sales challans, customer ledgers, payment receipts, expenses, payroll |
-| **Viewer (तपासनीस)** | Read-only access to selected health and production reports for consulting vets |
-
----
-
-## 7. Setup & Local Development
+## 3. Getting Started
 
 ### Prerequisites
-- Node.js v18+ (tested on Node v24.x)
-- npm v9+
 
-### Installation Steps
+- **Node.js**: v20 or v22
+- **Python**: v3.11+
+- **PostgreSQL**: v17 (local service or Docker)
 
+---
+
+### Option A: Local Development (Fastest)
+
+#### 1. Start PostgreSQL
+Ensure PostgreSQL is running locally on port `5432` with a database named `layer_os`:
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/layer-os.git
-cd layer-os
+# If using psql
+psql -U postgres -c "CREATE DATABASE layer_os;"
+```
 
-# 2. Install dependencies
+#### 2. Setup & Run Python FastAPI Backend
+```bash
+cd backend
+python -m venv .venv
+
+# Windows Powershell:
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS:
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+
+# Run database migrations
+alembic upgrade head
+
+# Start backend server
+uvicorn app.main:app --reload --port 8000
+```
+API Documentation will be available at:
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- OpenAPI JSON: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+
+#### 3. Setup & Run React Frontend
+In a separate terminal:
+```bash
+cd frontend
 npm install
-
-# 3. Run Calculation Engine Unit Tests
-npm test
-
-# 4. Start Development Server
 npm run dev
+```
+Frontend Web Application will be available at: [http://localhost:5173](http://localhost:5173).
 
-# Open http://localhost:3000 in your browser
+---
+
+### Option B: Docker Compose (Full Stack)
+
+To run the complete system in isolated containers:
+```bash
+docker-compose up --build
+```
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
+
+---
+
+## 4. Running Automated Tests
+
+### Frontend Vitest Suite (76 Unit Tests)
+```bash
+npm run test:frontend
+# or
+cd frontend && npm test
+```
+
+### Backend Pytest Suite (10 Integration & Unit Tests)
+```bash
+npm run test:backend
+# or
+cd backend && .\.venv\Scripts\pytest
+```
+
+### Run All Tests Across Entire Project
+```bash
+npm run test:all
 ```
 
 ---
 
-## 8. Deployment Guide
+## 5. Security & Multi-Tenancy
 
-### Deploy to Vercel
-1. Push your repository to GitHub.
-2. In Vercel, click **"Add New Project"** and select `layer-os`.
-3. Set the Framework Preset to **Next.js**.
-4. Configure optional environment variables:
-   - `GEMINI_API_KEY`: Your Google Gemini API key.
-   - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key.
-5. Click **Deploy**.
-
-### Connect to Supabase PostgreSQL
-1. Create a new Supabase project at [supabase.com](https://supabase.com).
-2. Open the **SQL Editor** in Supabase.
-3. Paste the contents of `supabase/migrations/001_init_schema.sql` and click **Run**.
-4. Add the connection keys to `.env.local`.
-
----
-
-## 9. Regulatory & Legal Disclaimers
-
-- **GST Treatment**: In India, fresh table eggs are generally exempt from GST under Notification No. 2/2017-Central Tax (Rate). Always confirm with your chartered accountant.
-- **Digital Personal Data Protection (DPDP) Act**: No personal employee or customer data is transmitted to AI services; all numbers sent to LLM models are aggregated and anonymized.
-- **Veterinary & Financial Disclaimer**: LayerOS AI suggestions are decision support tools and do not constitute certified veterinary medical prescriptions or financial guarantees.
+- **Password Hashing**: Native `bcrypt` with salt rounds = 12.
+- **Tokens**: Stateless JWT Bearer tokens with configurable expiration.
+- **Tenant Isolation**: Every database table enforces `farm_id` scoping; access to another tenant's records is strictly rejected with HTTP 403 / 404.
+- **Audit Logging**: Platform administrative actions (approvals, suspensions, plan extensions, DPDP support views) are written to an append-only audit trail with IP address and user-agent metadata.
+- **No Client Secrets**: Database credentials and JWT signing keys are stored exclusively in backend `.env` and are never exposed to browser bundles.
