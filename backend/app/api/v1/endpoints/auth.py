@@ -29,13 +29,21 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
         user = db.query(User).filter(User.email == email).first()
 
     if not user and input_data.phone:
-        phone = input_data.phone.strip()
-        user = db.query(User).filter(User.phone == phone).first()
+        raw_phone = input_data.phone.strip()
+        digits = "".join(c for c in raw_phone if c.isdigit())
+        ten_digit = digits[-10:] if len(digits) >= 10 else digits
+        user = db.query(User).filter(
+            (User.phone == raw_phone) |
+            (User.phone == ten_digit) |
+            (User.phone == f"+91{ten_digit}")
+        ).first()
 
     # If demo login or user not created yet for demo farm
     if not user:
-        phone = (input_data.phone or "").strip()
-        if phone == "9822012345":
+        raw_phone = (input_data.phone or "").strip()
+        digits = "".join(c for c in raw_phone if c.isdigit())
+        ten_digit = digits[-10:] if len(digits) >= 10 else digits
+        if ten_digit == "9822012345":
             # Seed demo farm & owner if missing
             farm = db.query(Farm).filter(Farm.name == "सह्याद्री लेयर फार्म (पुणे)").first()
             if not farm:
@@ -71,7 +79,7 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
 
             user = User(
                 farm_id=farm.id,
-                phone=phone or "9822012345",
+                phone="9822012345",
                 email=input_data.email or "sachin@sahyadri.com",
                 full_name="सचिन गायकवाड (मालक)",
                 role="owner",
@@ -89,10 +97,10 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="खाते सापडले नाही. कृपया ईमेल किंवा मोबाईल नंबर तपासा. (User not found with these credentials.)"
+                detail="या मोबाईल नंबरवर नोंदणीकृत पोल्ट्री फार्म सापडला नाही. कृपया आधी नोंदणी (Enroll) करा किंवा योग्य नंबर तपासा. (User not found with these credentials.)"
             )
 
-    # Password validation if password provided and set
+    # Credentials validation: Password or 6-digit OTP
     if input_data.password:
         if user.hashed_password:
             if not verify_password(input_data.password, user.hashed_password):
@@ -100,12 +108,13 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="पासवर्ड चुकीचा आहे. कृपया पुन्हा प्रयत्न करा. (Invalid password credentials.)"
                 )
-        else:
-            if not (input_data.otp and len(input_data.otp) == 6):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="या खात्यावर पासवर्ड सेट केलेला नाही. कृपया ओटीपी द्वारे लॉगिन करा."
-                )
+    else:
+        # OTP-based phone login (Demo: 123456 or any 6-digit OTP)
+        if not (input_data.otp and len(input_data.otp.strip()) == 6):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="कृपया ६-अंकी वैध ओटीपी प्रविष्ट करा (उदा. 123456)."
+            )
 
     token = create_access_token(
         subject=str(user.id),

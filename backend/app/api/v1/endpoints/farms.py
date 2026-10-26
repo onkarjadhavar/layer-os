@@ -346,23 +346,27 @@ def get_mock_farm_dashboard(farm_id: str) -> FarmDashboardResponse:
     )
 
 
-def check_farm_membership_or_admin(farm_id: uuid.UUID, current_user: Optional[User], db: Session):
+def check_farm_membership_or_admin(farm_id: Union[uuid.UUID, str], current_user: Optional[User], db: Session):
     if not current_user:
         return
     if current_user.role in ["platform_admin", "super_admin"]:
         return
-    if current_user.farm_id == farm_id:
+
+    str_farm_id = str(farm_id).strip()
+    if current_user.farm_id and str(current_user.farm_id).strip() == str_farm_id:
         return
-    membership = db.query(FarmMember).filter(
-        FarmMember.farm_id == farm_id,
+
+    memberships = db.query(FarmMember).filter(
         FarmMember.user_id == current_user.id,
         FarmMember.is_active == True
-    ).first()
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="सुरक्षा: आपण केवळ आपल्या स्वतःच्या नोंदणीकृत फार्मचा डेटा पाहू शकता. (Access denied: You can only access your own enrolled poultry farm.)"
-        )
+    ).all()
+    if any(str(m.farm_id).strip() == str_farm_id for m in memberships):
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="सुरक्षा: आपण केवळ आपल्या स्वतःच्या नोंदणीकृत फार्मचा डेटा पाहू शकता. (Access denied: You can only access your own enrolled poultry farm.)"
+    )
 
 
 @router.get("/{farm_id}", response_model=FarmResponse)

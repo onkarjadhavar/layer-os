@@ -12,7 +12,7 @@ import { Phone, Mail, Sparkles, AlertCircle, CheckCircle2, ShieldCheck } from 'l
 export function LoginPageComponent() {
   const navigate = useNavigate();
   const router = { push: (url: string) => navigate(url) };
-  const { loginWithPhone, loginAsDemo } = useLayerOS();
+  const { loginWithPhone, loginAsDemo, setActiveFarmData } = useLayerOS();
   const { t } = useI18n();
 
   const [authMode, setAuthMode] = useState<'phone' | 'email'>('phone');
@@ -47,12 +47,34 @@ export function LoginPageComponent() {
     }
     setLoading(true);
     setError('');
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
     try {
       const res = await authService.login({
-        phone: phoneNumber.replace(/\D/g, ''),
+        phone: cleanPhone,
         otp,
       });
       setLoading(false);
+      if (res.user) {
+        setActiveFarmData({
+          farm: {
+            id: res.user.farm_id || `farm-${res.user.id}`,
+            name: res.user.full_name ? `${res.user.full_name} फार्म` : 'माझा पोल्ट्री फार्म',
+            ownerName: res.user.full_name || 'मालक',
+            phone: res.user.phone || cleanPhone,
+            district: 'Maharashtra',
+            state: 'Maharashtra',
+            totalCapacity: 10000,
+            status: 'active',
+          },
+          user: {
+            id: res.user.id,
+            name: `${res.user.full_name || 'मालक'} (मालक)`,
+            phone: res.user.phone || cleanPhone,
+            role: (res.user.role as any) || 'owner',
+            farmId: res.user.farm_id || '',
+          },
+        });
+      }
       if (res.user?.farm_id) {
         router.push(`/dashboard/farms/${res.user.farm_id}`);
       } else {
@@ -60,7 +82,6 @@ export function LoginPageComponent() {
       }
     } catch {
       setLoading(false);
-      const cleanPhone = phoneNumber.replace(/\D/g, '');
       const success = loginWithPhone(cleanPhone, otp);
       if (success) {
         router.push('/?live=true');
@@ -83,6 +104,27 @@ export function LoginPageComponent() {
     setLoading(false);
 
     if (res.success) {
+      if (res.data?.user) {
+        setActiveFarmData({
+          farm: {
+            id: res.data.farmId || `farm-${res.data.user.id}`,
+            name: res.data.user.full_name ? `${res.data.user.full_name} फार्म` : 'माझा पोल्ट्री फार्म',
+            ownerName: res.data.user.full_name || 'मालक',
+            phone: res.data.user.phone || '',
+            district: 'Maharashtra',
+            state: 'Maharashtra',
+            totalCapacity: 10000,
+            status: 'active',
+          },
+          user: {
+            id: res.data.user.id,
+            name: `${res.data.user.full_name || 'मालक'} (मालक)`,
+            phone: res.data.user.phone || '',
+            role: (res.data.user.role as any) || 'owner',
+            farmId: res.data.farmId || '',
+          },
+        });
+      }
       if (res.data?.farmId) {
         router.push(`/dashboard/farms/${res.data.farmId}`);
       } else {
