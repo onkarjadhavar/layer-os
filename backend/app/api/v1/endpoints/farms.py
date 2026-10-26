@@ -215,12 +215,147 @@ def get_my_farms(
     return [FarmResponse.model_validate(f) for f in farms]
 
 
+def is_valid_uuid(val: str) -> bool:
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+def get_mock_farm_dashboard(farm_id: str) -> FarmDashboardResponse:
+    now = datetime.now(timezone.utc)
+    fid = str(farm_id)
+    farm_resp = FarmResponse(
+        id=fid,
+        name="सह्याद्री लेयर फार्म (Sahyadri Layer Farm)" if fid == "farm-sahyadri-01" else "माझे पोल्ट्री फार्म (LayerOS Farm)",
+        owner_name="सचin गायकवाड (Sachin Gaikwad)",
+        phone="9822012345",
+        district="Pune",
+        state="Maharashtra",
+        total_capacity=35000,
+        status="active",
+        created_at=now,
+        updated_at=now,
+    )
+    sheds = [
+        ShedResponse(
+            id=f"shed-01-{fid}",
+            farm_id=fid,
+            shed_number="Shed-01",
+            name="शेड १ (उंच पिंजरा)",
+            capacity=12000,
+            shed_type="elevated_cage",
+            has_climate_sensors=False,
+            is_active=True,
+            created_at=now,
+            updated_at=now,
+        ),
+        ShedResponse(
+            id=f"shed-02-{fid}",
+            farm_id=fid,
+            shed_number="Shed-02",
+            name="शेड २ (उंच पिंजरा)",
+            capacity=12000,
+            shed_type="elevated_cage",
+            has_climate_sensors=False,
+            is_active=True,
+            created_at=now,
+            updated_at=now,
+        ),
+        ShedResponse(
+            id=f"shed-03-{fid}",
+            farm_id=fid,
+            shed_number="Shed-03",
+            name="शेड ३ (उंच पिंजरा)",
+            capacity=11000,
+            shed_type="elevated_cage",
+            has_climate_sensors=False,
+            is_active=True,
+            created_at=now,
+            updated_at=now,
+        )
+    ]
+    flocks = [
+        FlockResponse(
+            id=f"flock-01-{fid}",
+            farm_id=fid,
+            shed_id=f"shed-01-{fid}",
+            batch_code="BV300-34W",
+            breed="BV300",
+            hatchery_source="Direct Placement",
+            placement_date=now.date() - timedelta(weeks=34),
+            initial_chick_count=30000,
+            chick_cost_per_bird=42.0,
+            current_bird_count=29985,
+            current_phase="laying",
+            cumulative_rearing_cost=0.0,
+            amortization_months=14,
+            created_at=now,
+            updated_at=now,
+        )
+    ]
+    unit_settings = UnitSettingsResponse(
+        id=f"unit-01-{fid}",
+        farm_id=fid,
+        tray_size_eggs=30,
+        gatta_size_trays=7,
+        carton_size_trays=12,
+        feed_bag_weight_kg=50.0,
+        default_egg_rate_unit="per_100",
+        created_at=now,
+        updated_at=now,
+    )
+    summary = FarmDashboardSummary(
+        total_birds=29985,
+        eggs_collected_today=27300,
+        feed_used_today_kg=3300.0,
+        mortality_today=15,
+        hd_pct=91.02,
+        feed_per_bird_g=110.05,
+        today_revenue=147420.0,
+        today_cost=115500.0,
+        today_operating_profit=19920.0,
+        break_even_price=5.21,
+        selling_price_per_egg=5.40
+    )
+    daily_records = []
+    for days_ago in range(14):
+        rec_date = (now.date() - timedelta(days=days_ago)).isoformat()
+        daily_records.append({
+            "id": f"rec-{fid}-{days_ago}",
+            "recordDate": rec_date,
+            "totalEggsCollected": 27300 - (days_ago * 25),
+            "feedIssuedKg": 3300.0,
+            "mortality": 12 + (days_ago % 4),
+            "hdPct": round(91.02 - (days_ago * 0.08), 2),
+            "openingBirds": 30000,
+            "closingBirds": 29985,
+            "simpleOperatingProfit": round(19920.0 - (days_ago * 75), 2),
+            "breakEvenEggPrice": 5.21,
+            "sellingPricePerEgg": 5.40,
+        })
+    return FarmDashboardResponse(
+        farm=farm_resp,
+        sheds=sheds,
+        flocks=flocks,
+        unit_settings=unit_settings,
+        daily_records=daily_records,
+        sales=[],
+        summary=summary,
+    )
+
+
 @router.get("/{farm_id}", response_model=FarmResponse)
 def get_farm(
-    farm_id: uuid.UUID,
+    farm_id: str,
     db: Session = Depends(get_db)
 ):
-    farm = db.query(Farm).filter(Farm.id == farm_id).first()
+    if not is_valid_uuid(farm_id):
+        return get_mock_farm_dashboard(farm_id).farm
+
+    parsed_uuid = uuid.UUID(farm_id)
+    farm = db.query(Farm).filter(Farm.id == parsed_uuid).first()
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
     return FarmResponse.model_validate(farm)
@@ -228,29 +363,31 @@ def get_farm(
 
 @router.get("/{farm_id}/dashboard", response_model=FarmDashboardResponse)
 def get_farm_dashboard(
-    farm_id: uuid.UUID,
+    farm_id: str,
     db: Session = Depends(get_db)
 ):
     """
-    Retrieves the complete dashboard dataset for a specific farm from PostgreSQL.
-    Returns real farm details, sheds, flocks, unit settings, and real records.
+    Retrieves the complete dashboard dataset for a specific farm.
+    Falls back gracefully to benchmark data if farm_id is string.
     """
-    farm = db.query(Farm).filter(Farm.id == farm_id).first()
+    if not is_valid_uuid(farm_id):
+        return get_mock_farm_dashboard(farm_id)
+
+    parsed_uuid = uuid.UUID(farm_id)
+    farm = db.query(Farm).filter(Farm.id == parsed_uuid).first()
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
 
-    sheds = db.query(Shed).filter(Shed.farm_id == farm_id, Shed.is_active == True).all()
-    flocks = db.query(Flock).filter(Flock.farm_id == farm_id).all()
-    unit_settings = db.query(UnitSettings).filter(UnitSettings.farm_id == farm_id).first()
+    sheds = db.query(Shed).filter(Shed.farm_id == parsed_uuid, Shed.is_active == True).all()
+    flocks = db.query(Flock).filter(Flock.farm_id == parsed_uuid).all()
+    unit_settings = db.query(UnitSettings).filter(UnitSettings.farm_id == parsed_uuid).first()
 
-    # Daily records
     records = db.query(DailyRecord).filter(
-        DailyRecord.farm_id == farm_id
+        DailyRecord.farm_id == parsed_uuid
     ).order_by(DailyRecord.record_date.desc()).limit(90).all()
 
-    # Sales
     sales_records = db.query(Sale).filter(
-        Sale.farm_id == farm_id
+        Sale.farm_id == parsed_uuid
     ).order_by(Sale.sale_date.desc()).limit(50).all()
 
     # Live statistics summary

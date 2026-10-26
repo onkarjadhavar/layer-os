@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from datetime import date, datetime
 from pydantic import BaseModel, Field, ConfigDict
 import uuid
@@ -23,8 +23,8 @@ class UnitSettingsUpdate(BaseModel):
 class UnitSettingsResponse(UnitSettingsBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    farm_id: uuid.UUID
+    id: Union[uuid.UUID, str]
+    farm_id: Union[uuid.UUID, str]
     created_at: datetime
     updated_at: datetime
 
@@ -40,15 +40,15 @@ class ShedCreate(BaseModel):
 class ShedResponse(ShedCreate):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    farm_id: uuid.UUID
+    id: Union[uuid.UUID, str]
+    farm_id: Union[uuid.UUID, str]
     is_active: bool
     created_at: datetime
     updated_at: datetime
 
 
 class FlockCreate(BaseModel):
-    shed_id: Optional[uuid.UUID] = None
+    shed_id: Optional[Union[uuid.UUID, str]] = None
     batch_code: str
     breed: str = "BV300"
     hatchery_source: Optional[str] = None
@@ -68,8 +68,8 @@ class FlockPhaseUpdate(BaseModel):
 class FlockResponse(FlockCreate):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    farm_id: uuid.UUID
+    id: Union[uuid.UUID, str]
+    farm_id: Union[uuid.UUID, str]
     created_at: datetime
     updated_at: datetime
 
@@ -90,7 +90,7 @@ class FarmCreate(BaseModel):
 class FarmResponse(FarmCreate):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
+    id: Union[uuid.UUID, str]
     status: str
     created_at: datetime
     updated_at: datetime
@@ -168,14 +168,14 @@ class FarmEnrollmentRequest(BaseModel):
 
 
 class FarmEnrollmentResponse(BaseModel):
-    id: uuid.UUID
+    id: Union[uuid.UUID, str]
     name: str
     owner_name: str
     phone: str
     district: str
     total_capacity: int
     status: str
-    user_id: uuid.UUID
+    user_id: Union[uuid.UUID, str]
     access_token: str
     token_type: str = "bearer"
     sheds_count: int = 1

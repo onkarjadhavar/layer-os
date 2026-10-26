@@ -43,6 +43,32 @@ def admin_login(data: AdminLoginInput, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(admin)
 
+    # Seed initial benchmark farm if database has 0 farms
+    if db.query(Farm).count() == 0:
+        demo_farm = Farm(
+            name="सह्याद्री लेयर पोल्ट्री फार्म",
+            owner_name="सचिन आनंद गायकवाड",
+            phone="9822012345",
+            email="sahyadri@layeros.in",
+            district="Pune",
+            state="Maharashtra",
+            total_capacity=35000,
+            status="active"
+        )
+        db.add(demo_farm)
+        db.flush()
+        demo_flock = Flock(
+            farm_id=demo_farm.id,
+            batch_code="BV300-34W",
+            breed="BV300",
+            initial_chick_count=30000,
+            current_bird_count=29985,
+            current_phase="laying",
+            placement_date=datetime.now(timezone.utc).date()
+        )
+        db.add(demo_flock)
+        db.commit()
+
     if not admin:
         raise HTTPException(status_code=401, detail="Invalid admin credentials.")
 
