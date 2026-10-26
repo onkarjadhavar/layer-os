@@ -66,10 +66,10 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16241D]/95 backdrop-blur-md border-b border-[#E7E2D6] dark:border-[#263B30] px-3 sm:px-4 py-2 transition-colors">
+    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#16241D]/95 backdrop-blur-md border-b border-[#E7E2D6] dark:border-[#263B30] px-3 sm:px-5 py-2 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-        {/* Left: Farm Avatar & Name */}
-        <div className="flex items-center gap-2.5 min-w-0">
+        {/* Left: Farm Avatar, Name & Flock info */}
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 sm:flex-initial">
           <Link
             href="/"
             title="मुख्य पानावर जा (Go to Home Landing Page)"
@@ -78,7 +78,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
             🐔
           </Link>
           <div className="min-w-0 relative">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               {isDemoMode ? (
                 <>
                   <button
@@ -91,20 +91,25 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                     className="group flex items-center gap-1 text-left text-sm sm:text-base font-black text-[#0B1E15] dark:text-white hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-colors truncate"
                     title={t.switchFarm}
                   >
-                    <span className="truncate">{farm.name}</span>
+                    <span className="truncate max-w-[130px] sm:max-w-xs">{farm.name}</span>
                     <ChevronDown className="w-3.5 h-3.5 text-[#2D4538] dark:text-[#CBDCD4] group-hover:text-[#1F4D3A] flex-shrink-0 transition-transform" />
                   </button>
-                  <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FCF6E9] dark:bg-[#2E2413] text-[#B07B18] dark:text-[#E5B252] border border-[#D9A441]/40">
+                  <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FCF6E9] dark:bg-[#2E2413] text-[#B07B18] dark:text-[#E5B252] border border-[#D9A441]/40 flex-shrink-0">
                     <Sparkles className="w-2.5 h-2.5 mr-1" />
                     {t.demoBadge}
                   </span>
                 </>
               ) : (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white truncate">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white truncate max-w-[130px] sm:max-w-xs">
                     {farm.name}
                   </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40">
+                  {/* Compact Live Dot on Mobile, Full Pill on Tablet/Desktop */}
+                  <span className="sm:hidden inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 flex-shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live
+                  </span>
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 flex-shrink-0">
                     {t.postgresLive || "माझा फार्म (Live)"}
                   </span>
                 </div>
@@ -165,19 +170,19 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
               </div>
             )}
 
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#2D4538] dark:text-[#CBDCD4] font-medium truncate">
-              <span className="flex items-center gap-1 font-bold text-[#1F4D3A] dark:text-[#42BF87]">
-                <Layers className="w-3 h-3 flex-shrink-0" />
-                <span>{flock.batchCode}</span>
-                <span className="text-[#55695F] dark:text-[#A1B3AA]">
-                  ({flock.ageWeeks} {t.weeks} • {flock.currentBirdCount.toLocaleString('en-IN')} {t.birds})
-                </span>
+            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-[#55695F] dark:text-[#CBDCD4] font-medium truncate mt-0.5">
+              <span className="font-bold text-[#1F4D3A] dark:text-[#42BF87] truncate">
+                {flock.batchCode}
+              </span>
+              <span>•</span>
+              <span className="truncate">
+                {flock.currentBirdCount.toLocaleString('en-IN')} {t.birds}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right: Quick Controls (Role, Language, Theme, Alerts) */}
+        {/* Right: Quick Controls - Cleanly partitioned for Mobile & Desktop */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           {/* Demo Reset Button (Desktop Only) */}
           {isDemoMode && (
@@ -192,100 +197,56 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
             </button>
           )}
 
-          {/* Role Switcher */}
-          <div className="relative">
-            <button
-              type="button"
-              aria-label="switch-role"
-              data-testid="role-toggle"
-              onClick={() => {
-                setShowRoleDropdown(!showRoleDropdown);
-                setShowLangDropdown(false);
-                setShowFarmDropdown(false);
-              }}
-              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#1F4D3A] dark:text-[#42BF87] border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] transition-colors touch-target"
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline capitalize font-black">{user?.role}</span>
-              <ChevronDown className="w-3 h-3 text-[#2D4538] dark:text-[#CBDCD4]" />
-            </button>
-
-            {showRoleDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#16241D] rounded-2xl shadow-xl border border-[#DCD3C3] dark:border-[#263B30] py-1.5 z-50">
-                <div className="px-3 py-1 text-[11px] font-black text-[#2D4538] dark:text-[#CBDCD4] uppercase tracking-wider border-b border-[#E7E2D6]/60 dark:border-[#263B30]">
-                  {t.switchRoleTitle}
-                </div>
-                {roles.map(r => (
-                  <button
-                    key={r.key}
-                    type="button"
-                    onClick={() => {
-                      switchRole(r.key);
-                      setShowRoleDropdown(false);
-                    }}
-                    className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] transition-colors ${
-                      user?.role === r.key
-                        ? 'font-black text-[#1F4D3A] dark:text-[#42BF87] bg-[#EAF3EF] dark:bg-[#182B22]'
-                        : 'text-[#0B1E15] dark:text-white font-medium'
-                    }`}
-                  >
-                    <span>{r.label}</span>
-                    {user?.role === r.key && <span className="text-xs font-black">✓</span>}
-                  </button>
-                ))}
-                <div className="pt-1.5 mt-1 border-t border-[#E7E2D6]/60 dark:border-[#263B30] px-1">
-                  <button
-                    type="button"
-                    id="dropdown-btn-logout"
-                    onClick={() => {
-                      setShowRoleDropdown(false);
-                      handleLogout();
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 rounded-xl transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5 text-rose-500" />
-                    <span>लॉगआउट (Logout)</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Return to Public Homepage Button */}
+          {/* Return to Public Homepage Button (Desktop only) */}
           <Link
             href="/?landing=true"
             id="btn-back-to-home"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-all touch-target"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-all touch-target"
             title={t.backToHome}
           >
             <Home className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#42BF87]" />
-            <span className="hidden sm:inline">{t.backToHome}</span>
+            <span>{t.backToHome}</span>
           </Link>
 
-          {/* Platform Admin Console Button */}
+          {/* Platform Admin Console Button (Desktop only) */}
           <Link
             href="/admin/login"
             id="topbar-btn-admin-login"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-all touch-target"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-all touch-target"
             title="Platform Admin Login"
           >
             <ShieldCheck className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#42BF87]" />
-            <span className="hidden sm:inline">Admin</span>
+            <span>Admin</span>
           </Link>
 
-          {/* Logout Button */}
+          {/* Theme Toggle Button (Desktop only) */}
+          <button
+            type="button"
+            suppressHydrationWarning
+            onClick={toggleTheme}
+            className="hidden sm:flex p-2 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target items-center justify-center cursor-pointer min-h-[36px] min-w-[36px]"
+            title={theme === 'dark' ? t.themeLight : t.themeDark}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-[#D9A441]" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#1F4D3A]" />
+            )}
+          </button>
+
+          {/* Logout Button (Desktop only) */}
           <button
             type="button"
             id="topbar-btn-logout"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 hover:text-rose-800 transition-all touch-target cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 hover:text-rose-800 transition-all touch-target cursor-pointer min-h-[36px]"
             title="लॉगआउट (Logout)"
           >
             <LogOut className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-            <span className="hidden md:inline">लॉगआउट</span>
+            <span>लॉगआउट</span>
           </button>
 
-          {/* Language Switcher */}
+          {/* 1. Language Switcher (Visible on Mobile & Desktop) */}
           <div className="relative">
             <button
               type="button"
@@ -294,15 +255,15 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                 setShowRoleDropdown(false);
                 setShowFarmDropdown(false);
               }}
-              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-black rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#D9A441] transition-colors touch-target"
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-black rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#D9A441] transition-colors touch-target whitespace-nowrap min-h-[36px]"
             >
-              <Globe className="w-3.5 h-3.5 text-[#D9A441]" />
-              <span className="uppercase">{language}</span>
-              <ChevronDown className="w-3 h-3 text-[#2D4538] dark:text-[#CBDCD4]" />
+              <Globe className="w-3.5 h-3.5 text-[#D9A441] flex-shrink-0" />
+              <span className="uppercase text-[11px] sm:text-xs font-black">{language}</span>
+              <ChevronDown className="w-3 h-3 text-[#2D4538] dark:text-[#CBDCD4] flex-shrink-0" />
             </button>
 
             {showLangDropdown && (
-              <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-[#16241D] rounded-2xl shadow-xl border border-[#DCD3C3] dark:border-[#263B30] py-1.5 z-50">
+              <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-[#16241D] rounded-2xl shadow-xl border border-[#DCD3C3] dark:border-[#263B30] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <button
                   type="button"
                   onClick={() => {
@@ -352,26 +313,11 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
             )}
           </div>
 
-          {/* Theme Toggle Button (Light/Dark) */}
-          <button
-            type="button"
-            suppressHydrationWarning
-            onClick={toggleTheme}
-            className="p-2 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target flex items-center justify-center cursor-pointer"
-            title={theme === 'dark' ? t.themeLight : t.themeDark}
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-[#D9A441]" />
-            ) : (
-              <Moon className="w-4 h-4 text-[#1F4D3A]" />
-            )}
-          </button>
-
-          {/* Notifications Bell */}
+          {/* 2. Notifications Bell (Visible on Mobile & Desktop) */}
           <button
             type="button"
             onClick={onOpenNotifications}
-            className="relative p-2 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target flex items-center justify-center"
+            className="relative p-2 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target flex items-center justify-center min-h-[36px] min-w-[36px]"
             title={t.alertsTitle}
           >
             <Bell className="w-4 h-4 text-[#1F4D3A] dark:text-[#3BA378]" />
@@ -381,6 +327,114 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
               </span>
             )}
           </button>
+
+          {/* 3. Farmer Profile & Action Menu (Mobile & Desktop) */}
+          <div className="relative">
+            <button
+              type="button"
+              aria-label="farmer-profile-menu"
+              data-testid="role-toggle"
+              onClick={() => {
+                setShowRoleDropdown(!showRoleDropdown);
+                setShowLangDropdown(false);
+                setShowFarmDropdown(false);
+              }}
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#1F4D3A] dark:text-[#42BF87] border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] transition-colors touch-target min-h-[36px]"
+            >
+              <UserCheck className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline capitalize font-black text-xs">{user?.role}</span>
+              <ChevronDown className="w-3 h-3 text-[#2D4538] dark:text-[#CBDCD4] flex-shrink-0" />
+            </button>
+
+            {showRoleDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#16241D] rounded-2xl shadow-2xl border border-[#DCD3C3] dark:border-[#263B30] py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                {/* Farmer Info Header */}
+                <div className="px-3.5 py-2 border-b border-[#E7E2D6]/70 dark:border-[#263B30]">
+                  <p className="text-xs font-black text-[#0B1E15] dark:text-white truncate">
+                    {user?.name || farm.ownerName || 'शेतकरी मालक'}
+                  </p>
+                  <p className="text-[11px] text-[#55695F] dark:text-[#CBDCD4] mt-0.5">
+                    {user?.phone ? `📱 ${user.phone}` : farm.phone} • <span className="capitalize font-bold text-[#1F4D3A] dark:text-[#42BF87]">{user?.role}</span>
+                  </p>
+                </div>
+
+                {/* Role Switcher */}
+                <div className="px-3.5 py-1.5 text-[10px] font-black text-[#55695F] dark:text-[#CBDCD4] uppercase tracking-wider">
+                  {t.switchRoleTitle}
+                </div>
+                {roles.map(r => (
+                  <button
+                    key={r.key}
+                    type="button"
+                    onClick={() => {
+                      switchRole(r.key);
+                      setShowRoleDropdown(false);
+                    }}
+                    className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] transition-colors ${
+                      user?.role === r.key
+                        ? 'font-black text-[#1F4D3A] dark:text-[#42BF87] bg-[#EAF3EF] dark:bg-[#182B22]'
+                        : 'text-[#0B1E15] dark:text-white font-medium'
+                    }`}
+                  >
+                    <span>{r.label}</span>
+                    {user?.role === r.key && <span className="text-xs font-black text-[#1F4D3A] dark:text-[#42BF87]">✓</span>}
+                  </button>
+                ))}
+
+                {/* Mobile Quick Links: Theme, Home, Admin, Logout */}
+                <div className="pt-2 mt-1 border-t border-[#E7E2D6]/70 dark:border-[#263B30] px-2 flex flex-col gap-1">
+                  {/* Theme Toggle (Mobile in dropdown) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleTheme();
+                      setShowRoleDropdown(false);
+                    }}
+                    className="w-full text-left px-2.5 py-2 text-xs font-bold text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] rounded-xl flex items-center justify-between transition-colors sm:hidden"
+                  >
+                    <span className="flex items-center gap-2">
+                      {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-[#D9A441]" /> : <Moon className="w-3.5 h-3.5 text-[#1F4D3A]" />}
+                      <span>{theme === 'dark' ? 'लाइट मोड (Light Theme)' : 'डार्क मोड (Dark Theme)'}</span>
+                    </span>
+                  </button>
+
+                  {/* Return to Homepage */}
+                  <Link
+                    href="/?landing=true"
+                    onClick={() => setShowRoleDropdown(false)}
+                    className="w-full text-left px-2.5 py-2 text-xs font-bold text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] rounded-xl flex items-center gap-2 transition-colors"
+                  >
+                    <Home className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#42BF87]" />
+                    <span>{t.backToHome}</span>
+                  </Link>
+
+                  {/* Admin Console */}
+                  <Link
+                    href="/admin/login"
+                    onClick={() => setShowRoleDropdown(false)}
+                    className="w-full text-left px-2.5 py-2 text-xs font-bold text-[#1F4D3A] dark:text-[#42BF87] hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] rounded-xl flex items-center gap-2 transition-colors"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#42BF87]" />
+                    <span>सुपरॲडमिन लॉगिन (Superadmin)</span>
+                  </Link>
+
+                  {/* Logout */}
+                  <button
+                    type="button"
+                    id="dropdown-btn-logout"
+                    onClick={() => {
+                      setShowRoleDropdown(false);
+                      handleLogout();
+                    }}
+                    className="w-full text-left px-2.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl flex items-center gap-2 transition-colors cursor-pointer mt-0.5"
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                    <span>लॉगआउट करा (Logout)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
