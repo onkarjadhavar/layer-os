@@ -213,6 +213,25 @@ export function HomePage() {
         } else if (status === 403) {
           setFarmLoadError('forbidden');
         } else {
+          // Resilient recovery: If network fetch temporarily failed, check if farm is already present locally
+          try {
+            const saved = localStorage.getItem('layeros_store_v1');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.farm && (parsed.farm.id === farmId || parsed.user?.farmId === farmId)) {
+                setIsLoadingFarm(false);
+                return;
+              }
+            }
+          } catch {
+            // ignore
+          }
+
+          if (farm && (farm.id === farmId || user?.farmId === farmId)) {
+            setIsLoadingFarm(false);
+            return;
+          }
+
           setFarmLoadError(err?.message || 'फार्म माहिती आणण्यात त्रुटी आली.');
         }
         setIsLoadingFarm(false);
