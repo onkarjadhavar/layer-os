@@ -9,12 +9,12 @@ import {
   formatIndianNumber,
   DEFAULT_UNIT_SETTINGS,
 } from '@/lib/calc';
-import { CheckCircle2, TrendingUp, Sparkles, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, TrendingUp, Sparkles, Scale, Bird, Egg, Wheat } from 'lucide-react';
 
 export function SamplePreviewSection() {
   const { t } = useI18n();
 
-  // Pull numbers deterministically using the verified reference fixture from lib/calc
+  // Deterministic 30,000 birds reference day benchmark fixture
   const openingBirds = 30000;
   const mortality = 15;
   const eggsCollected = 27300;
@@ -45,117 +45,128 @@ export function SamplePreviewSection() {
   }, DEFAULT_UNIT_SETTINGS);
 
   return (
-    <section className="py-12 sm:py-20 px-4 bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 bg-[var(--color-background)] dark:bg-[#0E1713] transition-colors border-b border-[var(--color-border)] dark:border-[#23372E]">
+      <div className="max-w-6xl mx-auto">
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#1F4D3A]/10 text-[#1F4D3A] dark:text-[#64D8A1]">
-            {t.samplePreviewTitle}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#0B1E15] dark:text-white mt-3 mb-2 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-[var(--color-text-main)] dark:text-white mb-2 tracking-tight">
             प्रत्यक्ष फार्मचे अचूक गणित: ३ सेकंदांत ताळेबंद
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B7A72] dark:text-[#A3B899] font-medium">
+          <p className="text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-[#9BAEA4] font-medium">
             {t.sampleNote}
           </p>
         </div>
 
         {/* The Benchmark Preview Card */}
-        <div className="bg-white dark:bg-[#16241D] rounded-3xl p-6 sm:p-8 border-2 border-[#1F4D3A]/30 dark:border-[#3BA378]/30 shadow-xl max-w-4xl mx-auto">
-          {/* Card Header with Verified Badge */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-[#E7E2D6] dark:border-[#263B30]">
+        <div className="bg-[var(--color-surface)] dark:bg-[#14221C] rounded-2xl p-6 sm:p-8 border border-[var(--color-border)] dark:border-[#23372E] shadow-sm max-w-4xl mx-auto space-y-6">
+          {/* Card Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-[var(--color-border)] dark:border-[#23372E]">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-black text-[#0B1E15] dark:text-white">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg font-black text-[var(--color-text-main)] dark:text-white">
                   सह्याद्री लेयर फार्म (Sahyadri Layer Farm)
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A2E24] dark:text-[var(--color-sage)] border border-[var(--color-sage)]/30">
                   {t.samplePreviewBadge}
                 </span>
               </div>
-              <span className="text-xs text-[#5A6E64] dark:text-[#A3B899]">
-                {formatIndianNumber(openingBirds)} पक्षी | वय: ३४ आठवडे | जात: BV300
+              <span className="text-xs text-[var(--color-text-muted)] dark:text-[#9BAEA4] mt-0.5 block">
+                {formatIndianNumber(openingBirds)} पक्षी | वय: ३४ आठवडे | जात: BV300 | शेड: Elevated Cage
               </span>
             </div>
 
-            {/* Break-Even Traffic Light Signal */}
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-              <div className="text-right">
-                <span className="block text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-300">
-                  नफ्यात आहे (Safe Margin)
-                </span>
-                <span className="text-xs font-black text-[#1B2A24] dark:text-white">
-                  विक्री भाव: {formatIndianCurrency(sellingPricePerEgg, true)} &gt; ब्रेक-इव्हन: {formatIndianCurrency(metrics.breakEvenEggPrice, true)}
+            {/* Break-Even Signal */}
+            <div className="flex items-center gap-2 bg-[var(--color-background)] dark:bg-[#0E1713] px-3.5 py-2 rounded-xl border border-[var(--color-border)] dark:border-[#23372E]">
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)] animate-pulse" />
+              <div className="text-xs">
+                <span className="text-[var(--color-text-muted)]">ब्रेक-इव्हन भाव: </span>
+                <span className="font-black tabular-nums text-[var(--color-text-main)] dark:text-white">
+                  ₹{metrics.breakEvenEggPrice}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6">
-            <div className="bg-[#FAF8F3] dark:bg-[#0F1A15] p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30]">
-              <span className="text-xs font-bold text-[#6B7A72] dark:text-[#CBDCD4] block mb-1">
-                अंडी उत्पादन (Eggs)
-              </span>
-              <span className="text-lg sm:text-2xl font-black text-[#0B1E15] dark:text-white block">
+          {/* 4 Primary Operational Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="p-3.5 rounded-xl bg-[var(--color-background)] dark:bg-[#192B23] border border-[var(--color-border)] dark:border-[#23372E]">
+              <div className="text-xs text-[var(--color-text-muted)] font-medium flex items-center gap-1.5">
+                <Egg className="w-3.5 h-3.5 text-[var(--color-amber)]" />
+                <span>एकूण अंडी</span>
+              </div>
+              <div className="text-xl font-black tabular-nums text-[var(--color-text-main)] dark:text-white mt-1">
                 {formatIndianNumber(eggsCollected)}
-              </span>
-              <span className="text-[11px] font-bold text-emerald-600">
-                HD: {Number(metrics.hdPct).toFixed(1)}%
-              </span>
+              </div>
+              <div className="text-[11px] text-[var(--color-success)] font-semibold mt-0.5">
+                {metrics.hdPct}% Laying HD
+              </div>
             </div>
 
-            <div className="bg-[#FAF8F3] dark:bg-[#0F1A15] p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30]">
-              <span className="text-xs font-bold text-[#6B7A72] dark:text-[#CBDCD4] block mb-1">
-                खुराक वापर (Feed)
-              </span>
-              <span className="text-lg sm:text-2xl font-black text-[#0B1E15] dark:text-white block">
-                {formatIndianNumber(feedKg)} कि.ग्रा.
-              </span>
-              <span className="text-[11px] font-bold text-blue-600">
-                {metrics.feedPerBirdG} g / पक्षी
-              </span>
+            <div className="p-3.5 rounded-xl bg-[var(--color-background)] dark:bg-[#192B23] border border-[var(--color-border)] dark:border-[#23372E]">
+              <div className="text-xs text-[var(--color-text-muted)] font-medium flex items-center gap-1.5">
+                <Wheat className="w-3.5 h-3.5 text-[var(--color-walnut)] dark:text-[var(--color-amber)]" />
+                <span>खाद्य वापर</span>
+              </div>
+              <div className="text-xl font-black tabular-nums text-[var(--color-text-main)] dark:text-white mt-1">
+                {formatIndianNumber(feedKg)}{' '}
+                <span className="text-xs font-normal">कि.ग्रा.</span>
+              </div>
+              <div className="text-[11px] text-[var(--color-text-muted)] font-medium mt-0.5">
+                {metrics.feedPerBirdG} ग्रॅम / पक्षी (६६ पोती)
+              </div>
             </div>
 
-            <div className="bg-[#FAF8F3] dark:bg-[#0F1A15] p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30]">
-              <span className="text-xs font-bold text-[#6B7A72] dark:text-[#CBDCD4] block mb-1">
-                मृत्यू (Mortality)
-              </span>
-              <span className="text-lg sm:text-2xl font-black text-[#0B1E15] dark:text-white block">
-                {mortality} पक्षी
-              </span>
-              <span className="text-[11px] font-bold text-emerald-600">
-                {metrics.mortalityPct}% (सुरक्षित)
-              </span>
+            <div className="p-3.5 rounded-xl bg-[var(--color-background)] dark:bg-[#192B23] border border-[var(--color-border)] dark:border-[#23372E]">
+              <div className="text-xs text-[var(--color-text-muted)] font-medium flex items-center gap-1.5">
+                <Bird className="w-3.5 h-3.5 text-[var(--color-error)]" />
+                <span>मृत्यू (Mortality)</span>
+              </div>
+              <div className="text-xl font-black tabular-nums text-[var(--color-text-main)] dark:text-white mt-1">
+                {mortality} <span className="text-xs font-normal">पक्षी</span>
+              </div>
+              <div className="text-[11px] text-[var(--color-success)] font-semibold mt-0.5">
+                ०.०५% (नियंत्रणात)
+              </div>
             </div>
 
-            <div className="bg-[#FAF8F3] dark:bg-[#0F1A15] p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30]">
-              <span className="text-xs font-bold text-[#6B7A72] dark:text-[#CBDCD4] block mb-1">
-                रोख नफा (Operating Profit)
-              </span>
-              <span className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 block">
-                {formatIndianCurrency(metrics.simpleOperatingProfit)}
-              </span>
-              <span className="text-[11px] font-bold text-[#5A6E64] dark:text-[#CBDCD4]">
-                खरा नफा: {formatIndianCurrency(metrics.trueProfit)}
-              </span>
+            <div className="p-3.5 rounded-xl bg-[var(--color-background)] dark:bg-[#192B23] border border-[var(--color-border)] dark:border-[#23372E]">
+              <div className="text-xs text-[var(--color-text-muted)] font-medium flex items-center gap-1.5">
+                <Scale className="w-3.5 h-3.5 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
+                <span>बाजार विक्री भाव</span>
+              </div>
+              <div className="text-xl font-black tabular-nums text-[var(--color-text-main)] dark:text-white mt-1">
+                ₹{sellingPricePerEgg.toFixed(2)}
+              </div>
+              <div className="text-[11px] text-[var(--color-success)] font-semibold mt-0.5">
+                +₹{(sellingPricePerEgg - metrics.breakEvenEggPrice).toFixed(2)} मार्जिन
+              </div>
             </div>
           </div>
 
-          {/* Breakdown Summary footer */}
-          <div className="pt-4 border-t border-[#E7E2D6] dark:border-[#263B30] flex flex-wrap items-center justify-between gap-3 text-xs text-[#5A6E64] dark:text-[#CBDCD4]">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>अंडी विक्री महसूल: {formatIndianCurrency(metrics.eggSalesRevenue)}</span>
+          {/* Financial Breakdown: Operating Cash vs True Net Profit */}
+          <div className="p-4 sm:p-5 rounded-xl bg-[var(--color-surface-subtle)] dark:bg-[#192B23] border border-[var(--color-border)] dark:border-[#23372E] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">
+                दैनिक रोख नफा (Operating Cash Flow)
+              </div>
+              <div className="text-2xl font-black tabular-nums text-[var(--color-forest)] dark:text-[var(--color-sage)] mt-1">
+                {formatIndianCurrency(metrics.simpleOperatingProfit)}
+              </div>
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                अंडी विक्री (₹१,४७,४२०) वजा खाद्य (₹१,१५,५००) आणि इतर रोख खर्च (₹१२,०००).
+              </p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span>खुराक खर्च: {formatIndianCurrency(metrics.feedCost)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span>इतर खर्च: {formatIndianCurrency(otherCashExpenses)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 font-bold text-[#1F4D3A] dark:text-[#D9A441]">
-              <span>प्रति अंडे उत्पादन खर्च: {formatIndianCurrency(metrics.operatingCostPerEgg, true)}</span>
+
+            <div className="sm:border-l sm:border-[var(--color-border)] sm:pl-4">
+              <div className="text-xs font-bold text-[var(--color-walnut)] dark:text-[var(--color-amber)] uppercase tracking-wide">
+                खरा निव्वळ नफा (True Net Profit - घसार्‍यासह)
+              </div>
+              <div className="text-2xl font-black tabular-nums text-[var(--color-walnut)] dark:text-[var(--color-amber)] mt-1">
+                {formatIndianCurrency(metrics.trueProfit)}
+              </div>
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                पिल्ले घसारा (₹४,५००), शेड भांडवल (₹१,५००), वीज, मजुरी व बँक व्याज हिशोबात धरून.
+              </p>
             </div>
           </div>
         </div>
@@ -163,3 +174,4 @@ export function SamplePreviewSection() {
     </section>
   );
 }
+export default SamplePreviewSection;

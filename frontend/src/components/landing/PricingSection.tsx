@@ -13,89 +13,105 @@ export function PricingSection() {
   const planKeys: PlanId[] = ['starter', 'grower', 'enterprise'];
 
   return (
-    <section className="py-12 sm:py-20 px-4 bg-white dark:bg-[#121F18] border-b border-[#E7E2D6] dark:border-[#263B30] transition-colors">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 bg-[var(--color-surface)] dark:bg-[#14221C] border-b border-[var(--color-border)] dark:border-[#23372E] transition-colors">
+      <div className="max-w-6xl mx-auto">
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#EAF3EF] dark:bg-[#1A2E24] text-[#1F4D3A] dark:text-[#42BF87]">
-            {t.pricingTitle}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#0B1E15] dark:text-white mt-3 mb-3 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-[var(--color-text-main)] dark:text-white mb-3 tracking-tight">
             लहान फार्मपासून मोठ्या समूहापर्यंत सर्वांसाठी
           </h2>
-          <p className="text-sm sm:text-base text-[#3D5248] dark:text-[#CBDCD4]">
+          <p className="text-sm sm:text-base text-[var(--color-text-muted)] dark:text-[#9BAEA4] leading-relaxed">
             {t.pricingSubtitle}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {planKeys.map(key => {
             const plan = SUBSCRIPTION_PLANS[key];
             const isPopular = plan.popular;
             const price = plan.priceINR.monthly;
+            const maxBirds = plan.limits?.maxBirds || 5000;
+
+            const ctaLabel =
+              price === 0
+                ? language === 'en'
+                  ? 'Start Free 30-Day Trial'
+                  : language === 'hi'
+                  ? 'निःशुल्क ३०-दिन ट्रायल शुरू करें'
+                  : 'मोफत ३० दिवस चाचणी सुरू करा'
+                : language === 'en'
+                ? 'Select This Plan'
+                : language === 'hi'
+                ? 'यह प्लान चुनें'
+                : 'हा प्लॅन निवडा';
 
             return (
               <div
                 key={key}
-                className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all relative ${
+                className={`rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all relative ${
                   isPopular
-                    ? 'bg-gradient-to-b from-[#FAF8F3] to-white dark:from-[#1A2E24] dark:to-[#16241D] border-2 border-[#1F4D3A] dark:border-[#3BA378] shadow-xl'
-                    : 'bg-[#FAF8F3] dark:bg-[#16241D] border border-[#E7E2D6] dark:border-[#263B30]'
+                    ? 'bg-[var(--color-surface)] dark:bg-[#192B23] border-2 border-[var(--color-forest)] dark:border-[var(--color-sage)] shadow-md'
+                    : 'bg-[var(--color-background)] dark:bg-[#0E1713] border border-[var(--color-border)] dark:border-[#23372E]'
                 }`}
               >
                 {isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#1F4D3A] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow flex items-center gap-1 border border-[#D9A441]">
-                    <Sparkles className="w-3 h-3 text-[#D9A441]" />
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-forest)] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs flex items-center gap-1 border border-[var(--color-sage)]">
+                    <Sparkles className="w-3 h-3 text-[var(--color-amber)]" />
                     <span>सर्वात लोकप्रिय (Most Popular)</span>
                   </div>
                 )}
 
                 <div>
-                  <div className="mb-4">
-                    <h3 className="text-xl font-black text-[#0B1E15] dark:text-white">
+                  <div className="mb-5">
+                    <h3 className="text-xl font-bold text-[var(--color-text-main)] dark:text-white">
                       {plan.name[language] || plan.name.mr}
                     </h3>
-                    <p className="text-xs text-[#5A6E64] dark:text-[#9FB1A7] mt-1 font-medium">
+                    <p className="text-xs text-[var(--color-text-muted)] dark:text-[#9BAEA4] mt-1 font-medium">
                       {plan.tagline[language] || plan.tagline.mr}
                     </p>
                   </div>
 
-                  {/* Price */}
-                  <div className="mb-6 pb-6 border-b border-[#E7E2D6] dark:border-[#263B30]">
+                  {/* Price Block */}
+                  <div className="mb-6 pb-6 border-b border-[var(--color-border)] dark:border-[#23372E]">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl sm:text-4xl font-black text-[#0B1E15] dark:text-white">
-                        {price === 0 ? '₹०' : formatIndianCurrency(price)}
+                      <span className="text-3xl sm:text-4xl font-black tabular-nums text-[var(--color-text-main)] dark:text-white">
+                        {price === 0 ? 'मोफत' : formatIndianCurrency(price)}
                       </span>
-                      <span className="text-xs text-[#5A6E64] dark:text-[#9FB1A7] font-semibold">
-                        {price === 0 ? '/ कायम मोफत' : '/ महिना'}
-                      </span>
+                      {price > 0 && (
+                        <span className="text-xs text-[var(--color-text-muted)]">
+                          / महिना
+                        </span>
+                      )}
                     </div>
-                    <span className="text-[11px] text-[#2E7D5B] dark:text-[#64D8A1] font-bold block mt-1">
-                      {price === 0 ? '५,००० पक्षांपर्यंत मोफत' : '३० दिवसांची मोफत चाचणी समाविष्ट'}
-                    </span>
+                    <div className="text-xs text-[var(--color-forest)] dark:text-[var(--color-sage)] font-semibold mt-1">
+                      कमाल क्षमता: {maxBirds.toLocaleString('en-IN')} पक्षी
+                    </div>
                   </div>
 
-                  {/* Limits & Features list */}
-                  <ul className="space-y-3 mb-8 text-xs sm:text-sm text-[#1B2A24] dark:text-[#E0ECE6]">
-                    {(plan.features[language] || plan.features.mr).map((feat, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-[#2E7D5B] flex-shrink-0 mt-0.5" />
+                  {/* Features List */}
+                  <ul className="space-y-3 mb-8 text-xs sm:text-sm text-[var(--color-text-main)] dark:text-[#E0ECE6]">
+                    {(plan.features[language] || plan.features.mr || []).map((feat, fIdx) => (
+                      <li key={fIdx} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 text-[var(--color-success)] mt-0.5 flex-shrink-0" />
                         <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* CTA Button */}
+                {/* Card CTA */}
                 <Link
-                  href="/enroll"
-                  className={`w-full py-3.5 px-4 rounded-2xl text-center text-sm font-black transition-all flex items-center justify-center gap-2 min-h-[48px] ${
+                  id={`landing-pricing-cta-${key}`}
+                  href={`/enroll?plan=${key}`}
+                  className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all min-h-[44px] ${
                     isPopular
-                      ? 'bg-[#1F4D3A] text-white hover:bg-[#173A2C] shadow-md border-b-2 border-[#122A20]'
-                      : 'bg-white dark:bg-[#1F2E26] text-[#1F4D3A] dark:text-white border border-[#E7E2D6] dark:border-[#263B30] hover:bg-gray-50 dark:hover:bg-[#263B30]'
+                      ? 'bg-[var(--color-forest)] hover:bg-[#143F2F] text-white shadow-xs'
+                      : 'bg-[var(--color-surface-subtle)] dark:bg-[#14221C] hover:bg-[var(--color-border)] text-[var(--color-text-main)] dark:text-white border border-[var(--color-border)] dark:border-[#23372E]'
                   }`}
                 >
-                  <span>{price === 0 ? 'मोफत सुरू करा (Start Free)' : t.startFreeTrial}</span>
-                  <ArrowRight className="w-4 h-4 text-[#D9A441]" />
+                  <span>{ctaLabel}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             );
@@ -105,3 +121,4 @@ export function PricingSection() {
     </section>
   );
 }
+export default PricingSection;

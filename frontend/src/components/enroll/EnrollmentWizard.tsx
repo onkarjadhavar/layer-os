@@ -29,6 +29,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { LayerOSLogo } from '@/components/common/LayerOSLogo';
 
 const DRAFT_STORAGE_KEY = 'layeros_enroll_draft_v1';
 
@@ -438,34 +439,29 @@ export function EnrollmentWizard() {
   return (
     <div className="min-h-screen bg-[#FAF8F3] dark:bg-[#0F1A15] text-[#1B2A24] dark:text-white flex flex-col justify-between transition-colors">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#16241D]/95 backdrop-blur-md border-b border-[#E7E2D6] dark:border-[#263B30] px-4 py-3">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#103528]/95 backdrop-blur-md border-b border-[var(--color-border)] dark:border-[#263B30] px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-[#1F4D3A] text-white flex items-center justify-center font-black text-lg border border-[#D9A441]">
-              🥚
-            </div>
-            <span className="text-xl font-black tracking-tight">
-              Layer<span className="text-[#D9A441]">OS</span>
-            </span>
+          <Link href="/" className="flex items-center group">
+            <LayerOSLogo size="md" showText />
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs sm:text-sm font-black text-[#1F4D3A] dark:text-[#64D8A1]">
+            <span className="hidden sm:inline text-xs sm:text-sm font-bold text-[#194B38] dark:text-[#87A96B]">
               {t.enrollTitle}
             </span>
 
             {/* Trilingual Switcher */}
-            <div className="flex items-center bg-[#FAF8F3] dark:bg-[#0F1A15] p-0.5 rounded-xl border border-[#E7E2D6] dark:border-[#263B30]">
+            <div className="flex items-center bg-[var(--color-background)] dark:bg-[#103528]/40 p-0.5 rounded-xl border border-[var(--color-border)] dark:border-[#263B30]">
               {(['mr', 'hi', 'en'] as const).map(lang => (
                 <button
                   key={lang}
                   id={`enroll-lang-${lang}`}
                   type="button"
                   onClick={() => setLanguage(lang)}
-                  className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-all min-h-[28px] ${
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all min-h-[28px] cursor-pointer ${
                     language === lang
-                      ? 'bg-[#1F4D3A] text-white shadow-xs'
-                      : 'text-[#6B7A72] dark:text-[#CBDCD4] hover:text-[#0B1E15] dark:hover:text-white'
+                      ? 'bg-[#194B38] text-white shadow-xs'
+                      : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 hover:text-[#17251D] dark:hover:text-white'
                   }`}
                 >
                   {lang === 'mr' ? 'मराठी' : lang === 'hi' ? 'हिंदी' : 'English'}
@@ -477,8 +473,8 @@ export function EnrollmentWizard() {
       </header>
 
       {/* Main Wizard Form Container */}
-      <main className="flex-1 py-8 px-4 flex items-center justify-center">
-        <div className="w-full max-w-2xl bg-white dark:bg-[#16241D] rounded-3xl p-6 sm:p-10 shadow-xl border border-[#E7E2D6] dark:border-[#263B30]">
+      <main className="flex-1 py-8 px-4 flex items-center justify-center bg-[var(--color-background)] dark:bg-[#103528]/30">
+        <div className="w-full max-w-2xl bg-white dark:bg-[#103528]/50 rounded-3xl p-6 sm:p-10 shadow-xl border border-[var(--color-border)] dark:border-[#263B30]">
           {/* Honeypot for bot protection */}
           <input
             id="hp_field"
@@ -495,9 +491,9 @@ export function EnrollmentWizard() {
           {/* Progress Bar (Visible for Steps 1-7) */}
           {step <= 7 && (
             <div className="mb-8">
-              <div className="flex items-center justify-between text-xs font-black text-[#0B1E15] dark:text-white mb-2">
-                <span>पायरी {step} / ७</span>
-                <span>
+              <div className="flex items-center justify-between text-xs font-bold text-[#17251D] dark:text-white mb-2">
+                <span className="tabular-nums">पायरी {step} / ७</span>
+                <span className="text-[#194B38] dark:text-[#87A96B]">
                   {step === 1 && t.enrollStep1}
                   {step === 2 && t.enrollStep2}
                   {step === 3 && t.enrollStep3}
@@ -513,8 +509,8 @@ export function EnrollmentWizard() {
                     key={s}
                     className={`h-2 rounded-full transition-all duration-300 ${
                       s <= step
-                        ? 'bg-[#1F4D3A] dark:bg-[#42BF87]'
-                        : 'bg-gray-200 dark:bg-gray-800'
+                        ? 'bg-[#194B38] dark:bg-[#87A96B]'
+                        : 'bg-[var(--color-border)] dark:bg-[#263B30]'
                     }`}
                   />
                 ))}
@@ -1506,50 +1502,50 @@ export function EnrollmentWizard() {
           {/* STEP 8: Success Welcome Screen */}
           {step === 8 && completedResult && (
             <div className="text-center space-y-6 animate-in zoom-in-95 duration-300">
-              <div className="w-16 h-16 rounded-3xl bg-[#EAF3EF] dark:bg-[#1A2E24] text-[#1F4D3A] dark:text-[#42BF87] mx-auto flex items-center justify-center border-2 border-[#D9A441] shadow-lg">
-                <CheckCircle2 className="w-10 h-10 text-[#2E7D5B]" />
+              <div className="w-16 h-16 rounded-3xl bg-[#E8EFE2] dark:bg-[#103528] text-[#194B38] dark:text-[#87A96B] mx-auto flex items-center justify-center border-2 border-[#D5811F] shadow-lg">
+                <CheckCircle2 className="w-10 h-10 text-[#287A52]" />
               </div>
 
               <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-[#0B1E15] dark:text-white">
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#17251D] dark:text-white tracking-tight">
                   {t.welcomeTitle}
                 </h2>
-                <p className="text-xs sm:text-sm text-[#5A6E64] dark:text-[#CBDCD4] mt-1 font-medium">
+                <p className="text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-[#E8EFE2]/80 mt-1 font-medium">
                   {completedResult.farmName} साठी सर्व हिशोब आणि सूत्रे तयार आहेत.
                 </p>
               </div>
 
               {/* Initial Instant Numbers Computed */}
-              <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-[#FAF8F3] dark:bg-[#0F1A15] border border-[#E7E2D6] dark:border-[#263B30] text-left">
+              <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-[var(--color-background)] dark:bg-[#103528]/40 border border-[var(--color-border)] dark:border-[#263B30] text-left">
                 <div>
-                  <span className="text-[11px] font-bold text-[#5A6E64] block">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] block">
                     अंदाजे दैनिक अंडी
                   </span>
-                  <span className="text-base font-black text-[#0B1E15] dark:text-white">
+                  <span className="text-base font-bold text-[#17251D] dark:text-white tabular-nums">
                     {completedResult.welcomeStats.dailyEggsEstimate.toLocaleString('en-IN')}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-[#5A6E64] block">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] block">
                     मासिक खाद्य गोण्या (३० दिवस)
                   </span>
-                  <span className="text-base font-black text-[#0B1E15] dark:text-white">
+                  <span className="text-base font-bold text-[#17251D] dark:text-white tabular-nums">
                     {completedResult.welcomeStats.monthlyFeedBags.toLocaleString('en-IN')} गोण्या
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-[#5A6E64] block">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] block">
                     अंदाजे ब्रेक-इव्हन भाव
                   </span>
-                  <span className="text-base font-black text-amber-600">
+                  <span className="text-base font-bold text-[#D5811F] tabular-nums">
                     ₹{completedResult.projectedBreakEvenPrice.toFixed(2)} / अंडे
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-[#5A6E64] block">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] block">
                     अंदाजे मासिक नफा
                   </span>
-                  <span className="text-base font-black text-emerald-600">
+                  <span className="text-base font-bold text-[#287A52] dark:text-[#87A96B] tabular-nums">
                     ₹{completedResult.welcomeStats.estimatedMonthlyProfit.toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -1557,19 +1553,19 @@ export function EnrollmentWizard() {
 
               {/* 3 Next Actions */}
               <div className="text-left space-y-2.5">
-                <span className="text-xs font-black text-[#1F4D3A] dark:text-[#42BF87] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[#194B38] dark:text-[#87A96B] uppercase tracking-wider block">
                   पुढील ३ महत्त्वाच्या पायऱ्या:
                 </span>
-                <div className="p-3 rounded-xl bg-white dark:bg-[#1A2E24] border border-[#E7E2D6] dark:border-[#263B30] text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#2E7D5B] flex-shrink-0" />
+                <div className="p-3 rounded-xl bg-white dark:bg-[#103528]/40 border border-[var(--color-border)] dark:border-[#263B30] text-xs font-bold text-[#17251D] dark:text-[#E8EFE2] flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#287A52] flex-shrink-0" />
                   <span>{t.nextAction1}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-white dark:bg-[#1A2E24] border border-[#E7E2D6] dark:border-[#263B30] text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#2E7D5B] flex-shrink-0" />
+                <div className="p-3 rounded-xl bg-white dark:bg-[#103528]/40 border border-[var(--color-border)] dark:border-[#263B30] text-xs font-bold text-[#17251D] dark:text-[#E8EFE2] flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#287A52] flex-shrink-0" />
                   <span>{t.nextAction2}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-white dark:bg-[#1A2E24] border border-[#E7E2D6] dark:border-[#263B30] text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#2E7D5B] flex-shrink-0" />
+                <div className="p-3 rounded-xl bg-white dark:bg-[#103528]/40 border border-[var(--color-border)] dark:border-[#263B30] text-xs font-bold text-[#17251D] dark:text-[#E8EFE2] flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#287A52] flex-shrink-0" />
                   <span>{t.nextAction3}</span>
                 </div>
               </div>
@@ -1579,23 +1575,23 @@ export function EnrollmentWizard() {
                 id="enroll-to-dashboard-btn"
                 type="button"
                 onClick={handleLaunchDashboard}
-                className="w-full py-4 px-6 rounded-2xl text-base sm:text-lg font-black text-white bg-[#1F4D3A] hover:bg-[#173A2C] shadow-lg hover:shadow-xl transition-all border-b-4 border-[#122A20] flex items-center justify-center gap-2 min-h-[52px]"
+                className="w-full py-4 px-6 rounded-2xl text-base sm:text-lg font-bold text-white bg-[#194B38] hover:bg-[#103528] shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 min-h-[52px] cursor-pointer"
               >
                 <span>{t.goToDashboardBtn}</span>
-                <ArrowRight className="w-5 h-5 text-[#D9A441]" />
+                <ArrowRight className="w-5 h-5 text-[#D5811F]" />
               </button>
             </div>
           )}
 
           {/* Navigation Buttons (Back & Next) for Steps 1-6 */}
           {step <= 6 && (
-            <div className="mt-8 pt-6 border-t border-[#E7E2D6] dark:border-[#263B30] flex items-center justify-between gap-3">
+            <div className="mt-8 pt-6 border-t border-[var(--color-border)] dark:border-[#263B30] flex items-center justify-between gap-3">
               {step > 1 ? (
                 <button
                   id="enroll-back-btn"
                   type="button"
                   onClick={handleBack}
-                  className="px-5 py-3 rounded-xl border border-[#DCD3C3] dark:border-[#263B30] text-xs sm:text-sm font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:bg-gray-50 dark:hover:bg-[#1F2E26] flex items-center gap-1.5 transition-colors min-h-[48px]"
+                  className="px-5 py-3 rounded-xl border border-[var(--color-border)] dark:border-[#263B30] text-xs sm:text-sm font-bold text-[#17251D] dark:text-[#E8EFE2] hover:bg-[var(--color-background)] dark:hover:bg-[#103528]/40 flex items-center gap-1.5 transition-colors min-h-[48px] cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>मागे (Back)</span>
@@ -1608,10 +1604,10 @@ export function EnrollmentWizard() {
                 id="enroll-next-btn"
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-3 rounded-xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white text-xs sm:text-sm font-black shadow-md flex items-center gap-1.5 transition-all min-h-[48px] border-b-2 border-[#122A20]"
+                className="px-6 py-3 rounded-xl bg-[#194B38] hover:bg-[#103528] text-white text-xs sm:text-sm font-bold shadow-md flex items-center gap-2 transition-all min-h-[48px] cursor-pointer"
               >
                 <span>पुढे (Next)</span>
-                <ArrowRight className="w-4 h-4 text-[#D9A441]" />
+                <ArrowRight className="w-4 h-4 text-[#D5811F]" />
               </button>
             </div>
           )}

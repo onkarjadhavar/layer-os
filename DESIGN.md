@@ -1,123 +1,178 @@
 # LayerOS Design System Specification (`DESIGN.md`)
 
-## 1. Visual Identity & Art Direction
+## 1. Visual Theme & Atmosphere
+- **Philosophy**: Premium Indian agricultural SaaS combining modern enterprise precision with subtle natural warmth.
+- **Identity**: Built for commercial poultry farm owners, supervisors, and accountants across Maharashtra (Pune, Sangli, Satara, Solapur, Nashik).
+- **Tone**: Trustworthy, operationally sharp, financially transparent, authentic, and calm.
+- **Atmosphere Keywords**: Earthy forest greens, serene sage fields, warm cream surfaces, walnut wood anchors, restrained amber highlights.
+- **Visual Ratio**: 60% neutral surfaces (warm cream & pure white), 30% brand structure (forest green & sage), 10% purposeful accents (amber glow & walnut brown).
 
-LayerOS is designed specifically for commercial layer poultry farm owners, managers, and supervisors across Western Maharashtra (Pune, Sangli, Satara, Solapur, Nashik).
-The aesthetic reflects agricultural enterprise credibility: sturdy, utilitarian, high-contrast, and deeply authentic to regional Marathi egg trading.
+---
 
-### 1.1 Anti-Slop Hard Floor Enforcements
-- **No generic AI tells**:
-  - No centered 3-line headline with an eyebrow badge.
-  - No random purple-to-blue gradients.
-  - No cards nested inside cards without clear functional hierarchy.
-  - No emoji as functional status icons; only curated Lucide icons.
-  - No useless decorative status dots without explicit semantic labels.
-- **Substance-First Layout**:
-  - Real numbers: 30,000 birds, 27,300 eggs, 91.02% HD, ₹1,47,420 egg sales, ₹5.21 break-even price.
-  - Tabular numerals (`font-variant-numeric: tabular-nums`) for all monetary values, percentages, and bird tallies.
-  - Authentic Marathi terminology: मृत्यू (Mortality), अंडी उत्पादन (Egg Production), खुराक (Feed Intake), विक्री (Sales Challan), उधारी (Outstandings), नफा/तोटा (P&L), बंद दिवस (Daily Closing).
-
-## 2. Design Tokens & Palette (`:root`)
+## 2. Color Palette & Roles (`:root`)
 
 ```css
 :root {
-  /* Brand Core */
-  --primary: #1F4D3A;        /* Deep Forest Green (Agricultural authority) */
-  --primary-hover: #173A2C;
-  --primary-light: #2D6B52;
-  --primary-faint: #EAF3EF;
+  /* Anchor Brand Colors */
+  --color-forest: #194B38;          /* Primary brand color, primary actions */
+  --color-forest-rgb: 25, 75, 56;
+  --color-forest-deep: #103528;     /* Dark navigation, deep brand surfaces */
+  --color-forest-deep-rgb: 16, 53, 40;
+  --color-sage: #87A96B;            /* Secondary accent, selected states, badges */
+  --color-sage-rgb: 135, 169, 107;
+  --color-sage-pale: #E8EFE2;       /* Soft green tint surfaces, tags */
+  --color-sage-pale-rgb: 232, 239, 226;
 
-  /* Accent */
-  --accent: #D9A441;         /* Egg-Yolk Gold (Commerce & Prosperity) */
-  --accent-hover: #C69234;
-  --accent-faint: #FCF6E9;
+  /* Earth & Accent Anchors */
+  --color-walnut: #5A3E2B;          /* Earthy secondary typography, borders, subtle accents */
+  --color-walnut-rgb: 90, 62, 43;
+  --color-amber: #D5811F;           /* High-priority actions, focus rings, key highlights */
+  --color-amber-rgb: 213, 129, 31;
+  --color-amber-soft: #F6E5C9;      /* Warm highlight containers */
+  --color-amber-soft-rgb: 246, 229, 201;
 
-  /* Surfaces & Canvas */
-  --bg-main: #FAF8F3;        /* Warm Ivory (anti-glare for outdoor sunlight) */
-  --surface: #FFFFFF;
-  --surface-card: #FFFFFF;
-  --border: #E7E2D6;
-  --border-light: #F0EDE5;
+  /* Neutral Surfaces & Canvas */
+  --color-background: #F8F6F0;      /* Primary warm cream application background */
+  --color-background-rgb: 248, 246, 240;
+  --color-surface: #FFFFFF;         /* Cards, forms, sheets, elevated content */
+  --color-surface-rgb: 255, 255, 255;
+  --color-surface-subtle: #F3EFE6;  /* Secondary card backings, table headers */
+  --color-surface-subtle-rgb: 243, 239, 230;
 
   /* Typography Colors */
-  --text-ink: #0B1E15;       /* High-contrast ink green-black */
-  --text-muted: #2D4538;     /* Secondary metadata */
-  --text-subtle: #4D6558;
+  --color-text-main: #17251D;       /* Dark ink - high contrast text */
+  --color-text-main-rgb: 23, 37, 29;
+  --color-text-muted: #657269;      /* Secondary text, metadata, hints */
+  --color-text-muted-rgb: 101, 114, 105;
+  --color-text-on-dark: #FFFFFF;
 
-  /* Semantic Statuses */
-  --success: #2E7D5B;        /* High Laying HD% / Healthy */
-  --success-bg: #E8F5EE;
-  --warning: #D98E04;        /* Feed intake deviation / Credit warning */
-  --warning-bg: #FEF7E8;
-  --danger: #B3382C;         /* Spiking mortality / Negative cashflow */
-  --danger-bg: #FBEBEA;
-  --info: #2F6F9F;
-  --info-bg: #EBF4FA;
+  /* Borders & Dividers */
+  --color-border: #E5E0D5;          /* Subtle warm borders */
+  --color-border-rgb: 229, 224, 213;
+  --color-border-strong: #CFC7B7;
 
-  /* Elevation Shadows */
-  --shadow-soft: 0 4px 20px -2px rgba(27, 42, 36, 0.06);
-  --shadow-card: 0 8px 30px -4px rgba(27, 42, 36, 0.08);
+  /* Semantic Feedback */
+  --color-success: #287A52;         /* Healthy production, positive margins */
+  --color-success-bg: #EAF4EE;
+  --color-warning: #A86412;         /* Feed intake warnings, tight margins */
+  --color-warning-bg: #FDF4E7;
+  --color-error: #B42318;           /* High mortality, losses, critical alerts */
+  --color-error-bg: #FDF1F0;
+  --color-info: #2865A6;            /* Informational states, tips */
+  --color-info-bg: #EFF5FB;
+
+  /* Shadows & Depth */
+  --shadow-sm: 0 1px 2px 0 rgba(23, 37, 29, 0.04);
+  --shadow-md: 0 4px 16px -2px rgba(23, 37, 29, 0.06);
+  --shadow-lg: 0 12px 32px -4px rgba(23, 37, 29, 0.08);
+  --shadow-modal: 0 20px 48px -8px rgba(16, 53, 40, 0.22);
 }
 
 .dark {
-  --primary: #2D6B52;
-  --primary-hover: #3B8668;
-  --primary-light: #4A9C7B;
-  --primary-faint: #182B22;
+  --color-forest: #2A6E53;
+  --color-forest-deep: #0B1610;
+  --color-sage: #93B880;
+  --color-sage-pale: #1A3024;
 
-  --accent: #E5B252;
-  --accent-hover: #D9A441;
-  --accent-faint: #2E2413;
+  --color-walnut: #A68065;
+  --color-amber: #F0A83B;
+  --color-amber-soft: #2A1E0D;
 
-  --bg-main: #0F1A15;
-  --surface: #16241D;
-  --surface-card: #1B2D24;
-  --border: #263B30;
-  --border-light: #1F3027;
+  --color-background: #0B130E;
+  --color-surface: #132219;
+  --color-surface-subtle: #0E1A13;
 
-  --text-ink: #FFFFFF;
-  --text-muted: #CBDCD4;
-  --text-subtle: #95ACA0;
+  --color-text-main: #F2F7F4;
+  --color-text-muted: #9EB3A6;
+  --color-text-on-dark: #FFFFFF;
 
-  --success: #3BA378;
-  --success-bg: #142D21;
-  --warning: #E8A11C;
-  --warning-bg: #302307;
-  --danger: #D2473B;
-  --danger-bg: #311311;
-  --info: #468CBF;
-  --info-bg: #122838;
+  --color-border: #223B2C;
+  --color-border-strong: #2E503C;
 
-  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+  --color-success: #38B27A;
+  --color-success-bg: #102B1D;
+  --color-warning: #E69936;
+  --color-warning-bg: #2B1D0B;
+  --color-error: #EF5350;
+  --color-error-bg: #2E1413;
+  --color-info: #4DA2E0;
+  --color-info-bg: #122838;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+  --shadow-modal: 0 20px 48px -8px rgba(0, 0, 0, 0.85);
 }
 ```
 
-## 3. Typography Hierarchy
+---
 
-- **Primary Western**: Inter (Clean, geometric, highly legible in compact tables).
-- **Regional Devanagari**: Noto Sans Devanagari (Native Marathi rendering with full conjuncts and diacritics).
-- **Scale**:
-  - `Display / KPI Number`: 32px - 40px, bold (700/800), tabular numerals.
-  - `H1 Page Title`: 24px - 28px, bold (700).
-  - `H2 Section Header`: 18px - 20px, semibold (600).
-  - `Body / Form Label`: 14px - 15px, medium (500).
-  - `Helper / Microcopy`: 12px - 13px, regular (400).
+## 3. Typography Rules
 
-## 4. Mobile Ergonomics & Responsive Breakpoints
+- **Latin Font**: `Inter`, `-apple-system`, `BlinkMacSystemFont`, `sans-serif`
+- **Devanagari Font**: `Noto Sans Devanagari`, `Mukta`, `sans-serif`
+- **Font Stack Definition**:
+  ```css
+  font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  ```
+- **Type Scale**:
+  - `Display / Hero H1`: 36px–48px (desktop), 28px–32px (mobile). Line-height: 1.15. Weight: 800.
+  - `Page Title / H1`: 24px–28px. Line-height: 1.25. Weight: 700.
+  - `Section Title / H2`: 20px–22px. Line-height: 1.3. Weight: 700.
+  - `Card Header / H3`: 16px–18px. Line-height: 1.35. Weight: 600.
+  - `Body Text`: 14px–15px. Line-height: 1.55. Weight: 400/500.
+  - `Metadata / Label`: 12px–13px. Line-height: 1.4. Weight: 500/600.
+  - `KPI Numbers`: 28px–36px. Tabular numerals (`font-variant-numeric: tabular-nums`). Weight: 800.
 
-1. **Mobile Viewport (< 600px)**:
-   - Primary operational environment for shed supervisors.
-   - Fixed bottom navigation bar (`MobileTabBar`) with safe-area padding (`pb-safe`).
-   - Touch targets strictly enforced at **>= 48px** for easy tapping with wet/gloved hands.
-   - Prominent Floating Action Button (FAB) for "30s Quick Log" (`QuickLogFAB`).
-2. **Tablet Viewport (600px - 1024px)**:
-   - 2-column KPI grid and dual-pane modal views.
-3. **Desktop Viewport (1024px - 1440px+)**:
-   - Collapsible left sidebar navigation (`Sidebar`).
-   - Multi-column dashboard with live Recharts trend analytics, mandi comparison tables, and customer credit ledger.
+---
 
-## 5. Micro-Interactions & Accessibility
-- **`:focus-visible`**: High-contrast outline `2px solid var(--accent)` with `2px` offset on all interactive buttons and inputs.
-- **Instant Feedbacks**: Haptic/confetti burst on successful daily closing (`canvas-confetti`).
-- **Zero-Layout Shift**: Skeleton loaders on initial data queries.
+## 4. Component Stylings & Geometry
+
+### 4.1 Buttons
+- **Primary Button**: Background `var(--color-forest)`, text `white`, rounded `12px`, padding `10px 20px`. Hover: darken by 8%, active: scale(0.98). Focus ring: `2px solid var(--color-amber)` with `2px offset`.
+- **Secondary / Subtle Button**: Background `white`, border `1px solid var(--color-border)`, text `var(--color-text-main)`. Hover: background `var(--color-surface-subtle)`.
+- **Accent Button**: Background `var(--color-amber)`, text `white` or `var(--color-forest-deep)`. Used strictly for key calls to action (e.g. "Enroll Farm").
+- **Touch Targets**: Minimum 44px × 44px on all viewports, 48px on mobile for gloved/field usage.
+
+### 4.2 Cards
+- Background: `var(--color-surface)`
+- Border: `1px solid var(--color-border)`
+- Border Radius: `16px` (no giant pill cards, consistent curvature)
+- Shadows: `var(--shadow-sm)` at rest, `var(--shadow-md)` on hover for interactive cards.
+- Internal padding: `16px` (mobile), `24px` (desktop).
+
+### 4.3 Navigation & TopBar
+- **Desktop Sidebar**: Background `var(--color-forest-deep)`. Distinct sections (Overview, Operations, Commercial, Health, Admin). Active tab background `var(--color-forest)`, accented with `var(--color-sage)` and `var(--color-amber)` highlights.
+- **TopBar**: Clean `var(--color-surface)` or `var(--color-background)` with subtle border. Farm dropdown, role badge, language selector (`mr`, `hi`, `en`), notifications, theme toggle.
+- **Mobile Tab Bar**: Fixed bottom bar with 5 primary thumb actions (`Quick Log`, `Sales`, `Home`, `Flocks`, `Menu`).
+
+---
+
+## 5. Anti-Slop Hard Floor (Do's and Don'ts)
+
+### ❌ Strict Don'ts
+1. **NO generic AI tells**: No centered 3-line headline with an eyebrow pill badge above it.
+2. **NO random gradients**: No purple-to-blue, neon green, or arbitrary gradient backgrounds.
+3. **NO cards inside cards**: Avoid arbitrary nested card layers that add clutter without semantic purpose.
+4. **NO emoji as status icons**: Use curated `lucide-react` icons (Bird, Egg, ShieldCheck, Zap, etc.).
+5. **NO decorative vanity numbers**: Never display fake customer counts or fabricated testimonials.
+6. **NO neon accents**: All colors must strictly resolve to the defined natural token palette.
+7. **NO unreadable Marathi text**: Proper line-height (1.55+), no clipped Devanagari matras, no overlapping text.
+8. **NO horizontal overflow**: Screen width <= 600px must have 0 horizontal scroll.
+
+### ✅ Explicit Do's
+1. **Substance First**: Real poultry metrics (30,000 birds, 92.4% HD, ₹5.21 break-even, feed g/bird).
+2. **Restrained 60/30/10 Balance**: Dominant warm cream/white, grounded forest/sage green, amber/walnut highlights.
+3. **Distinct Layouts**: Varied visual composition between landing sections instead of 10 identical 3-card grids.
+4. **Authentic Farming Visuals**: Real poultry architecture, egg grading illustrations, real farmer workflows.
+5. **Tabular Numerals**: Enforce `font-variant-numeric: tabular-nums` for all financial tables and counters.
+6. **Accessible Contrast**: All text must achieve WCAG AA contrast against its respective surface.
+7. **Consistent Elevation**: One shadow tier for cards, one for floating modals.
+8. **Full Functional Preservation**: Every existing route, farm ID link, enrollment action, and calculator must work cleanly.
+
+---
+
+## 6. Responsive Breakpoints
+- **Mobile (< 600px)**: 1-column cards, bottom thumb navigation bar, 48px touch targets, full-width bottom sheets.
+- **Tablet (600px - 1024px)**: 2-column KPI grid, compact collapsible drawer.
+- **Desktop (1024px+)**: Fixed 260px structured sidebar, multi-column dashboard, spacious layout.

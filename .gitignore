@@ -57,3 +57,4 @@ yarn-error.log*
 .vercel
 .vscode/
 .idea/
+scratch/

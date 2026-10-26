@@ -78,22 +78,22 @@ export function ActionCard({ onNavigateTab }: ActionCardProps) {
   ];
 
   return (
-    <div className="card-layer p-4 sm:p-5 rounded-3xl border border-[#D9A441]/50 bg-gradient-to-br from-white to-[#FAF8F3] dark:from-[#16241D] dark:to-[#1B2D24] shadow-xs">
-      <div className="flex items-center justify-between pb-3 border-b border-[#DCD3C3] dark:border-[#263B30]">
+    <div className="card-layer p-4 sm:p-5 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
+      <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-[#FCF6E9] dark:bg-[#2E2413] text-[#D9A441] flex items-center justify-center shadow-xs">
-            <Sparkles className="w-5 h-5 fill-[#D9A441]" />
+          <div className="w-9 h-9 rounded-2xl bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] flex items-center justify-center shadow-xs">
+            <Sparkles className="w-5 h-5 fill-[var(--color-amber)] text-[var(--color-amber)]" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white">
+            <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-main)]">
               {t.todaysActionTitle}
             </h3>
-            <p className="text-xs font-semibold text-[#55695F] dark:text-[#CBDCD4] mt-0.5">
+            <p className="text-xs font-medium text-[var(--color-text-muted)] mt-0.5">
               {t.aiActionPrioritySubtitle}
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-[#EAF3EF] dark:bg-[#182B22] text-[#1F4D3A] dark:text-[#3BA378] border border-[#2D6B52]/30">
+        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)] border border-[var(--color-forest)]/30">
           {t.aiPriorityBadge}
         </span>
       </div>
@@ -103,30 +103,30 @@ export function ActionCard({ onNavigateTab }: ActionCardProps) {
           return (
             <div
               key={action.id}
-              className="min-w-[85%] sm:min-w-[70%] md:min-w-0 snap-start p-4 rounded-2xl bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] flex flex-col justify-between hover:border-[#D9A441] transition-all hover:shadow-md flex-shrink-0 md:flex-shrink shadow-xs"
+              className="min-w-[85%] sm:min-w-[70%] md:min-w-0 snap-start p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] flex flex-col justify-between hover:border-[var(--color-amber)] transition-all hover:shadow-md flex-shrink-0 md:flex-shrink shadow-xs"
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase ${action.badgeColor}`}>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${action.badgeColor}`}>
                     {action.badge}
                   </span>
-                  <div className="w-6 h-6 rounded-full bg-[#F8F6F0] dark:bg-[#1A2D23] text-xs font-black text-[#0B1E15] dark:text-white flex items-center justify-center border border-[#DCD3C3]/50">
+                  <div className="w-6 h-6 rounded-full bg-[var(--color-surface)] text-xs font-bold text-[var(--color-text-main)] flex items-center justify-center border border-[var(--color-border)]">
                     #{action.priority}
                   </div>
                 </div>
-                <h4 className="text-xs font-black text-[#0B1E15] dark:text-white line-clamp-1">
+                <h4 className="text-xs font-bold text-[var(--color-text-main)] line-clamp-1">
                   {action.title}
                 </h4>
-                <p className="text-[11px] font-medium text-[#4D6558] dark:text-[#CBDCD4] mt-1.5 leading-relaxed">
+                <p className="text-[11px] font-medium text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
                   {action.desc}
                 </p>
               </div>
 
-              <div className="pt-3 mt-3 border-t border-[#DCD3C3]/50 dark:border-gray-800">
+              <div className="pt-3 mt-3 border-t border-[var(--color-border)]">
                 <button
                   type="button"
                   onClick={() => onNavigateTab && onNavigateTab(action.tab)}
-                  className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] hover:bg-[#1F4D3A] hover:text-white text-[#1F4D3A] dark:text-[#42BF87] text-xs font-black flex items-center justify-center gap-1.5 transition-colors border border-[#DCD3C3]/60 dark:border-[#263B30] touch-target active:scale-98"
+                  className="w-full min-h-[44px] py-2.5 px-3 rounded-xl bg-[var(--color-surface)] hover:bg-[var(--color-forest)] hover:text-white text-[var(--color-forest)] dark:text-[var(--color-sage)] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-[var(--color-border)] touch-target active:scale-98 cursor-pointer"
                 >
                   <span>{action.cta}</span>
                   <ArrowRight className="w-3.5 h-3.5" />

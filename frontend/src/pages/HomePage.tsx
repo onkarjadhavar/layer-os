@@ -44,7 +44,7 @@ import { LandingPage } from '@/components/landing/LandingPage';
 import { FarmStatusBlockedModal } from '@/components/auth/FarmStatusBlockedModal';
 import { isFarmActive } from '@/lib/auth/farm-status';
 
-import { Sparkles, Zap, MessageSquare, AlertCircle } from 'lucide-react';
+import { Sparkles, Zap, MessageSquare, AlertCircle, Lightbulb, TrendingUp, Shield } from 'lucide-react';
 
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
@@ -372,7 +372,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)] transition-colors">
       {/* Top Bar Navigation */}
       <TopBar
         onOpenNotifications={() => setShowNotificationsDrawer(true)}
@@ -395,8 +395,8 @@ export function HomePage() {
         <main className="flex-1 p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-12 space-y-4 sm:space-y-6">
           {/* Supervisor / Role Context Ribbon */}
           {user?.role === 'supervisor' && (
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/30 flex items-center justify-between text-xs font-bold">
-              <span className="text-[#1F4D3A] dark:text-[#42BF87]">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)] border border-[var(--color-forest)]/30 flex items-center justify-between text-xs font-bold">
+              <span>
                 👷 सुपरवायझर मोड: केवळ दैनंदिन नोंदी व कामकाजाचा ॲक्सेस उपलब्ध आहे.
               </span>
               <button
@@ -418,24 +418,24 @@ export function HomePage() {
               {/* 2. Quick Actions Shortcuts (4 Large Mobile Tiles) */}
               <QuickActionGrid onSelectAction={handleQuickAction} />
 
-              {/* 3. Integrated LayerOS AI Farm Assistant Banner */}
-              <div className="card-layer p-4 sm:p-5 rounded-3xl border border-[#D9A441]/40 bg-gradient-to-br from-[#FCF6E9]/90 to-white dark:from-[#231E12] dark:to-[#16241D] shadow-xs">
+              {/* 3. Integrated LayerOS Farm Advisory Assistant Banner */}
+              <div className="p-4 sm:p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-[#D9A441] text-[#0B1E15] flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs">
-                      <Sparkles className="w-6 h-6 fill-[#0B1E15]" />
+                    <div className="w-10 h-10 rounded-xl bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] flex items-center justify-center font-bold text-lg flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-[var(--color-amber)]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white">
-                          LayerOS AI शेतकरी सल्लागार
+                        <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-main)]">
+                          दैनिक शेती सल्लागार (Farm Operations Advisor)
                         </h3>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#D9A441] text-[#0B1E15]">
-                          Live
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)]">
+                          सक्रिय (Live)
                         </span>
                       </div>
-                      <p className="text-xs text-[#55695F] dark:text-[#CBDCD4] font-medium mt-0.5">
-                        आजच्या उत्पादनावर आधारित अचूक विश्लेषण व सल्ला
+                      <p className="text-xs text-[var(--color-text-muted)] font-medium mt-0.5">
+                        उत्पादन व खताच्या आकड्यांवर आधारित व्यावसायिक मार्गदर्शन
                       </p>
                     </div>
                   </div>
@@ -444,48 +444,51 @@ export function HomePage() {
                     <button
                       type="button"
                       onClick={() => setShowDailyAdvisorModal(true)}
-                      className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all touch-target"
+                      className="flex-1 sm:flex-initial py-2 px-3.5 rounded-xl bg-[var(--color-forest)] hover:bg-[#143F2F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all touch-target cursor-pointer"
                     >
-                      <Zap className="w-3.5 h-3.5 text-[#D9A441] fill-[#D9A441]" />
-                      <span>आजचा AI सल्ला</span>
+                      <Zap className="w-3.5 h-3.5 text-[var(--color-amber)] fill-[var(--color-amber)]" />
+                      <span>आजचा सल्ला पहा</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setShowAskLayerOsModal(true)}
-                      className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl bg-white dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] text-[#1F4D3A] dark:text-[#42BF87] text-xs font-black flex items-center justify-center gap-1.5 hover:border-[#1F4D3A] active:scale-95 transition-all touch-target"
+                      className="flex-1 sm:flex-initial py-2 px-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)] text-xs font-bold flex items-center justify-center gap-1.5 hover:border-[var(--color-forest)] transition-all touch-target cursor-pointer"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 text-[#D9A441]" />
+                      <MessageSquare className="w-3.5 h-3.5 text-[var(--color-amber)]" />
                       <span>प्रश्न विचारा</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Quick Question Chips */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-3 mt-3 border-t border-[#D9A441]/20">
-                  <span className="text-[11px] font-bold text-[#55695F] dark:text-[#CBDCD4] flex-shrink-0">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 mt-3 border-t border-[var(--color-border)]">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] flex-shrink-0">
                     उदा:
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    💡 उद्या खुराक किती देऊ?
+                    <Lightbulb className="w-3 h-3 text-[var(--color-amber)]" />
+                    <span>उद्या खुराक किती देऊ?</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    📈 अंडी दर वाढतील का?
+                    <TrendingUp className="w-3 h-3 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
+                    <span>अंडी दर वाढतील का?</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    🛡️ मृत्यू कसा रोखायचा?
+                    <Shield className="w-3 h-3 text-[var(--color-error)]" />
+                    <span>मृत्यू कसा रोखायचा?</span>
                   </button>
                 </div>
               </div>

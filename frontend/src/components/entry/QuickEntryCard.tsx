@@ -94,7 +94,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#1F4D3A', '#D9A441', '#2E7D5B', '#FFFFFF'],
+        colors: ['#194B38', '#D5811F', '#87A96B', '#FFFFFF'],
       });
 
       setSavedSuccess(true);
@@ -109,41 +109,41 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
   };
 
   return (
-    <div className="card-layer p-4 sm:p-6 w-full border border-[#DCD3C3] dark:border-[#263B30] shadow-xs bg-white dark:bg-[#16241D] rounded-3xl">
+    <div className="card-layer p-4 sm:p-6 w-full shadow-xs rounded-3xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-[#E7E2D6] dark:border-[#263B30] gap-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-[var(--color-border)] gap-2.5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#FCF6E9] dark:bg-[#2E2413] text-[#D9A441] flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs">
-            <Zap className="w-6 h-6 fill-[#D9A441] text-[#D9A441]" />
+          <div className="w-11 h-11 rounded-2xl bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs">
+            <Zap className="w-6 h-6 fill-[var(--color-amber)] text-[var(--color-amber)]" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-black text-[#0B1E15] dark:text-white flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-[var(--color-text-main)] flex items-center gap-2">
               <span>३०-सेकंद दैनिक नोंद (Quick Entry)</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#D9A441] text-[#0B1E15]">
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[var(--color-amber)] text-white">
                 ३० सेकंद
               </span>
             </h2>
-            <p className="text-xs text-[#55695F] dark:text-[#CBDCD4] font-semibold mt-0.5">
+            <p className="text-xs text-[var(--color-text-muted)] font-medium mt-0.5">
               {t.quickLogSubtitle}
             </p>
           </div>
         </div>
 
         {/* Date Selector */}
-        <div className="flex items-center gap-2 bg-[#F8F6F0] dark:bg-[#1A2D23] px-3 py-1.5 rounded-xl border border-[#DCD3C3] dark:border-[#2C4435] self-start sm:self-auto">
-          <Calendar className="w-4 h-4 text-[#1F4D3A] dark:text-[#42BF87]" />
+        <div className="flex items-center gap-2 bg-[var(--color-surface-subtle)] px-3 py-1.5 rounded-xl border border-[var(--color-border)] self-start sm:self-auto">
+          <Calendar className="w-4 h-4 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
           <input
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            className="bg-transparent text-xs font-bold text-[#0B1E15] dark:text-white focus:outline-none"
+            className="bg-transparent text-xs font-bold text-[var(--color-text-main)] focus:outline-none"
           />
         </div>
       </div>
 
       {savedSuccess && (
-        <div className="mt-3.5 p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 flex items-center gap-3 animate-in zoom-in-95">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+        <div className="mt-3.5 p-3.5 rounded-2xl bg-[var(--color-success-bg)] border border-[var(--color-success)]/40 text-[var(--color-success)] flex items-center gap-3 animate-in zoom-in-95">
+          <CheckCircle2 className="w-6 h-6 text-[var(--color-success)] flex-shrink-0" />
           <div className="text-xs font-bold">
             {t.dayClosedSuccess}
           </div>
@@ -152,13 +152,13 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
 
       {/* Warnings Banner if any */}
       {warnings.length > 0 && (
-        <div className="mt-3.5 p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 space-y-1">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-400">
+        <div className="mt-3.5 p-3.5 rounded-2xl bg-[var(--color-warning-bg)] border border-[var(--color-warning)]/40 text-[var(--color-warning)] space-y-1">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-warning)]">
             <AlertTriangle className="w-4 h-4" />
             <span>पडताळणी सूचना (Verification Notice):</span>
           </div>
           {warnings.map((w, idx) => (
-            <div key={idx} className="text-xs pl-5 list-disc text-amber-900 dark:text-amber-200 font-medium">
+            <div key={idx} className="text-xs pl-5 list-disc text-[var(--color-warning)] font-medium">
               • {w}
             </div>
           ))}
@@ -169,12 +169,12 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* 1. Eggs Collected */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] transition-colors shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] hover:border-[var(--color-forest)] dark:hover:border-[var(--color-sage)] transition-colors shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[var(--color-text-main)]">
                 {t.eggsCollectedLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[var(--color-text-muted)] tabular-nums">
                 काल: {yesterdayRecord ? yesterdayRecord.totalEggsCollected.toLocaleString('en-IN') : '27,300'}
               </span>
             </div>
@@ -187,9 +187,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={eggs}
                 onChange={e => setEggs(e.target.value)}
                 placeholder="27300"
-                className="w-full text-2xl font-black text-[#1F4D3A] dark:text-[#42BF87] bg-transparent border-b-2 border-[#1F4D3A]/40 dark:border-[#42BF87]/50 focus:border-[#1F4D3A] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] bg-transparent border-b-2 border-[var(--color-forest)]/40 dark:border-[var(--color-sage)]/50 focus:border-[var(--color-forest)] py-1 focus:outline-none tabular-nums"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[var(--color-text-muted)]">
                 अंडी ({Math.floor(eggsNum / 30)} ट्रे)
               </span>
             </div>
@@ -198,21 +198,21 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
               <button
                 type="button"
                 onClick={() => adjustValue(eggs, -100, setEggs)}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:border-[#1F4D3A] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-forest)] active:scale-95 cursor-pointer tabular-nums"
               >
                 -100
               </button>
               <button
                 type="button"
                 onClick={() => adjustValue(eggs, 100, setEggs)}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:border-[#1F4D3A] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-forest)] active:scale-95 cursor-pointer tabular-nums"
               >
                 +100
               </button>
               <button
                 type="button"
                 onClick={() => adjustValue(eggs, 500, setEggs)}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:border-[#1F4D3A] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-forest)] active:scale-95 cursor-pointer tabular-nums"
               >
                 +500
               </button>
@@ -220,12 +220,12 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
           </div>
 
           {/* 2. Feed Used (Kg) */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#1F4D3A] dark:hover:border-[#42BF87] transition-colors shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] hover:border-[var(--color-forest)] dark:hover:border-[var(--color-sage)] transition-colors shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[var(--color-text-main)]">
                 {t.feedUsedLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[var(--color-text-muted)] tabular-nums">
                 काल: {yesterdayRecord ? yesterdayRecord.feedIssuedKg.toLocaleString('en-IN') : '3,300'} kg
               </span>
             </div>
@@ -238,9 +238,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={feedKg}
                 onChange={e => setFeedKg(e.target.value)}
                 placeholder="3300"
-                className="w-full text-2xl font-black text-[#1F4D3A] dark:text-[#42BF87] bg-transparent border-b-2 border-[#1F4D3A]/40 dark:border-[#42BF87]/50 focus:border-[#1F4D3A] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] bg-transparent border-b-2 border-[var(--color-forest)]/40 dark:border-[var(--color-sage)]/50 focus:border-[var(--color-forest)] py-1 focus:outline-none tabular-nums"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[var(--color-text-muted)]">
                 kg ({Math.round(feedNum / 50)} पोती)
               </span>
             </div>
@@ -249,14 +249,14 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
               <button
                 type="button"
                 onClick={() => adjustValue(feedKg, -50, setFeedKg)}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:border-[#1F4D3A] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-forest)] active:scale-95 cursor-pointer tabular-nums"
               >
                 -50kg (1 पोते)
               </button>
               <button
                 type="button"
                 onClick={() => adjustValue(feedKg, 50, setFeedKg)}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] hover:border-[#1F4D3A] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-forest)] active:scale-95 cursor-pointer tabular-nums"
               >
                 +50kg (1 पोते)
               </button>
@@ -264,12 +264,12 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
           </div>
 
           {/* 3. Mortality */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-red-500 transition-colors shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] hover:border-[var(--color-error)] transition-colors shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[var(--color-text-main)]">
                 {t.mortalityLabel} *
               </label>
-              <span className="text-[11px] font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="text-[11px] font-medium text-[var(--color-text-muted)] tabular-nums">
                 काल: {yesterdayRecord ? yesterdayRecord.mortality : '15'} पक्षी
               </span>
             </div>
@@ -282,9 +282,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={mortality}
                 onChange={e => setMortality(e.target.value)}
                 placeholder="15"
-                className="w-full text-2xl font-black text-red-600 dark:text-red-400 bg-transparent border-b-2 border-red-300 dark:border-red-500/50 focus:border-red-500 py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[var(--color-error)] bg-transparent border-b-2 border-[var(--color-error)]/40 focus:border-[var(--color-error)] py-1 focus:outline-none tabular-nums"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-red-600 dark:text-red-400">
+              <span className="absolute right-0 bottom-2 text-xs font-bold text-[var(--color-error)]">
                 मृत्यू संख्या
               </span>
             </div>
@@ -293,21 +293,21 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
               <button
                 type="button"
                 onClick={() => adjustValue(mortality, -1, setMortality)}
-                className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-red-600 hover:border-red-500 active:scale-95"
+                className="px-2.5 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-error)] hover:border-[var(--color-error)] active:scale-95 cursor-pointer tabular-nums"
               >
                 -1
               </button>
               <button
                 type="button"
                 onClick={() => adjustValue(mortality, 1, setMortality)}
-                className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-red-600 hover:border-red-500 active:scale-95"
+                className="px-2.5 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-error)] hover:border-[var(--color-error)] active:scale-95 cursor-pointer tabular-nums"
               >
                 +1
               </button>
               <button
                 type="button"
                 onClick={() => adjustValue(mortality, 5, setMortality)}
-                className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-red-600 hover:border-red-500 active:scale-95"
+                className="px-2.5 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-error)] hover:border-[var(--color-error)] active:scale-95 cursor-pointer tabular-nums"
               >
                 +5
               </button>
@@ -315,12 +315,12 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
           </div>
 
           {/* 4. Selling Rate */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8F6F0] dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] hover:border-[#D9A441] transition-colors shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] hover:border-[var(--color-amber)] transition-colors shadow-xs">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-black text-[#0B1E15] dark:text-white">
+              <label className="text-xs font-bold text-[var(--color-text-main)]">
                 {t.saleRateLabel}
               </label>
-              <span className="text-[11px] font-bold text-[#B07B18] dark:text-[#E5B252]">
+              <span className="text-[11px] font-bold text-[var(--color-amber)] tabular-nums">
                 बाजार दर: ₹५.४०
               </span>
             </div>
@@ -333,9 +333,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                 value={sellingRate}
                 onChange={e => setSellingRate(e.target.value)}
                 placeholder="5.40"
-                className="w-full text-2xl font-black text-[#B07B18] dark:text-[#E5B252] bg-transparent border-b-2 border-[#D9A441]/40 focus:border-[#D9A441] py-1 focus:outline-none"
+                className="w-full text-2xl font-bold text-[var(--color-amber)] bg-transparent border-b-2 border-[var(--color-amber)]/40 focus:border-[var(--color-amber)] py-1 focus:outline-none tabular-nums"
               />
-              <span className="absolute right-0 bottom-2 text-xs font-bold text-[#55695F] dark:text-[#CBDCD4]">
+              <span className="absolute right-0 bottom-2 text-xs font-medium text-[var(--color-text-muted)] tabular-nums">
                 ₹ प्रति अंडे (= ₹{Math.round(rateNum * 100)}/१००)
               </span>
             </div>
@@ -347,7 +347,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                   const current = Number(sellingRate) || 5.40;
                   setSellingRate((current - 0.10).toFixed(2));
                 }}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#B07B18] hover:border-[#D9A441] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-amber)] active:scale-95 cursor-pointer"
               >
                 -१० पैसे
               </button>
@@ -357,7 +357,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
                   const current = Number(sellingRate) || 5.40;
                   setSellingRate((current + 0.10).toFixed(2));
                 }}
-                className="px-2 py-1 rounded-lg bg-white dark:bg-[#16241D] border border-[#DCD3C3] dark:border-[#263B30] text-[11px] font-bold text-[#B07B18] hover:border-[#D9A441] active:scale-95"
+                className="px-2 py-1 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-main)] hover:border-[var(--color-amber)] active:scale-95 cursor-pointer"
               >
                 +१० पैसे
               </button>
@@ -366,34 +366,34 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
         </div>
 
         {/* Live Automatic KPI Preview Ribbon */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/25">
-          <div className="text-[11px] font-bold text-[#1F4D3A] dark:text-[#42BF87] uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1 font-black">
-              <Sparkles className="w-3.5 h-3.5 text-[#D9A441]" />
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)]">
+          <div className="text-[11px] font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--color-amber)]" />
               आपोआप तयार होणारा हिशोब (Live Math Preview)
             </span>
-            <span className="font-semibold text-[#55695F] dark:text-[#CBDCD4]">मानकानुसार</span>
+            <span className="font-medium text-[var(--color-text-muted)]">मानकानुसार</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#55695F] dark:text-[#CBDCD4] font-bold">हेन-डे (HD%)</div>
-              <div className="text-base font-black text-[#1F4D3A] dark:text-[#42BF87] mt-0.5">{hdPct}%</div>
+            <div className="bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)] shadow-xs">
+              <div className="text-[11px] text-[var(--color-text-muted)] font-medium">हेन-डे (HD%)</div>
+              <div className="text-base font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] mt-0.5 tabular-nums">{hdPct}%</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#55695F] dark:text-[#CBDCD4] font-bold">प्रति पक्षी खुराक</div>
-              <div className="text-base font-black text-[#1F4D3A] dark:text-[#42BF87] mt-0.5">{feedPerBirdG} g</div>
+            <div className="bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)] shadow-xs">
+              <div className="text-[11px] text-[var(--color-text-muted)] font-medium">प्रति पक्षी खुराक</div>
+              <div className="text-base font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] mt-0.5 tabular-nums">{feedPerBirdG} g</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#55695F] dark:text-[#CBDCD4] font-bold">प्रति अंडे खर्च</div>
-              <div className="text-base font-black text-[#0B1E15] dark:text-white mt-0.5">₹{operatingCostPerEgg}</div>
+            <div className="bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)] shadow-xs">
+              <div className="text-[11px] text-[var(--color-text-muted)] font-medium">प्रति अंडे खर्च</div>
+              <div className="text-base font-bold text-[var(--color-text-main)] mt-0.5 tabular-nums">₹{operatingCostPerEgg}</div>
             </div>
 
-            <div className="bg-white dark:bg-[#16241D] p-2.5 rounded-xl border border-[#DCD3C3]/60 dark:border-[#263B30] shadow-xs">
-              <div className="text-[11px] text-[#55695F] dark:text-[#CBDCD4] font-bold">अंदाजे नफा (Cash)</div>
-              <div className="text-base font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
+            <div className="bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)] shadow-xs">
+              <div className="text-[11px] text-[var(--color-text-muted)] font-medium">अंदाजे नफा (Cash)</div>
+              <div className="text-base font-bold text-[var(--color-success)] mt-0.5 tabular-nums">
                 ₹{simpleOperatingProfit.toLocaleString('en-IN')}
               </div>
             </div>
@@ -406,7 +406,7 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
             <button
               type="button"
               onClick={onSwitchToFullEntry}
-              className="py-3 px-4 rounded-2xl border border-[#DCD3C3] dark:border-[#263B30] text-xs font-bold text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] transition-colors touch-target"
+              className="py-3 px-4 rounded-2xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-main)] hover:bg-[var(--color-surface-subtle)] transition-colors touch-target cursor-pointer"
             >
               तपशीलवार नोंद हवी आहे? (Full 2-Min Entry)
             </button>
@@ -415,9 +415,9 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 min-h-[52px] py-3.5 px-6 rounded-2xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white text-base font-black flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99] touch-target"
+            className="flex-1 min-h-[52px] py-3.5 px-6 rounded-2xl bg-[var(--color-forest)] hover:bg-[#143F2F] text-white text-base font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99] touch-target cursor-pointer"
           >
-            <CheckCircle2 className="w-5 h-5 text-[#D9A441]" />
+            <CheckCircle2 className="w-5 h-5 text-[var(--color-amber)]" />
             <span>{isSubmitting ? t.saving : t.saveAndCloseDay}</span>
           </button>
         </div>
