@@ -50,12 +50,12 @@ export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
   const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, logout } = useLayerOS();
 
-  // Root route visitor handoff state: default to false for 100% hydration parity, switch to landing for fresh visitors
-  const [showLanding, setShowLanding] = useState(false);
+  // Root route visitor state: default to true so Home Landing Page ALWAYS opens initially
+  const [showLanding, setShowLanding] = useState<boolean>(() => !Boolean(farmId));
   const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(Boolean(farmId));
   const [farmLoadError, setFarmLoadError] = useState<string | null>(null);
 
-  // Synchronize visitor vs returning dashboard state
+  // Synchronize visitor vs returning dashboard state: Home Landing Page is always the default entry point!
   React.useEffect(() => {
     try {
       if (farmId) {
@@ -64,28 +64,23 @@ export function HomePage() {
       }
 
       const params = new URLSearchParams(window.location.search);
-      const queryLanding = params.get('landing') === 'true';
-      if (queryLanding) {
-        sessionStorage.removeItem('layeros_entered');
-        setShowLanding(true);
+      // Only switch to demo dashboard if explicitly requested via ?demo=true
+      if (params.get('demo') === 'true') {
+        loginAsDemo();
+        setShowLanding(false);
         return;
       }
 
-      const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
-      const isLive = localStorage.getItem('layeros_live_active') === 'true';
-      const queryDemo = params.get('demo') === 'true';
-      const queryLive = params.get('live') === 'true';
-      const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
-
-      // Automated tests or returning sessions remain on dashboard
-      if (queryDemo || queryLive || hasEntered || isLive || isAutomatedTest) {
+      // Only switch to live dashboard if explicitly requested via ?live=true
+      if (params.get('live') === 'true') {
+        setShowLanding(false);
         return;
       }
 
-      // Fresh human visitor on "/" sees the public landing page
+      // In all default visits to root "/", ALWAYS open the Home Landing Page first!
       setShowLanding(true);
     } catch {
-      // ignore
+      setShowLanding(true);
     }
   }, [farmId]);
 

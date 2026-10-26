@@ -70,9 +70,13 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Farm Avatar & Name */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1F4D3A] text-white flex items-center justify-center font-black text-base sm:text-lg shadow-sm flex-shrink-0">
+          <Link
+            href="/"
+            title="मुख्य पानावर जा (Go to Home Landing Page)"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1F4D3A] text-white flex items-center justify-center font-black text-base sm:text-lg shadow-sm flex-shrink-0 hover:scale-105 transition-transform"
+          >
             🐔
-          </div>
+          </Link>
           <div className="min-w-0 relative">
             <div className="flex items-center gap-1.5">
               {isDemoMode ? (
