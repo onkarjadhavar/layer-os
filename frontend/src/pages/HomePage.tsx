@@ -48,7 +48,7 @@ import { Sparkles, Zap, MessageSquare, AlertCircle } from 'lucide-react';
 
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
-  const { user, farm, setActiveFarmData, loginAsDemo, logout } = useLayerOS();
+  const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, logout } = useLayerOS();
 
   // Root route visitor handoff state: default to false for 100% hydration parity, switch to landing for fresh visitors
   const [showLanding, setShowLanding] = useState(false);
@@ -92,6 +92,14 @@ export function HomePage() {
   // When a farmId is specified in URL, fetch live farm data from FastAPI
   useEffect(() => {
     if (!farmId) return;
+
+    // Multi-tenant security check: Enrolled user can only access their own enrolled farm!
+    if (user && !isDemoMode && user.farmId && user.farmId !== farmId) {
+      setFarmLoadError('forbidden');
+      setIsLoadingFarm(false);
+      setShowLanding(false);
+      return;
+    }
 
     let isMounted = true;
     setIsLoadingFarm(true);
@@ -207,6 +215,8 @@ export function HomePage() {
         const status = err?.response?.status || err?.status;
         if (status === 404) {
           setFarmLoadError('not_found');
+        } else if (status === 403) {
+          setFarmLoadError('forbidden');
         } else {
           setFarmLoadError(err?.message || 'फार्म माहिती आणण्यात त्रुटी आली.');
         }
@@ -281,6 +291,39 @@ export function HomePage() {
           >
             मुख्य पानावर जा
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // If farm access is forbidden (403 - Multi-tenant security violation)
+  if (farmId && farmLoadError === 'forbidden') {
+    return (
+      <div className="min-h-screen bg-[#FAF8F3] dark:bg-[#0F1A15] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 flex items-center justify-center text-3xl shadow-sm mb-4 border border-red-300">
+          🛡️
+        </div>
+        <h2 className="text-2xl font-black text-[#1B2A24] dark:text-white">
+          सुरक्षा इशारा: प्रवेश नाकारला (Access Denied)
+        </h2>
+        <p className="text-sm text-[#55695F] dark:text-[#CBDCD4] mt-2 max-w-md">
+          आपण केवळ आपल्या स्वतःच्या नोंदणीकृत पोल्ट्री फार्मचा डेटा पाहू शकता. सुरक्षिततेसाठी इतर कोणाच्याही फार्मच्या डेटामध्ये प्रवेश प्रतिबंधित आहे.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+          {user?.farmId && (
+            <Link
+              to={`/dashboard/farms/${user.farmId}`}
+              className="px-5 py-3 rounded-xl bg-[#1F4D3A] text-white text-sm font-bold shadow hover:bg-[#173A2C] transition-all"
+            >
+              माझ्या फार्मवर जा →
+            </Link>
+          )}
+          <button
+            onClick={() => logout()}
+            className="px-5 py-3 rounded-xl border border-[#DCD3C3] dark:border-[#263B30] text-sm font-bold text-[#1B2A24] dark:text-white hover:bg-gray-50 dark:hover:bg-[#1F2E26] transition-all"
+          >
+            लॉगआउट करा
+          </button>
         </div>
       </div>
     );

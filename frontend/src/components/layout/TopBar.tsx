@@ -75,34 +75,40 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
           </div>
           <div className="min-w-0 relative">
             <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowFarmDropdown(!showFarmDropdown);
-                  setShowRoleDropdown(false);
-                  setShowLangDropdown(false);
-                }}
-                className="group flex items-center gap-1 text-left text-sm sm:text-base font-black text-[#0B1E15] dark:text-white hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-colors truncate"
-                title={t.switchFarm}
-              >
-                <span className="truncate">{farm.name}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#2D4538] dark:text-[#CBDCD4] group-hover:text-[#1F4D3A] flex-shrink-0 transition-transform" />
-              </button>
-
               {isDemoMode ? (
-                <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FCF6E9] dark:bg-[#2E2413] text-[#B07B18] dark:text-[#E5B252] border border-[#D9A441]/40">
-                  <Sparkles className="w-2.5 h-2.5 mr-1" />
-                  {t.demoBadge}
-                </span>
-              ) : isDatabaseConnected ? (
-                <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40">
-                  {t.postgresLive}
-                </span>
-              ) : null}
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowFarmDropdown(!showFarmDropdown);
+                      setShowRoleDropdown(false);
+                      setShowLangDropdown(false);
+                    }}
+                    className="group flex items-center gap-1 text-left text-sm sm:text-base font-black text-[#0B1E15] dark:text-white hover:text-[#1F4D3A] dark:hover:text-[#42BF87] transition-colors truncate"
+                    title={t.switchFarm}
+                  >
+                    <span className="truncate">{farm.name}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-[#2D4538] dark:text-[#CBDCD4] group-hover:text-[#1F4D3A] flex-shrink-0 transition-transform" />
+                  </button>
+                  <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FCF6E9] dark:bg-[#2E2413] text-[#B07B18] dark:text-[#E5B252] border border-[#D9A441]/40">
+                    <Sparkles className="w-2.5 h-2.5 mr-1" />
+                    {t.demoBadge}
+                  </span>
+                </>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white truncate">
+                    {farm.name}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40">
+                    {t.postgresLive || "माझा फार्म (Live)"}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Farm Switcher Dropdown */}
-            {showFarmDropdown && (
+            {/* Farm Switcher Dropdown - Demo Mode Only */}
+            {isDemoMode && showFarmDropdown && (
               <div className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#16241D] rounded-2xl shadow-2xl border border-[#DCD3C3] dark:border-[#263B30] py-2 z-50">
                 <div className="px-3.5 py-1.5 text-[11px] font-black text-[#2D4538] dark:text-[#CBDCD4] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#E7E2D6]/60 dark:border-[#263B30]">
                   <Building2 className="w-3.5 h-3.5 text-[#1F4D3A] dark:text-[#42BF87]" />

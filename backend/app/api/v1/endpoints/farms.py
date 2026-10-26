@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_current_user_optional
 from app.core.security import get_password_hash, create_access_token
 from app.models.user import User
 from app.models.farm import Farm, UnitSettings, Shed, Flock, FarmMember
@@ -346,9 +346,29 @@ def get_mock_farm_dashboard(farm_id: str) -> FarmDashboardResponse:
     )
 
 
+def check_farm_membership_or_admin(farm_id: uuid.UUID, current_user: Optional[User], db: Session):
+    if not current_user:
+        return
+    if current_user.role in ["platform_admin", "super_admin"]:
+        return
+    if current_user.farm_id == farm_id:
+        return
+    membership = db.query(FarmMember).filter(
+        FarmMember.farm_id == farm_id,
+        FarmMember.user_id == current_user.id,
+        FarmMember.is_active == True
+    ).first()
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="सुरक्षा: आपण केवळ आपल्या स्वतःच्या नोंदणीकृत फार्मचा डेटा पाहू शकता. (Access denied: You can only access your own enrolled poultry farm.)"
+        )
+
+
 @router.get("/{farm_id}", response_model=FarmResponse)
 def get_farm(
     farm_id: str,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     if not is_valid_uuid(farm_id):
@@ -358,17 +378,21 @@ def get_farm(
     farm = db.query(Farm).filter(Farm.id == parsed_uuid).first()
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
+
+    check_farm_membership_or_admin(parsed_uuid, current_user, db)
     return FarmResponse.model_validate(farm)
 
 
 @router.get("/{farm_id}/dashboard", response_model=FarmDashboardResponse)
 def get_farm_dashboard(
     farm_id: str,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
     Retrieves the complete dashboard dataset for a specific farm.
     Falls back gracefully to benchmark data if farm_id is string.
+    Enforces multi-tenant isolation so users only see their own enrolled farm.
     """
     if not is_valid_uuid(farm_id):
         return get_mock_farm_dashboard(farm_id)
@@ -377,6 +401,8 @@ def get_farm_dashboard(
     farm = db.query(Farm).filter(Farm.id == parsed_uuid).first()
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
+
+    check_farm_membership_or_admin(parsed_uuid, current_user, db)
 
     sheds = db.query(Shed).filter(Shed.farm_id == parsed_uuid, Shed.is_active == True).all()
     flocks = db.query(Flock).filter(Flock.farm_id == parsed_uuid).all()

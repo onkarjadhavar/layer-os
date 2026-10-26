@@ -60,11 +60,12 @@ export function LoginPageComponent() {
       }
     } catch {
       setLoading(false);
-      const success = loginWithPhone(phoneNumber, otp);
+      const cleanPhone = phoneNumber.replace(/\D/g, '');
+      const success = loginWithPhone(cleanPhone, otp);
       if (success) {
         router.push('/?live=true');
       } else {
-        setError('अवैध ओटीपी. कृपया 123456 टाका');
+        setError('या मोबाईल नंबरवर नोंदणीकृत पोल्ट्री फार्म सापडला नाही. कृपया आधी नोंदणी (Enroll) करा किंवा योग्य तपशील तपासा.');
       }
     }
   };

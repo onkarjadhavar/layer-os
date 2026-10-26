@@ -35,7 +35,7 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
     # If demo login or user not created yet for demo farm
     if not user:
         phone = (input_data.phone or "").strip()
-        if phone == "9822012345" or (input_data.otp and len(input_data.otp) == 6):
+        if phone == "9822012345":
             # Seed demo farm & owner if missing
             farm = db.query(Farm).filter(Farm.name == "सह्याद्री लेयर फार्म (पुणे)").first()
             if not farm:

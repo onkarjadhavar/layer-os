@@ -240,7 +240,12 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(saved);
           if (parsed.user) setUser(parsed.user);
           if (parsed.isDemoMode !== undefined) setIsDemoMode(parsed.isDemoMode);
-          if (parsed.farm) setFarm(parsed.farm);
+          if (parsed.farm) {
+            setFarm(parsed.farm);
+            if (!parsed.isDemoMode) {
+              _setFarms([parsed.farm]);
+            }
+          }
           if (parsed.flock) setFlock(parsed.flock);
           if (parsed.sheds) setSheds(parsed.sheds);
           if (parsed.dailyRecords && parsed.dailyRecords.length > 0) setDailyRecords(parsed.dailyRecords);
@@ -308,16 +313,32 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithPhone = (phone: string, otp: string): boolean => {
     if (otp.length === 6) {
-      setIsDemoMode(false);
-      setIsAuthenticated(true);
-      setUser({
-        id: "usr-live-01",
-        name: "पोल्ट्री चालक (Farm Incharge)",
-        phone,
-        role: "owner",
-        farmId: "farm-sahyadri-01",
-      });
-      return true;
+      // 1. Check if this phone number matches the enrolled farm in storage
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.user && parsed.user.phone === phone && parsed.farm) {
+            setIsDemoMode(false);
+            setIsAuthenticated(true);
+            setUser(parsed.user);
+            setFarm(parsed.farm);
+            _setFarms([parsed.farm]);
+            return true;
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      // 2. Demo credentials check
+      if (phone === '9822012345') {
+        loginAsDemo();
+        return true;
+      }
+
+      // 3. Unenrolled phone numbers are strictly rejected
+      return false;
     }
     return false;
   };
@@ -353,6 +374,11 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   };
 
   const switchFarm = (farmId: string) => {
+    // If user is in non-demo mode (enrolled customer), cross-tenant switching is strictly forbidden
+    if (!isDemoMode && farm.id !== farmId) {
+      console.warn('Cross-tenant isolation: cannot switch to another farm outside enrolled account.');
+      return;
+    }
     const target = farms.find(f => f.id === farmId);
     if (target) {
       setFarm(target);
@@ -503,10 +529,8 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setIsDemoMode(false);
     setIsAuthenticated(true);
     setFarm(data.farm);
-    _setFarms(prev => {
-      const exists = prev.some(f => f.id === data.farm.id);
-      return exists ? prev.map(f => (f.id === data.farm.id ? data.farm : f)) : [data.farm, ...prev];
-    });
+    // Enrolled user strictly sees ONLY their enrolled farm. Never demo farms.
+    _setFarms([data.farm]);
     if (data.sheds && data.sheds.length > 0) {
       setSheds(data.sheds);
     }

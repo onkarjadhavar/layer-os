@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 import uuid
 
@@ -19,8 +19,8 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    farm_id: Optional[uuid.UUID] = None
+    id: Union[uuid.UUID, str]
+    farm_id: Optional[Union[uuid.UUID, str]] = None
     phone: str
     email: Optional[str] = None
     full_name: str

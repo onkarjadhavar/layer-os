@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 
 from app.db.session import get_db
+from app.api.deps import get_current_admin
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.admin import PlatformAdminUser, AdminAuditLog, PlatformSettings
 from app.models.farm import Farm, Flock
@@ -92,7 +93,10 @@ def admin_login(data: AdminLoginInput, db: Session = Depends(get_db)):
 
 
 @router.get("/kpis", response_model=PlatformKPIsResponse)
-def get_platform_kpis(db: Session = Depends(get_db)):
+def get_platform_kpis(
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
     total_farms = db.query(Farm).count()
     active_farms = db.query(Farm).filter(Farm.status == "active").count()
     pending = db.query(Farm).filter(Farm.status == "pending_approval").count()
@@ -119,6 +123,7 @@ def get_platform_kpis(db: Session = Depends(get_db)):
 @router.get("/farms", response_model=List[AdminFarmResponse])
 def list_admin_farms(
     status_filter: Optional[str] = Query(None),
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     query = db.query(Farm)
@@ -154,6 +159,7 @@ def change_farm_status(
     farm_id: uuid.UUID,
     payload: ChangeFarmStatusInput,
     request: Request,
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     farm = db.query(Farm).filter(Farm.id == farm_id).first()
@@ -182,6 +188,7 @@ def change_farm_status(
 @router.get("/audit-logs", response_model=List[AdminAuditLogResponse])
 def get_audit_logs(
     limit: int = Query(100, ge=1, le=500),
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     logs = db.query(AdminAuditLog).order_by(desc(AdminAuditLog.created_at)).limit(limit).all()
@@ -189,7 +196,10 @@ def get_audit_logs(
 
 
 @router.get("/settings", response_model=PlatformSettingsResponse)
-def get_platform_settings(db: Session = Depends(get_db)):
+def get_platform_settings(
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
     settings_obj = db.query(PlatformSettings).first()
     if not settings_obj:
         settings_obj = PlatformSettings(
@@ -210,6 +220,7 @@ def get_platform_settings(db: Session = Depends(get_db)):
 @router.put("/settings", response_model=PlatformSettingsResponse)
 def update_platform_settings(
     settings_in: PlatformSettingsUpdate,
+    current_admin: PlatformAdminUser = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
     settings_obj = db.query(PlatformSettings).first()
