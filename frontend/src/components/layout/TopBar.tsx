@@ -255,10 +255,10 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                 setShowRoleDropdown(false);
                 setShowFarmDropdown(false);
               }}
-              className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-black rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#D9A441] transition-colors touch-target whitespace-nowrap min-h-[36px]"
+              className="h-9 inline-flex items-center justify-center gap-1 px-2 sm:px-2.5 text-xs font-black rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#0B1E15] dark:text-white border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#D9A441] transition-colors touch-target whitespace-nowrap"
             >
               <Globe className="w-3.5 h-3.5 text-[#D9A441] flex-shrink-0" />
-              <span className="uppercase text-[11px] sm:text-xs font-black">{language}</span>
+              <span className="uppercase text-[11px] sm:text-xs font-black tracking-tight">{language}</span>
               <ChevronDown className="w-3 h-3 text-[#2D4538] dark:text-[#CBDCD4] flex-shrink-0" />
             </button>
 
@@ -317,7 +317,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
           <button
             type="button"
             onClick={onOpenNotifications}
-            className="relative p-2 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target flex items-center justify-center min-h-[36px] min-w-[36px]"
+            className="h-9 w-9 rounded-xl text-[#0B1E15] dark:text-white hover:bg-[#F8F6F0] dark:hover:bg-[#1F3027] border border-[#DCD3C3] dark:border-[#263B30] transition-colors touch-target flex items-center justify-center relative flex-shrink-0"
             title={t.alertsTitle}
           >
             <Bell className="w-4 h-4 text-[#1F4D3A] dark:text-[#3BA378]" />
@@ -339,7 +339,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                 setShowLangDropdown(false);
                 setShowFarmDropdown(false);
               }}
-              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#1F4D3A] dark:text-[#42BF87] border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] transition-colors touch-target min-h-[36px]"
+              className="h-9 inline-flex items-center justify-center gap-1.5 px-2 sm:px-2.5 text-xs font-bold rounded-xl bg-[#F8F6F0] dark:bg-[#1A2D23] text-[#1F4D3A] dark:text-[#42BF87] border border-[#DCD3C3] dark:border-[#263B30] hover:border-[#1F4D3A] transition-colors touch-target"
             >
               <UserCheck className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="hidden sm:inline capitalize font-black text-xs">{user?.role}</span>

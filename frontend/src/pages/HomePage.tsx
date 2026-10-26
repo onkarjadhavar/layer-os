@@ -48,7 +48,7 @@ import { Sparkles, Zap, MessageSquare, AlertCircle } from 'lucide-react';
 
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
-  const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, logout } = useLayerOS();
+  const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, switchFarm, logout } = useLayerOS();
 
   // Root route visitor state: default to true so Home Landing Page ALWAYS opens initially
   const [showLanding, setShowLanding] = useState<boolean>(() => !Boolean(farmId));
@@ -59,6 +59,12 @@ export function HomePage() {
   React.useEffect(() => {
     try {
       if (farmId) {
+        if (farmId === 'farm-sahyadri-01' || farmId === 'farm-anand-02') {
+          loginAsDemo();
+          if (farmId === 'farm-anand-02') {
+            switchFarm('farm-anand-02');
+          }
+        }
         setShowLanding(false);
         return;
       }
@@ -133,15 +139,15 @@ export function HomePage() {
           id: f.id || `flock-${idx + 1}`,
           farmId: f.farm_id || data.farm.id,
           shedId: f.shed_id || (shedsModel[0]?.id || 'shed-1'),
-          batchCode: f.name || `Batch-${idx + 1}`,
+          batchCode: f.batch_code || f.name || `Batch-${idx + 1}`,
           breed: f.breed || 'BV300',
-          hatcherySource: 'Direct Placement',
+          hatcherySource: f.hatchery_source || 'Direct Placement',
           placementDate: f.placement_date || new Date().toISOString().split('T')[0],
-          initialChickCount: f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
-          chickCostPerBird: 42.0,
-          currentBirdCount: f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
+          initialChickCount: f.initial_chick_count || f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
+          chickCostPerBird: f.chick_cost_per_bird || 42.0,
+          currentBirdCount: f.current_bird_count ?? f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
           ageWeeks: f.age_weeks || 34,
-          currentPhase: 'laying' as const,
+          currentPhase: (f.current_phase as any) || 'laying',
         }));
 
         const unitSettingsModel: UnitSettings = data.unit_settings || data.farm.unit_settings || {
@@ -152,38 +158,54 @@ export function HomePage() {
           defaultRateUnit: 'per_100',
         };
 
-        const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => ({
-          id: r.id,
-          farmId: r.farm_id || data.farm.id,
-          flockId: r.flock_id || (flocksModel[0]?.id || ''),
-          recordDate: r.record_date,
-          openingBirds: r.opening_birds || 0,
-          mortality: r.mortality || 0,
-          culls: r.culls || 0,
-          closingBirds: r.closing_birds || 0,
-          totalEggsCollected: r.eggs_collected || 0,
-          brokenCrackedEggs: r.damaged_eggs || 0,
-          softShellEggs: 0,
-          rejectEggs: 0,
-          goodEggs: (r.eggs_collected || 0) - (r.damaged_eggs || 0),
-          morningCollection: 0,
-          eveningCollection: 0,
-          hdPct: r.opening_birds > 0 ? ((r.eggs_collected || 0) / r.opening_birds) * 100 : 0,
-          productionPct: r.opening_birds > 0 ? ((r.eggs_collected || 0) / r.opening_birds) * 100 : 0,
-          feedIssuedKg: r.feed_used_kg || 0,
-          feedPerBirdG: r.opening_birds > 0 ? ((r.feed_used_kg || 0) * 1000) / r.opening_birds : 0,
-          waterConsumptionLitres: 0,
-          avgEggWeightG: 55,
-          sellingPricePerEgg: 5.4,
-          feedPricePerKg: 35.0,
-          otherCashExpenses: 0,
-          otherIncome: 0,
-          simpleOperatingProfit: 0,
-          trueProfit: 0,
-          costPerEgg: 4.8,
-          breakEvenEggPrice: 4.8,
-          isClosed: true,
-        }));
+        const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => {
+          const recDate = r.recordDate || r.record_date || new Date().toISOString().split('T')[0];
+          const opening = r.openingBirds ?? r.opening_birds ?? data.summary?.total_birds ?? 10000;
+          const mort = r.mortality ?? 0;
+          const closing = r.closingBirds ?? r.closing_birds ?? (opening - mort);
+          const totalEggs = r.totalEggsCollected ?? r.eggs_collected ?? 0;
+          const broken = r.brokenCrackedEggs ?? r.damaged_eggs ?? Math.round(totalEggs * 0.006);
+          const good = r.goodEggs ?? (totalEggs - broken);
+          const hd = r.hdPct ?? (opening > 0 ? Number(((totalEggs / opening) * 100).toFixed(2)) : 0);
+          const feedKg = r.feedIssuedKg ?? r.feed_used_kg ?? 0;
+          const feedBird = r.feedPerBirdG ?? (closing > 0 ? Number(((feedKg * 1000) / closing).toFixed(1)) : 110.0);
+          const eggPrice = r.sellingPricePerEgg ?? data.summary?.selling_price_per_egg ?? 5.4;
+          const profit = r.simpleOperatingProfit ?? data.summary?.today_operating_profit ?? 0;
+          const breakEven = r.breakEvenEggPrice ?? data.summary?.break_even_price ?? 4.8;
+
+          return {
+            id: r.id || `rec-${data.farm.id}-${recDate}`,
+            farmId: r.farm_id || data.farm.id,
+            flockId: r.flock_id || (flocksModel[0]?.id || ''),
+            recordDate: recDate,
+            openingBirds: opening,
+            mortality: mort,
+            culls: r.culls || 0,
+            closingBirds: closing,
+            totalEggsCollected: totalEggs,
+            brokenCrackedEggs: broken,
+            softShellEggs: r.softShellEggs || 0,
+            rejectEggs: r.rejectEggs || 0,
+            goodEggs: good,
+            morningCollection: r.morningCollection ?? Math.round(good * 0.65),
+            eveningCollection: r.eveningCollection ?? (good - Math.round(good * 0.65)),
+            hdPct: hd,
+            productionPct: hd,
+            feedIssuedKg: feedKg,
+            feedPerBirdG: feedBird,
+            waterConsumptionLitres: r.waterConsumptionLitres ?? Math.round(closing * 0.22),
+            avgEggWeightG: r.avgEggWeightG ?? 55,
+            sellingPricePerEgg: eggPrice,
+            feedPricePerKg: r.feedPricePerKg ?? 35.0,
+            otherCashExpenses: r.otherCashExpenses ?? 1600,
+            otherIncome: 0,
+            simpleOperatingProfit: profit,
+            trueProfit: profit,
+            costPerEgg: breakEven,
+            breakEvenEggPrice: breakEven,
+            isClosed: true,
+          };
+        });
 
         const userModel: UserProfile = {
           id: `usr-${data.farm.id}`,

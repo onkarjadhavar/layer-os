@@ -240,16 +240,26 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(saved);
           if (parsed.user) setUser(parsed.user);
           if (parsed.isDemoMode !== undefined) setIsDemoMode(parsed.isDemoMode);
-          if (parsed.farm) {
+          
+          if (parsed.isDemoMode) {
+            // Demo mode strictly isolated to Sahyadri & Anand
+            setFarm(SEED_FARM);
+            _setFarms(SEED_FARMS);
+            setFlock(SEED_FLOCK);
+            setFlocks(SEED_FLOCKS);
+            setSheds(SEED_SHEDS);
+            setDailyRecords(generate90DaysDailyRecords());
+            setCustomers(SEED_CUSTOMERS);
+          } else if (parsed.farm) {
+            // Enrolled user strictly isolated to their own enrolled farm
             setFarm(parsed.farm);
-            if (!parsed.isDemoMode) {
-              _setFarms([parsed.farm]);
-            }
+            _setFarms([parsed.farm]);
+            if (parsed.flock) setFlock(parsed.flock);
+            if (parsed.flocks && parsed.flocks.length > 0) setFlocks(parsed.flocks);
+            if (parsed.sheds && parsed.sheds.length > 0) setSheds(parsed.sheds);
+            if (parsed.dailyRecords && parsed.dailyRecords.length > 0) setDailyRecords(parsed.dailyRecords);
+            if (parsed.customers && parsed.customers.length > 0) setCustomers(parsed.customers);
           }
-          if (parsed.flock) setFlock(parsed.flock);
-          if (parsed.sheds) setSheds(parsed.sheds);
-          if (parsed.dailyRecords && parsed.dailyRecords.length > 0) setDailyRecords(parsed.dailyRecords);
-          if (parsed.customers && parsed.customers.length > 0) setCustomers(parsed.customers);
           if (parsed.sales && parsed.sales.length > 0) setSales(parsed.sales);
           if (parsed.marketRates && parsed.marketRates.length > 0) setMarketRates(parsed.marketRates);
           if (parsed.vaccinations && parsed.vaccinations.length > 0) setVaccinations(parsed.vaccinations);
@@ -302,9 +312,17 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   const loginAsDemo = () => {
     setIsDemoMode(true);
     setIsAuthenticated(true);
+    setFarm(SEED_FARM);
+    _setFarms(SEED_FARMS);
+    setFlock(SEED_FLOCK);
+    setFlocks(SEED_FLOCKS);
+    setSheds(SEED_SHEDS);
+    setDailyRecords(generate90DaysDailyRecords());
+    setCustomers(SEED_CUSTOMERS);
+    setUnitSettings(DEFAULT_UNIT_SETTINGS);
     setUser({
-      id: "usr-owner-01",
-      name: "सचिन गायकवाड (मालक - डेमो सँडबॉक्स)",
+      id: "usr-demo-sahyadri",
+      name: "सचिन गायकवाड (मालक - सह्याद्री डेमो)",
       phone: "9822012345",
       role: "owner",
       farmId: "farm-sahyadri-01",
@@ -572,36 +590,46 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const defaultBirds = flock.currentBirdCount || farm.totalCapacity || 10000;
+  const isLaying = flock.currentPhase === 'laying';
+  const defaultEggs = isLaying ? Math.round(defaultBirds * 0.90) : 0;
+  const defaultFeedKg = Math.round(defaultBirds * 0.11);
+  const defaultMortality = Math.max(1, Math.round(defaultBirds * 0.0005));
+  const defaultRev = Math.round(defaultEggs * 5.40);
+  const defaultCost = Math.round(defaultFeedKg * 35.0 + 1600);
+  const defaultProfit = defaultRev - defaultCost;
+  const defaultBreakEven = defaultEggs > 0 ? Number((defaultCost / defaultEggs).toFixed(2)) : 4.80;
+
   const defaultTodayRecord: DailyRecord = {
     id: 'record-today',
     farmId: farm.id,
     flockId: flock.id,
     recordDate: new Date().toISOString().split('T')[0],
-    openingBirds: flock.currentBirdCount || farm.totalCapacity || 0,
-    mortality: 0,
+    openingBirds: defaultBirds,
+    mortality: defaultMortality,
     culls: 0,
-    closingBirds: flock.currentBirdCount || farm.totalCapacity || 0,
-    totalEggsCollected: 0,
-    brokenCrackedEggs: 0,
+    closingBirds: defaultBirds - defaultMortality,
+    totalEggsCollected: defaultEggs,
+    brokenCrackedEggs: isLaying ? Math.round(defaultEggs * 0.006) : 0,
     softShellEggs: 0,
     rejectEggs: 0,
-    goodEggs: 0,
-    morningCollection: 0,
-    eveningCollection: 0,
-    hdPct: 0,
-    productionPct: 0,
-    feedIssuedKg: 0,
-    feedPerBirdG: 0,
-    waterConsumptionLitres: 0,
+    goodEggs: isLaying ? defaultEggs - Math.round(defaultEggs * 0.006) : 0,
+    morningCollection: Math.round(defaultEggs * 0.65),
+    eveningCollection: defaultEggs - Math.round(defaultEggs * 0.65),
+    hdPct: isLaying ? 90.0 : 0,
+    productionPct: isLaying ? 90.0 : 0,
+    feedIssuedKg: defaultFeedKg,
+    feedPerBirdG: defaultBirds > 0 ? Number(((defaultFeedKg * 1000) / defaultBirds).toFixed(1)) : 110.0,
+    waterConsumptionLitres: Math.round(defaultBirds * 0.22),
     avgEggWeightG: 55,
     sellingPricePerEgg: 5.4,
     feedPricePerKg: 35.0,
-    otherCashExpenses: 0,
+    otherCashExpenses: 1600,
     otherIncome: 0,
-    simpleOperatingProfit: 0,
-    trueProfit: 0,
-    costPerEgg: 4.8,
-    breakEvenEggPrice: 4.8,
+    simpleOperatingProfit: defaultProfit,
+    trueProfit: defaultProfit,
+    costPerEgg: defaultBreakEven,
+    breakEvenEggPrice: defaultBreakEven,
     isClosed: false,
   };
 
@@ -773,6 +801,18 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+    setFarm(SEED_FARM);
+    _setFarms(SEED_FARMS);
+    setFlock(SEED_FLOCK);
+    setFlocks(SEED_FLOCKS);
+    setSheds(SEED_SHEDS);
+    setUser({
+      id: "usr-demo-sahyadri",
+      name: "सचिन गायकवाड (मालक - सह्याद्री डेमो)",
+      phone: "9822012345",
+      role: "owner",
+      farmId: "farm-sahyadri-01",
+    });
     setDailyRecords(generate90DaysDailyRecords());
     setCustomers(SEED_CUSTOMERS);
     setUnitSettings(DEFAULT_UNIT_SETTINGS);
