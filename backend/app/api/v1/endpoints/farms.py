@@ -189,55 +189,44 @@ def enroll_farm(
         feed_cost_kg = feed_data.feedPricePerKg or 35.0
 
         today_dt = datetime.now(timezone.utc).date()
-        for days_ago in range(13, -1, -1):
-            r_date = today_dt - timedelta(days=days_ago)
-            d_mortality = max(1, round(num_birds * 0.0005) + ((days_ago % 3) - 1))
-            d_opening = num_birds + (days_ago * d_mortality)
-            d_closing = d_opening - d_mortality
-            if is_laying_stage:
-                d_hd = round(89.5 + ((days_ago % 5) * 0.3), 2)
-                d_eggs = round((d_opening * d_hd) / 100)
-                d_broken = round(d_eggs * 0.006)
-                d_good = d_eggs - d_broken
-                d_morning = round(d_good * 0.65)
-                d_evening = d_good - d_morning
-            else:
-                d_hd = 0.0
-                d_eggs = 0
-                d_broken = 0
-                d_good = 0
-                d_morning = 0
-                d_evening = 0
+        d_mortality = max(1, round(num_birds * 0.0005))
+        d_opening = num_birds
+        d_closing = d_opening - d_mortality
+        d_hd = round(89.5, 2) if is_laying_stage else 0.0
+        d_eggs = round((d_opening * d_hd) / 100) if is_laying_stage else 0
+        d_broken = round(d_eggs * 0.006)
+        d_good = d_eggs - d_broken
+        d_morning = round(d_good * 0.65)
+        d_evening = d_good - d_morning
+        d_feed_kg = round(base_feed_kg, 1)
+        d_feed_bird = round((d_feed_kg * 1000) / d_closing, 1) if d_closing > 0 else 0.0
 
-            d_feed_kg = round(base_feed_kg * (1 + ((days_ago % 4) - 2) * 0.008), 1)
-            d_feed_bird = round((d_feed_kg * 1000) / d_closing, 1) if d_closing > 0 else 0.0
-
-            db_record = DailyRecord(
-                id=uuid.uuid4(),
-                farm_id=farm.id,
-                flock_id=primary_flock.id,
-                record_date=r_date,
-                opening_birds=d_opening,
-                mortality=d_mortality,
-                culls=0,
-                closing_birds=d_closing,
-                total_eggs_collected=d_eggs,
-                broken_cracked_eggs=d_broken,
-                soft_shell_eggs=0,
-                reject_eggs=0,
-                good_eggs=d_good,
-                morning_collection=d_morning,
-                evening_collection=d_evening,
-                hd_pct=d_hd,
-                feed_issued_kg=d_feed_kg,
-                feed_per_bird_g=d_feed_bird,
-                water_consumption_litres=round(d_closing * 0.22, 1),
-                avg_egg_weight_g=55.5,
-                is_closed=True,
-                notes="आरंभीय नोंदणी डेटा (Initial Enrollment Baseline)",
-                created_by=user.id
-            )
-            db.add(db_record)
+        db_record = DailyRecord(
+            id=uuid.uuid4(),
+            farm_id=farm.id,
+            flock_id=primary_flock.id,
+            record_date=today_dt,
+            opening_birds=d_opening,
+            mortality=d_mortality,
+            culls=0,
+            closing_birds=d_closing,
+            total_eggs_collected=d_eggs,
+            broken_cracked_eggs=d_broken,
+            soft_shell_eggs=0,
+            reject_eggs=0,
+            good_eggs=d_good,
+            morning_collection=d_morning,
+            evening_collection=d_evening,
+            hd_pct=d_hd,
+            feed_issued_kg=d_feed_kg,
+            feed_per_bird_g=d_feed_bird,
+            water_consumption_litres=round(d_closing * 0.22, 1),
+            avg_egg_weight_g=55.5,
+            is_closed=True,
+            notes="नोंदणी दिवस १ आरंभीय नोंद (Day 1 Inaugural Enrollment Entry)",
+            created_by=user.id
+        )
+        db.add(db_record)
 
     db.commit()
     db.refresh(farm)
@@ -385,22 +374,19 @@ def get_mock_farm_dashboard(farm_id: str) -> FarmDashboardResponse:
         break_even_price=5.21,
         selling_price_per_egg=5.40
     )
-    daily_records = []
-    for days_ago in range(14):
-        rec_date = (now.date() - timedelta(days=days_ago)).isoformat()
-        daily_records.append({
-            "id": f"rec-{fid}-{days_ago}",
-            "recordDate": rec_date,
-            "totalEggsCollected": 27300 - (days_ago * 25),
-            "feedIssuedKg": 3300.0,
-            "mortality": 12 + (days_ago % 4),
-            "hdPct": round(91.02 - (days_ago * 0.08), 2),
-            "openingBirds": 30000,
-            "closingBirds": 29985,
-            "simpleOperatingProfit": round(19920.0 - (days_ago * 75), 2),
-            "breakEvenEggPrice": 5.21,
-            "sellingPricePerEgg": 5.40,
-        })
+    daily_records = [{
+        "id": f"rec-{fid}-day-1",
+        "recordDate": now.date().isoformat(),
+        "totalEggsCollected": 27300,
+        "feedIssuedKg": 3300.0,
+        "mortality": 12,
+        "hdPct": 91.02,
+        "openingBirds": 30000,
+        "closingBirds": 29988,
+        "simpleOperatingProfit": 19920.0,
+        "breakEvenEggPrice": 5.21,
+        "sellingPricePerEgg": 5.40,
+    }]
     return FarmDashboardResponse(
         farm=farm_resp,
         sheds=sheds,

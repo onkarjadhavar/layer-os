@@ -33,7 +33,8 @@ export function FullEntryModal({ isOpen, onClose, onSuccess }: FullEntryModalPro
   const { farm, sheds, flock, todayRecord, addFullDailyRecord, customers, unitSettings } = useLayerOS();
   const { t } = useI18n();
 
-  const [date, setDate] = useState('2026-10-07');
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const [date, setDate] = useState(todayDateStr);
   const [selectedShed, setSelectedShed] = useState('shed-01');
 
   // Accordion open states

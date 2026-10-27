@@ -1,9 +1,17 @@
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Union, Any
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
+
+def parse_uuid_safe(val: Any) -> uuid.UUID:
+    if isinstance(val, uuid.UUID):
+        return val
+    try:
+        return uuid.UUID(str(val))
+    except Exception:
+        return uuid.uuid5(uuid.NAMESPACE_DNS, str(val))
 
 from app.db.session import get_db
 from app.api.deps import get_current_user_optional
@@ -31,11 +39,22 @@ def save_quick_daily_record(
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
-    flock = db.query(Flock).filter(Flock.id == input_data.flock_id).first()
+    farm_uuid = parse_uuid_safe(input_data.farm_id)
+    flock_uuid = parse_uuid_safe(input_data.flock_id)
+
+    # Enforce multi-tenant isolation: non-admin users cannot write records to other farms
+    if current_user and current_user.role not in ["platform_admin", "super_admin"]:
+        if current_user.farm_id and str(current_user.farm_id) != str(farm_uuid):
+            raise HTTPException(status_code=403, detail="Cross-tenant write prohibited.")
+
+    flock = db.query(Flock).filter(Flock.id == flock_uuid).first()
+    if not flock:
+        # Graceful fallback: find first active flock for this farm
+        flock = db.query(Flock).filter(Flock.farm_id == farm_uuid).first()
     if not flock:
         raise HTTPException(status_code=404, detail="Flock not found.")
 
-    unit_settings_obj = db.query(UnitSettings).filter(UnitSettings.farm_id == input_data.farm_id).first()
+    unit_settings_obj = db.query(UnitSettings).filter(UnitSettings.farm_id == farm_uuid).first()
     calc_settings = CalcUnitSettings()
     if unit_settings_obj:
         calc_settings.tray_size_eggs = unit_settings_obj.tray_size_eggs
@@ -44,7 +63,7 @@ def save_quick_daily_record(
 
     # Check for existing record on this flock & date to maintain idempotency
     existing_record = db.query(DailyRecord).filter(
-        DailyRecord.flock_id == input_data.flock_id,
+        DailyRecord.farm_id == farm_uuid,
         DailyRecord.record_date == input_data.record_date
     ).first()
 
@@ -78,8 +97,8 @@ def save_quick_daily_record(
 
     if not existing_record:
         record = DailyRecord(
-            farm_id=input_data.farm_id,
-            flock_id=input_data.flock_id,
+            farm_id=farm_uuid,
+            flock_id=flock.id,
             record_date=input_data.record_date,
             opening_birds=opening_birds,
             mortality=input_data.mortality,
@@ -186,14 +205,20 @@ def save_full_daily_record(
 def get_daily_records(
     farm_id: Optional[uuid.UUID] = Query(None),
     flock_id: Optional[uuid.UUID] = Query(None),
-    limit: int = Query(90, ge=1, le=365),
+    limit: int = Query(180, ge=1, le=365),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    # Enforce multi-tenant read isolation
+    if current_user and current_user.role not in ["platform_admin", "super_admin"]:
+        if current_user.farm_id:
+            farm_id = current_user.farm_id
+
     query = db.query(DailyRecord)
     if farm_id:
         query = query.filter(DailyRecord.farm_id == farm_id)
     if flock_id:
         query = query.filter(DailyRecord.flock_id == flock_id)
 
-    records = query.order_by(desc(DailyRecord.record_date)).limit(limit).all()
+    records = query.order_by(DailyRecord.record_date.asc()).limit(limit).all()
     return [DailyRecordResponse.model_validate(r) for r in records]

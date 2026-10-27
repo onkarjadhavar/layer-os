@@ -23,7 +23,8 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
   const { todayRecord, yesterdayRecord, addQuickLog, flock } = useLayerOS();
   const { t } = useI18n();
 
-  const [date, setDate] = useState('2026-10-07');
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const [date, setDate] = useState(todayDateStr);
   const [eggs, setEggs] = useState<string>(todayRecord ? String(todayRecord.totalEggsCollected) : '27300');
   const [feedKg, setFeedKg] = useState<string>(todayRecord ? String(todayRecord.feedIssuedKg) : '3300');
   const [mortality, setMortality] = useState<string>(todayRecord ? String(todayRecord.mortality) : '15');

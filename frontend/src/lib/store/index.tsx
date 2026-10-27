@@ -257,7 +257,10 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             if (parsed.flock) setFlock(parsed.flock);
             if (parsed.flocks && parsed.flocks.length > 0) setFlocks(parsed.flocks);
             if (parsed.sheds && parsed.sheds.length > 0) setSheds(parsed.sheds);
-            if (parsed.dailyRecords && parsed.dailyRecords.length > 0) setDailyRecords(parsed.dailyRecords);
+            if (parsed.dailyRecords && parsed.dailyRecords.length > 0) {
+              const sorted = [...parsed.dailyRecords].sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+              setDailyRecords(sorted);
+            }
             if (parsed.customers && parsed.customers.length > 0) setCustomers(parsed.customers);
           }
           if (parsed.sales && parsed.sales.length > 0) setSales(parsed.sales);
@@ -661,6 +664,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
       } else {
         updated = [...dailyRecords, newRecord];
       }
+      updated.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
       setDailyRecords(updated);
       saveStateToStorage(updated);
     }
@@ -706,6 +710,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
       } else {
         updated = [...dailyRecords, res.data];
       }
+      updated.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
       setDailyRecords(updated);
       saveStateToStorage(updated);
     }

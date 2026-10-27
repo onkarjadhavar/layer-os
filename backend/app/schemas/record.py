@@ -1,12 +1,12 @@
-from typing import Optional
+from typing import Optional, Union, Any
 from datetime import date, datetime
 from pydantic import BaseModel, Field, ConfigDict
 import uuid
 
 
 class QuickDailyRecordInput(BaseModel):
-    farm_id: uuid.UUID
-    flock_id: uuid.UUID
+    farm_id: Union[uuid.UUID, str]
+    flock_id: Union[uuid.UUID, str]
     record_date: date
     eggs_collected: int = Field(..., ge=0)
     feed_kg: float = Field(..., ge=0)
@@ -16,8 +16,8 @@ class QuickDailyRecordInput(BaseModel):
 
 
 class FullDailyRecordInput(BaseModel):
-    farm_id: uuid.UUID
-    flock_id: uuid.UUID
+    farm_id: Union[uuid.UUID, str]
+    flock_id: Union[uuid.UUID, str]
     record_date: date
     opening_birds: int
     mortality: int = 0
@@ -39,9 +39,9 @@ class FullDailyRecordInput(BaseModel):
 class DailyRecordResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    farm_id: uuid.UUID
-    flock_id: uuid.UUID
+    id: Union[uuid.UUID, str]
+    farm_id: Union[uuid.UUID, str]
+    flock_id: Union[uuid.UUID, str]
     record_date: date
     opening_birds: int
     mortality: int
