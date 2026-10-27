@@ -91,13 +91,14 @@ interface LayerOSStoreContextType {
 
   // Daily Ledger
   dailyRecords: DailyRecord[];
-  todayRecord: DailyRecord;
+  todayRecord: DailyRecord | null;
   yesterdayRecord?: DailyRecord;
   addQuickLog: (entry: QuickEntryPayload) => Promise<void>;
   addFullDailyRecord: (entry: Partial<DailyRecord>) => Promise<void>;
 
   // Sales & Customers
   customers: Customer[];
+  addCustomer: (customer: Omit<Customer, 'id'>) => void;
   sales: Sale[];
   addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber'>) => Promise<void>;
   recordPayment: (customerId: string, amount: number) => void;
@@ -136,29 +137,54 @@ const LayerOSContext = createContext<LayerOSStoreContextType | undefined>(undefi
 
 const LOCAL_STORAGE_KEY = 'layeros_app_state_v1';
 
+function getInitialSavedState() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function LayerOSProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(() => ({
-    id: "usr-owner-01",
-    name: "सचिन गायकवाड (मालक)",
-    phone: "9822012345",
-    role: "owner",
-    farmId: "farm-sahyadri-01",
-  }));
+  const _savedInit = getInitialSavedState();
+  const isEnrolledInit = _savedInit && !_savedInit.isDemoMode && _savedInit.farm;
+
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    if (isEnrolledInit) return _savedInit.user || null;
+    return {
+      id: "usr-owner-01",
+      name: "सचिन गायकवाड (मालक)",
+      phone: "9822012345",
+      role: "owner",
+      farmId: "farm-sahyadri-01",
+    };
+  });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => isEnrolledInit ? false : true);
 
-  const [farms, _setFarms] = useState<Farm[]>(() => SEED_FARMS);
-  const [farm, setFarm] = useState<Farm>(() => SEED_FARM);
-  const [sheds, setSheds] = useState<Shed[]>(() => SEED_SHEDS);
-  const [flocks, setFlocks] = useState<Flock[]>(() => SEED_FLOCKS);
-  const [flock, setFlock] = useState<Flock>(() => SEED_FLOCK);
-  const [unitSettings, setUnitSettings] = useState<UnitSettings>(() => DEFAULT_UNIT_SETTINGS);
+  const [farms, _setFarms] = useState<Farm[]>(() => isEnrolledInit ? [_savedInit.farm] : SEED_FARMS);
+  const [farm, setFarm] = useState<Farm>(() => isEnrolledInit ? _savedInit.farm : SEED_FARM);
+  const [sheds, setSheds] = useState<Shed[]>(() => isEnrolledInit ? (_savedInit.sheds || []) : SEED_SHEDS);
+  const [flocks, setFlocks] = useState<Flock[]>(() => isEnrolledInit ? (_savedInit.flocks || [_savedInit.flock]) : SEED_FLOCKS);
+  const [flock, setFlock] = useState<Flock>(() => isEnrolledInit ? (_savedInit.flock || _savedInit.flocks?.[0] || SEED_FLOCK) : SEED_FLOCK);
+  const [unitSettings, setUnitSettings] = useState<UnitSettings>(() => isEnrolledInit ? (_savedInit.unitSettings || DEFAULT_UNIT_SETTINGS) : DEFAULT_UNIT_SETTINGS);
   
-  const [dailyRecords, setDailyRecords] = useState<DailyRecord[]>(() => generate90DaysDailyRecords());
+  const [dailyRecords, setDailyRecords] = useState<DailyRecord[]>(() => {
+    if (isEnrolledInit) {
+      const records = _savedInit.dailyRecords || [];
+      records.sort((a: any, b: any) => a.recordDate.localeCompare(b.recordDate));
+      return records;
+    }
+    return generate90DaysDailyRecords();
+  });
 
-  const [customers, setCustomers] = useState<Customer[]>(() => SEED_CUSTOMERS);
+  const [customers, setCustomers] = useState<Customer[]>(() => isEnrolledInit ? (_savedInit.customers || []) : SEED_CUSTOMERS);
 
-  const [sales, setSales] = useState<Sale[]>(() => [
+  const [sales, setSales] = useState<Sale[]>(() => {
+    if (isEnrolledInit) return _savedInit.sales || [];
+    return [
     {
       id: "sale-inv-101",
       invoiceNumber: "INV-2026-101",
@@ -213,7 +239,8 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
       vehicleNumber: "MH 12 QW 4421",
       deliveryPerson: "गोविंद राठोड"
     }
-  ]);
+  ];
+});
 
   const [suppliers] = useState<Supplier[]>(SEED_SUPPLIERS);
   const [employees] = useState<Employee[]>(SEED_EMPLOYEES);
@@ -251,17 +278,18 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             setDailyRecords(generate90DaysDailyRecords());
             setCustomers(SEED_CUSTOMERS);
           } else if (parsed.farm) {
-            // Enrolled user strictly isolated to their own enrolled farm
+            // Enrolled user strictly isolated to their own enrolled farm: zero demo data
             setFarm(parsed.farm);
             _setFarms([parsed.farm]);
             if (parsed.flock) setFlock(parsed.flock);
             if (parsed.flocks && parsed.flocks.length > 0) setFlocks(parsed.flocks);
             if (parsed.sheds && parsed.sheds.length > 0) setSheds(parsed.sheds);
-            if (parsed.dailyRecords && parsed.dailyRecords.length > 0) {
-              const sorted = [...parsed.dailyRecords].sort((a, b) => a.recordDate.localeCompare(b.recordDate));
-              setDailyRecords(sorted);
-            }
-            if (parsed.customers && parsed.customers.length > 0) setCustomers(parsed.customers);
+            const records = parsed.dailyRecords || [];
+            records.sort((a: any, b: any) => a.recordDate.localeCompare(b.recordDate));
+            setDailyRecords(records);
+            setCustomers(parsed.customers || []);
+            setSales(parsed.sales || []);
+            setAlerts(parsed.alerts || []);
           }
           if (parsed.sales && parsed.sales.length > 0) setSales(parsed.sales);
           if (parsed.marketRates && parsed.marketRates.length > 0) setMarketRates(parsed.marketRates);
@@ -281,7 +309,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isDemoMode && isDatabaseConnected && farm.id && flock.id) {
       loadFarmDailyRecords(farm.id, flock.id).then(res => {
-        if (res.success && res.data && res.data.length > 0) {
+        if (res.success && res.data) {
           setDailyRecords(res.data);
         }
       });
@@ -289,13 +317,13 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   }, [isDemoMode, isDatabaseConnected, farm.id, flock.id]);
 
   // Save to LocalStorage for offline and sandbox persistence
-  const saveStateToStorage = (updatedRecords?: DailyRecord[], updatedSales?: Sale[]) => {
+  const saveStateToStorage = (updatedRecords?: DailyRecord[], updatedSales?: Sale[], updatedCustomers?: Customer[]) => {
     try {
       const stateToSave = {
         dailyRecords: updatedRecords || dailyRecords,
         unitSettings,
         user,
-        customers,
+        customers: updatedCustomers || customers,
         sales: updatedSales || sales,
         alerts,
         vaccinations,
@@ -636,12 +664,14 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     isClosed: false,
   };
 
-  const todayRecord = dailyRecords.length > 0 ? dailyRecords[dailyRecords.length - 1] : defaultTodayRecord;
+  const todayRecord: DailyRecord | null = dailyRecords.length > 0 
+    ? dailyRecords[dailyRecords.length - 1] 
+    : (isDemoMode ? defaultTodayRecord : null);
   const yesterdayRecord = dailyRecords.length > 1 ? dailyRecords[dailyRecords.length - 2] : undefined;
 
   const addQuickLog = async (entry: QuickEntryPayload) => {
-    const openingBirds = todayRecord ? todayRecord.closingBirds : 30000;
-    const feedPrice = todayRecord ? todayRecord.feedPricePerKg : 35.00;
+    const openingBirds = (todayRecord ? todayRecord.closingBirds : null) || flock.currentBirdCount || farm.totalCapacity || 10000;
+    const feedPrice = (todayRecord ? todayRecord.feedPricePerKg : null) || 35.00;
 
     const res = await saveQuickDailyRecord({
       farmId: farm.id,
@@ -759,6 +789,18 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const addCustomer = (customerData: Omit<Customer, 'id'>) => {
+    const newCust: Customer = {
+      ...customerData,
+      id: `cust-${Date.now()}`,
+    };
+    setCustomers(prev => {
+      const updated = [...prev, newCust];
+      saveStateToStorage(undefined, undefined, updated);
+      return updated;
+    });
+  };
+
   const recordPayment = (customerId: string, amount: number) => {
     setCustomers(prev =>
       prev.map(c => {
@@ -857,6 +899,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         addQuickLog,
         addFullDailyRecord,
         customers,
+        addCustomer,
         sales,
         addSale,
         recordPayment,

@@ -1,81 +1,118 @@
 'use client';
 
 import React from 'react';
+import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
-import { Sparkles, ArrowRight, Wheat, PhoneCall, TrendingUp } from 'lucide-react';
+import { Sparkles, ArrowRight, Wheat, PhoneCall, TrendingUp, ClipboardCheck, Users } from 'lucide-react';
 
 interface ActionCardProps {
   onNavigateTab?: (tab: string) => void;
 }
 
 export function ActionCard({ onNavigateTab }: ActionCardProps) {
+  const { flock, todayRecord, customers, marketRates, dailyRecords } = useLayerOS();
   const { language, t } = useI18n();
 
-  const actions = [
-    {
-      id: "act-01",
+  const liveBirds = todayRecord?.closingBirds ?? flock.currentBirdCount ?? 10000;
+  const feedKg = Math.round((liveBirds * 110.5) / 1000);
+  const feedBags = Math.max(1, Math.round(feedKg / 50));
+
+  const puneRate = marketRates.find(m => m.mandiName.includes('Pune'))?.ratePer100 || 540;
+  const breakEven = todayRecord ? Math.round(todayRecord.breakEvenEggPrice * 100) : 521;
+
+  // Real overdue customer check
+  const overdueCustomers = [...customers].filter(c => (c.days16to30 + c.days30Plus) > 0);
+  const highestOverdue = overdueCustomers.sort((a, b) => (b.days16to30 + b.days30Plus) - (a.days16to30 + a.days30Plus))[0];
+
+  const actions = [];
+
+  // Action 1: If today's log pending, prioritize logging. Otherwise feed planning.
+  if (!todayRecord) {
+    actions.push({
+      id: "act-log",
       priority: 1,
-      title:
-        language === 'en'
-          ? "Tomorrow's Feed Allocation & Planning"
-          : language === 'hi'
-          ? "कल के लिए दाना आवंटन व योजना"
-          : "उद्याचा खुराक वाटप व नियोजन",
-      desc:
-        language === 'en'
-          ? "Dispatch 3,310 kg (66 bags) of feed tomorrow. Afternoon temp exceeds 29°C so increase waterline pressure and flushing."
-          : language === 'hi'
-          ? "कल के लिए 3,310 किलो (66 बोरी) दाना दें। दोपहर में तापमान 29°C से अधिक रहेगा, अतः पानी की उपलब्धता बढ़ाएं।"
-          : "उद्यासाठी ३,३१० किलो (६६ पोती) खुराक द्या. दुपारचे तापमान २९°C पेक्षा जास्त असल्यामुळे पाण्याचे प्रमाण दुपारी वाढवा.",
+      title: language === 'en' ? "Complete Today's Daily Entry" : language === 'hi' ? "आज की दैनिक प्रविष्टि दर्ज करें" : "आजची दैनंदिन नोंद पूर्ण करा",
+      desc: language === 'en'
+        ? `Log today's eggs collected, bird mortality, and feed used for ${liveBirds.toLocaleString('en-IN')} birds.`
+        : language === 'hi'
+        ? `${liveBirds.toLocaleString('en-IN')} पक्षियों के लिए आज का अंडा उत्पादन, मृत्यु और दाना खर्च दर्ज करें।`
+        : `${liveBirds.toLocaleString('en-IN')} पक्ष्यांसाठी आजचे अंडी संकलन, मृत्यू व खुराक वापर त्वरित नोंदवा.`,
+      icon: ClipboardCheck,
+      badge: language === 'en' ? "Pending" : language === 'hi' ? "बाकी" : "नोंद प्रलंबित",
+      badgeColor: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
+      cta: language === 'en' ? "Log Now" : language === 'hi' ? "दर्ज करें" : "आताच नोंदवा",
+      tab: "quick-log",
+    });
+  } else {
+    actions.push({
+      id: "act-feed",
+      priority: 1,
+      title: language === 'en' ? "Tomorrow's Feed Allocation" : language === 'hi' ? "कल का दाना आवंटन" : "उद्याचा खुराक वाटप व नियोजन",
+      desc: language === 'en'
+        ? `Dispatch ${feedKg.toLocaleString('en-IN')} kg (${feedBags} bags) of feed for ${liveBirds.toLocaleString('en-IN')} birds.`
+        : language === 'hi'
+        ? `${liveBirds.toLocaleString('en-IN')} पक्षियों के लिए ${feedKg.toLocaleString('en-IN')} किलो (${feedBags} बोरी) दाना दें।`
+        : `${liveBirds.toLocaleString('en-IN')} पक्ष्यांसाठी ${feedKg.toLocaleString('en-IN')} किलो (${feedBags} पोती) खुराक द्या.`,
       icon: Wheat,
       badge: language === 'en' ? "Feed Plan" : language === 'hi' ? "दाना" : "खुराक नियोजन",
       badgeColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
-      cta: language === 'en' ? "Log Feed" : language === 'hi' ? "दाना दर्ज करें" : "खुराक नोंदवा",
-      tab: "full-entry",
-    },
-    {
-      id: "act-02",
+      cta: language === 'en' ? "View Feed" : language === 'hi' ? "दाना देखें" : "खुराक तपशील",
+      tab: "quick-log",
+    });
+  }
+
+  // Action 2: Customer recovery or sales management
+  if (highestOverdue) {
+    const overdueAmt = highestOverdue.days16to30 + highestOverdue.days30Plus;
+    actions.push({
+      id: "act-recovery",
       priority: 2,
-      title:
-        language === 'en'
-          ? "Royal Bakers Overdue Collection (₹48,000)"
-          : language === 'hi'
-          ? "रॉयल बेकर्स बकाया वसूली (₹48,000)"
-          : "रॉयल बेकर्स थकीत वसुली (₹४८,०००)",
-      desc:
-        language === 'en'
-          ? "Credit pending for over 21 days. Collect at least 50% (₹24,000) before releasing next vehicle."
-          : language === 'hi'
-          ? "21 दिनों से अधिक की उधारी बकाया है। अगली गाड़ी भेजने से पहले कम से कम 50% (₹24,000) जमा करवाएं।"
-          : "२१ दिवसांपेक्षा जास्त उधारी थकीत आहे. पुढील अंडी गाडी पाठवण्यापूर्वी किमान ५०% (₹२४,०००) जमा करून घ्या.",
+      title: language === 'en' ? `${highestOverdue.name} Overdue (₹${overdueAmt.toLocaleString('en-IN')})` : language === 'hi' ? `${highestOverdue.name} बकाया (₹${overdueAmt.toLocaleString('en-IN')})` : `${highestOverdue.name} थकीत वसुली (₹${overdueAmt.toLocaleString('en-IN')})`,
+      desc: language === 'en'
+        ? `Credit pending for over 15 days. Collect balance before next vehicle dispatch.`
+        : language === 'hi'
+        ? `15 दिनों से अधिक की उधारी बकाया है। अगली गाड़ी भेजने से पहले जमा करवाएं।`
+        : `१५ दिवसांपेक्षा जास्त उधारी थकीत आहे. पुढील गाडी पाठवण्यापूर्वी जमा करून घ्या.`,
       icon: PhoneCall,
       badge: language === 'en' ? "Recovery" : language === 'hi' ? "वसूली" : "उधारी वसुली",
       badgeColor: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
-      cta: language === 'en' ? "Call Customer / View" : language === 'hi' ? "ग्राहक को कॉल करें" : "ग्राहक खाते / तपशील",
+      cta: language === 'en' ? "View Ledger" : language === 'hi' ? "खाता देखें" : "ग्राहक खाते",
       tab: "sales",
-    },
-    {
-      id: "act-03",
-      priority: 3,
-      title:
-        language === 'en'
-          ? "Pune Mandi Rate Increased (+₹15) – Sell Fresh Stock"
-          : language === 'hi'
-          ? "पुणे मंडी भाव में तेजी (+₹15) – माल निकालें"
-          : "पुणे बाजार भाव वाढले (+₹१५) – माल काढा",
-      desc:
-        language === 'en'
-          ? "Pune rate reached ₹540/100, which is well above your break-even cost (₹5.21). Clear ready eggs instead of holding stock."
-          : language === 'hi'
-          ? "पुणे मार्केट रेट ₹540 पर पहुंचा जो ब्रेक-इवन भाव (₹5.21) से काफी अधिक है। स्टॉक जमा न करें और ताजा माल बेचें।"
-          : "पुणे मार्केटयार्ड दर ₹५४० वर पोहोचला असून ब्रेक-इव्हन दरापेक्षा (₹५.२१) चांगला आहे. साठा न ठेवता विक्री करा.",
-      icon: TrendingUp,
-      badge: language === 'en' ? "Sales Tip" : language === 'hi' ? "बिक्री सलाह" : "विक्री संधी",
-      badgeColor: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+    });
+  } else {
+    actions.push({
+      id: "act-sales",
+      priority: 2,
+      title: language === 'en' ? "Egg Sales & Customer Dispatches" : language === 'hi' ? "अंडा बिक्री व चालान" : "अंडी विक्री व ग्राहक व्यवस्थापन",
+      desc: language === 'en'
+        ? `Create official egg sales invoices and dispatch receipts directly to buyers.`
+        : language === 'hi'
+        ? `अंडा बिक्री का चालान और ग्राहकों को व्हाट्सएप रसीद भेजें।`
+        : `अंडी विक्रीचे अधिकृत चलन तयार करा आणि ग्राहकांना व्हॉट्सॲप पावती पाठवा.`,
+      icon: Users,
+      badge: language === 'en' ? "Sales" : language === 'hi' ? "बिक्री" : "विक्री चलन",
+      badgeColor: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
       cta: language === 'en' ? "Record Sale" : language === 'hi' ? "बिक्री दर्ज करें" : "विक्री नोंदवा",
       tab: "sales",
-    },
-  ];
+    });
+  }
+
+  // Action 3: Mandi Rates
+  actions.push({
+    id: "act-mandi",
+    priority: 3,
+    title: language === 'en' ? `Mandi Rate: ₹${puneRate}/100 Eggs` : language === 'hi' ? `मंडी भाव: ₹${puneRate}/100 अंडे` : `बाजार भाव: ₹${puneRate}/१०० अंडी`,
+    desc: language === 'en'
+      ? `Current NECC benchmark is ₹${(puneRate/100).toFixed(2)}/egg. Check regional mandi rates to set your selling price.`
+      : language === 'hi'
+      ? `वर्तमान भाव ₹${(puneRate/100).toFixed(2)}/अंडा है। अपने बिक्री मूल्य के लिए क्षेत्रीय भाव जांचें।`
+      : `सध्याचा एनईसीसी दर ₹${(puneRate/100).toFixed(2)}/अंडे आहे. आपल्या विक्री दराचे योग्य नियोजन करा.`,
+    icon: TrendingUp,
+    badge: language === 'en' ? "Market" : language === 'hi' ? "मंडी" : "बाजार भाव",
+    badgeColor: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+    cta: language === 'en' ? "Check Rates" : language === 'hi' ? "भाव देखें" : "दर तपासा",
+    tab: "market-rates",
+  });
 
   return (
     <div className="card-layer p-4 sm:p-5 rounded-3xl border border-[#D9A441]/50 bg-gradient-to-br from-white to-[#FAF8F3] dark:from-[#16241D] dark:to-[#1B2D24] shadow-xs">

@@ -53,28 +53,28 @@ export function FullEntryModal({ isOpen, onClose, onSuccess }: FullEntryModalPro
   };
 
   // Section 1: Birds
-  const openingBirds = todayRecord?.closingBirds || 30000;
-  const [mortality, setMortality] = useState(15);
+  const openingBirds = (todayRecord ? todayRecord.closingBirds : null) || flock.currentBirdCount || farm.totalCapacity || 10000;
+  const [mortality, setMortality] = useState(todayRecord ? todayRecord.mortality : 0);
   const [culls, setCulls] = useState(0);
   const [mortalityCause, setMortalityCause] = useState('heat');
-  const [mortalityNotes, setMortalityNotes] = useState('नियमित तपासणी - किरकोळ अशक्तपणा.');
+  const [mortalityNotes, setMortalityNotes] = useState('नियमित तपासणी.');
 
   const closingBirds = openingBirds - mortality - culls;
 
   // Section 2: Eggs & Collection
-  const [totalEggs, setTotalEggs] = useState(27300);
-  const [morningCollection, setMorningCollection] = useState(17200);
-  const [eveningCollection, setEveningCollection] = useState(10100);
-  const [brokenEggs, setBrokenEggs] = useState(120);
-  const [softShellEggs, setSoftShellEggs] = useState(60);
-  const [rejectEggs, setRejectEggs] = useState(40);
+  const [totalEggs, setTotalEggs] = useState(todayRecord ? todayRecord.totalEggsCollected : 0);
+  const [morningCollection, setMorningCollection] = useState(0);
+  const [eveningCollection, setEveningCollection] = useState(0);
+  const [brokenEggs, setBrokenEggs] = useState(0);
+  const [softShellEggs, setSoftShellEggs] = useState(0);
+  const [rejectEggs, setRejectEggs] = useState(0);
   const [avgEggWeight, setAvgEggWeight] = useState(58.5);
 
   // Section 3: Feed & Nutrition
-  const [feedIssuedKg, setFeedIssuedKg] = useState(3300);
+  const [feedIssuedKg, setFeedIssuedKg] = useState(todayRecord ? todayRecord.feedIssuedKg : 0);
   const [feedType, setFeedType] = useState('Layer Phase 1 (18% Protein)');
-  const [waterLitres, setWaterLitres] = useState(6600);
-  const [suggestedFeedTomorrow, setSuggestedFeedTomorrow] = useState(3310);
+  const [waterLitres, setWaterLitres] = useState(0);
+  const [suggestedFeedTomorrow, setSuggestedFeedTomorrow] = useState(0);
 
   // Section 4: Health & Treatments
   const [vaccineGiven, setVaccineGiven] = useState('Ranikhet (ND LaSota Booster)');

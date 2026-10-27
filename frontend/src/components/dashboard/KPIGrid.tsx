@@ -30,7 +30,74 @@ export function KPIGrid({ onDrillDown }: KPIGridProps) {
   const { t } = useI18n();
   const [showDetailedKPIs, setShowDetailedKPIs] = useState(false);
 
-  if (!todayRecord) return null;
+  if (!todayRecord) {
+    return (
+      <div className="space-y-3.5">
+        <div className="p-5 rounded-3xl border border-[#1F4D3A]/30 bg-gradient-to-br from-[#123826] to-[#1F4D3A] text-white shadow-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center font-black text-2xl flex-shrink-0">
+                🐣
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-wider font-extrabold text-emerald-200">
+                  पोल्ट्री ऑपरेटिंग सिस्टीम सज्ज आहे
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-0.5">
+                  आजची पहिली नोंद प्रलंबित आहे (Entry Pending)
+                </h2>
+                <p className="text-xs text-white/90 mt-1">
+                  नोंदणीकृत जिवंत पक्षी: <span className="font-bold underline">{formatIndianNumber(flock.currentBirdCount || 0)}</span> • दैनंदिन आलेख आणि अहवाल पाहण्यासाठी आजचे अंडी, खुराक व मृत्यू नोंदवा.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onDrillDown?.('entry')}
+              className="py-3 px-5 rounded-2xl bg-[#D9A441] hover:bg-[#C29035] text-[#0B1E15] font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 self-stretch sm:self-auto"
+            >
+              <span>+ आजची पहिली नोंद करा</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Clean Initial Status Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D]">
+            <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">जिवंत पक्षी (Live Birds)</span>
+            <div className="text-xl font-black text-[#0B1E15] dark:text-white mt-1">
+              {formatIndianNumber(flock.currentBirdCount || 0)}
+            </div>
+            <span className="text-[10px] text-emerald-600 font-semibold">नोंदणीनुसार सज्ज</span>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D]">
+            <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">आजची अंडी (Today Eggs)</span>
+            <div className="text-base sm:text-lg font-black text-amber-600 mt-1">
+              नोंद प्रलंबित
+            </div>
+            <span className="text-[10px] text-gray-400">नोंद केल्यानंतर दिसेल</span>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D]">
+            <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">वापरलेला खुराक (Feed)</span>
+            <div className="text-base sm:text-lg font-black text-amber-600 mt-1">
+              नोंद प्रलंबित
+            </div>
+            <span className="text-[10px] text-gray-400">नोंद केल्यानंतर दिसेल</span>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D]">
+            <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">दैनिक नफा (Operating Profit)</span>
+            <div className="text-base sm:text-lg font-black text-gray-400 mt-1">
+              ₹०.००
+            </div>
+            <span className="text-[10px] text-gray-400">नोंद केल्यानंतर दिसेल</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Outstanding sum
   const totalOutstanding = customers.reduce((sum, c) => sum + c.currentOutstanding, 0);

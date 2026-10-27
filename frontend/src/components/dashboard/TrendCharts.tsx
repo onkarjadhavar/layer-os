@@ -21,7 +21,23 @@ export function TrendCharts() {
   const { dailyRecords } = useLayerOS();
   const [activeChart, setActiveChart] = useState<'hd' | 'feed' | 'mortality' | 'financial'>('hd');
 
-  // Take the last 30 records for high-resolution trend
+  if (dailyRecords.length === 0) {
+    return (
+      <div className="card-layer p-6 border border-[#DCD3C3] dark:border-[#263B30] bg-white dark:bg-[#16241D] shadow-xs text-center rounded-3xl space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-2xl bg-[#FAF8F3] dark:bg-[#1F3027] flex items-center justify-center text-[#1F4D3A] dark:text-[#3BA378]">
+          <TrendingUp className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-black text-[#0B1E15] dark:text-white">
+          आलेख व कल (Trends & Graphs)
+        </h3>
+        <p className="text-xs text-[#2D4538] dark:text-[#CBDCD4] max-w-md mx-auto">
+          अद्याप कोणत्याही नोंदी केलेल्या नाहीत. जेव्हा आपण पहिली दैनिक नोंद (अंडी, खुराक, मृत्यू) कराल, तेव्हा अचूक आलेख येथे लगेच दिसेल.
+        </p>
+      </div>
+    );
+  }
+
+  // Take only actual recorded entries (up to last 30)
   const last30 = dailyRecords.slice(-30).map(r => ({
     date: r.recordDate.substring(5), // MM-DD
     fullDate: r.recordDate,

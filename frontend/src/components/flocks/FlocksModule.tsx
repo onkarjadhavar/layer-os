@@ -435,13 +435,17 @@ export function FlocksModule() {
               बॅच {flock.batchCode} संपूर्ण नफा/तोटा (Batch Cumulative P&L)
             </h3>
             <p className="text-xs text-[#2D4538] dark:text-[#CBDCD4] font-medium mt-0.5">
-              मागील ९० दिवसांचा प्रत्यक्ष महसूल आणि ओव्हरहेड्स वाटप
+              {dailyRecords.length > 0
+                ? `नोंदणीकृत ${dailyRecords.length} दिवसांचा प्रत्यक्ष महसूल आणि ओव्हरहेड्स वाटप`
+                : 'अद्याप दैनंदिन नोंद झालेली नाही. दैनंदिन नोंदीनुसार प्रत्यक्ष आकडेवारी दिसेल.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-4 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/30">
-              <div className="text-xs text-[#2D4538] dark:text-[#CBDCD4] font-bold">९० दिवसांचे एकूण अंडी उत्पादन</div>
+              <div className="text-xs text-[#2D4538] dark:text-[#CBDCD4] font-bold">
+                {dailyRecords.length > 0 ? `${dailyRecords.length} दिवसांचे एकूण अंडी उत्पादन` : 'एकूण अंडी उत्पादन'}
+              </div>
               <div className="text-xl font-black text-[#1F4D3A] dark:text-[#3BA378] mt-1">
                 {formatIndianNumber(totalEggs90Days)} अंडी
               </div>
@@ -457,7 +461,7 @@ export function FlocksModule() {
             <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300">
               <div className="text-xs text-[#2D4538] dark:text-[#CBDCD4] font-bold">संचित नफा (Cumulative Profit)</div>
               <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">
-                {formatIndianCurrency(1792800)}
+                {formatIndianCurrency(dailyRecords.reduce((sum, r) => sum + (r.simpleOperatingProfit || 0), 0))}
               </div>
             </div>
           </div>

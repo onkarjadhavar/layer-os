@@ -56,9 +56,9 @@ export function ForecastModule() {
     setMortDelta(0);
   };
 
-  const currentEggRate = (todayRecord.sellingPricePerEgg + eggRateDelta).toFixed(2);
-  const currentFeedPrice = (todayRecord.feedPricePerKg + feedPriceDelta).toFixed(2);
-  const currentProd = (todayRecord.hdPct + prodDelta).toFixed(1);
+  const currentEggRate = ((todayRecord?.sellingPricePerEgg ?? 5.4) + eggRateDelta).toFixed(2);
+  const currentFeedPrice = ((todayRecord?.feedPricePerKg ?? 35) + feedPriceDelta).toFixed(2);
+  const currentProd = ((todayRecord?.hdPct ?? 90) + prodDelta).toFixed(1);
 
   return (
     <div className="space-y-5">

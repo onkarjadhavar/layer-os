@@ -66,9 +66,9 @@ export function ReportsModule() {
   // Modal state for adding a new day entry right from reports
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [entryDate, setEntryDate] = useState(nextSuggestedDate);
-  const [entryEggs, setEntryEggs] = useState(activeRecord ? String(activeRecord.totalEggsCollected) : '27300');
-  const [entryFeedKg, setEntryFeedKg] = useState(activeRecord ? String(activeRecord.feedIssuedKg) : '3300');
-  const [entryMortality, setEntryMortality] = useState('10');
+  const [entryEggs, setEntryEggs] = useState(activeRecord ? String(activeRecord.totalEggsCollected) : '');
+  const [entryFeedKg, setEntryFeedKg] = useState(activeRecord ? String(activeRecord.feedIssuedKg) : '');
+  const [entryMortality, setEntryMortality] = useState(activeRecord ? String(activeRecord.mortality) : '0');
   const [entrySellingRate, setEntrySellingRate] = useState(activeRecord ? String(activeRecord.sellingPricePerEgg) : '5.40');
   const [isSavingEntry, setIsSavingEntry] = useState(false);
 
@@ -79,7 +79,12 @@ export function ReportsModule() {
       setEntryEggs(String(activeRecord.totalEggsCollected));
       setEntryFeedKg(String(activeRecord.feedIssuedKg));
       setEntrySellingRate(String(activeRecord.sellingPricePerEgg));
-      setEntryMortality('10');
+      setEntryMortality(String(activeRecord.mortality));
+    } else {
+      setEntryEggs('');
+      setEntryFeedKg('');
+      setEntryMortality('0');
+      setEntrySellingRate('5.40');
     }
     setIsAddModalOpen(true);
   };
@@ -89,7 +94,7 @@ export function ReportsModule() {
   const inputFeedNum = Number(entryFeedKg) || 0;
   const inputMortNum = Number(entryMortality) || 0;
   const inputRateNum = Number(entrySellingRate) || 5.40;
-  const baseBirds = activeRecord ? activeRecord.closingBirds : (flock.currentBirdCount || 30000);
+  const baseBirds = activeRecord ? activeRecord.closingBirds : (flock.currentBirdCount || farm.totalCapacity || 10000);
   const previewClosing = Math.max(0, baseBirds - inputMortNum);
   const previewHd = previewClosing > 0 ? Number(((inputEggsNum / previewClosing) * 100).toFixed(1)) : 0;
   const previewFeedG = previewClosing > 0 ? Math.round((inputFeedNum * 1000) / previewClosing) : 0;
@@ -204,10 +209,10 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-[#1F4D3A]/10 dark:bg-[#3BA378]/20 text-[#1F4D3A] dark:text-[#3BA378] flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                {isDemoMode ? 'डेमो सँडबॉक्स' : 'नोंदणीकृत पोल्ट्री (Enrolled Customer)'}
+                नोंदणीकृत पोल्ट्री (Enrolled Customer OS)
               </span>
               <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">
-                • स्वतंत्र सुरक्षित खाते (Private Access)
+                • स्वतंत्र सुरक्षित ॲक्सेस (Personalized Operational Data)
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#0B1E15] dark:text-white flex items-center gap-2">
@@ -305,7 +310,28 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
         </div>
       </div>
 
-      {/* 2. TAB 1: DAILY REPORT CARD WITH DATE SELECTOR */}
+      {/* 2. TAB 1: DAILY REPORT CARD */}
+      {reportType === 'daily-card' && !activeRecord && (
+        <div className="card-layer p-8 border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D] rounded-3xl text-center space-y-4 max-w-xl mx-auto shadow-sm">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] flex items-center justify-center text-[#1F4D3A] dark:text-[#3BA378] text-2xl font-black">
+            📝
+          </div>
+          <h3 className="text-lg font-black text-[#0B1E15] dark:text-white">
+            अद्याप कोणतीही दैनंदिन नोंद उपलब्ध नाही
+          </h3>
+          <p className="text-xs text-[#2D4538] dark:text-[#CBDCD4] leading-relaxed">
+            आपला पोल्ट्री फार्म <strong>{farm.name}</strong> नोंदणीनुसार सज्ज आहे. दिवस १ चा अहवाल, अंडी उत्पादन (HD%), खुराक वापर व नफा-तोटा विश्लेषण पाहण्यासाठी कृपया पहिली दैनंदिन नोंद करा.
+          </p>
+          <button
+            onClick={handleOpenAddModal}
+            className="py-3 px-6 rounded-2xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4 text-[#D9A441]" />
+            <span>+ दिवस १ ची नोंद करा (Log Day 1 Entry)</span>
+          </button>
+        </div>
+      )}
+
       {reportType === 'daily-card' && activeRecord && (
         <div className="space-y-4">
           {/* Day Navigation & Selector Bar */}

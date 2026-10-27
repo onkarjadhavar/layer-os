@@ -415,58 +415,7 @@ export function EnrollmentWizard() {
           formData.finance.monthlyOther) / 30
       );
 
-      // Initialize Day 1 record directly from user's enrollment data (Inaugural Day of Operations)
-      const todayStr = new Date().toISOString().split('T')[0];
-      const dayMortality = Math.max(1, Math.round(numBirds * 0.0005));
-      const opening = numBirds;
-      const closing = opening - dayMortality;
-      const hdPct = isLaying ? 89.5 : 0;
-      const totalEggs = isLaying ? Math.round((opening * hdPct) / 100) : 0;
-      const broken = Math.round(totalEggs * 0.006);
-      const good = totalEggs - broken;
-      const feedIssued = Number(feedKg.toFixed(1));
-      const feedPerBird = closing > 0 ? Number(((feedIssued * 1000) / closing).toFixed(1)) : 0;
-      const rev = Number((good * eggPrice).toFixed(2));
-      const feedCost = Number((feedIssued * feedPrice).toFixed(2));
-      const totalCost = Number((feedCost + dailyOverhead).toFixed(2));
-      const profit = Number((rev - totalCost).toFixed(2));
-      const breakEven = totalEggs > 0 ? Number((totalCost / totalEggs).toFixed(2)) : 4.80;
-
-      const initialRecords = [{
-        id: `rec-${result.data.farmId}-day-1`,
-        farmId: result.data.farmId,
-        flockId: primaryFlock.id,
-        recordDate: todayStr,
-        openingBirds: opening,
-        mortality: dayMortality,
-        culls: 0,
-        closingBirds: closing,
-        totalEggsCollected: totalEggs,
-        brokenCrackedEggs: broken,
-        softShellEggs: 0,
-        rejectEggs: 0,
-        goodEggs: good,
-        morningCollection: Math.round(good * 0.65),
-        eveningCollection: good - Math.round(good * 0.65),
-        hdPct,
-        productionPct: hdPct,
-        feedIssuedKg: feedIssued,
-        feedPerBirdG: feedPerBird,
-        waterConsumptionLitres: Math.round(closing * 0.22),
-        avgEggWeightG: 55.5,
-        sellingPricePerEgg: eggPrice,
-        feedPricePerKg: feedPrice,
-        otherCashExpenses: dailyOverhead,
-        otherIncome: 0,
-        simpleOperatingProfit: profit,
-        trueProfit: profit,
-        costPerEgg: breakEven,
-        breakEvenEggPrice: breakEven,
-        isClosed: true,
-        notes: 'नोंदणी दिवस १ आरंभीय नोंद (Day 1 Inaugural Enrollment Entry)',
-      }];
-
-      // Update store and localStorage so dashboard immediately reflects this real farm and its enrolled numbers
+      // Update store and localStorage strictly with the user's enrolled data and clean empty initial records
       setActiveFarmData({
         farm: enrolledFarm,
         farms: [enrolledFarm],
@@ -474,7 +423,8 @@ export function EnrollmentWizard() {
         flocks: [primaryFlock],
         sheds: customSheds,
         unitSettings: result.data.unitSettings,
-        dailyRecords: initialRecords,
+        dailyRecords: [],
+        customers: [],
         sales: [],
         user: {
           id: result.data.userId,

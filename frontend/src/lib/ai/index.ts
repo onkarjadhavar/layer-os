@@ -49,36 +49,133 @@ export interface AIAnalysisOutput {
 }
 
 export function generateDailyAIAnalysis(
-  today: DailyRecord,
+  today: DailyRecord | null | undefined,
   pastRecords: DailyRecord[],
   flock: Flock,
   customers: Customer[],
   marketRates: MarketRate[],
   vaccinations: VaccinationTask[]
 ): AIAnalysisOutput {
+  const liveBirds = today?.closingBirds ?? flock.currentBirdCount ?? 10000;
+  const recommendedGrams = 110.5;
+  const suggestedFeedTomorrow = Math.round((liveBirds * recommendedGrams) / 1000);
+  const bags = Math.max(1, Math.round(suggestedFeedTomorrow / 50));
+
+  // If no entry exists for today
+  if (!today) {
+    const puneRate = marketRates.find(m => m.mandiName.includes('Pune'))?.ratePerEgg || 5.40;
+    return {
+      runDate: new Date().toISOString().split('T')[0],
+      healthScore: 100,
+      scoreBreakdown: {
+        productionScore: 25,
+        feedEfficiencyScore: 25,
+        mortalityScore: 25,
+        profitabilityScore: 25,
+      },
+      summaryMr: [
+        `आजची दैनंदिन नोंद अद्याप प्रलंबित आहे. नोंद पूर्ण केल्यानंतर अचूक हेन-डे % व नफा दिसेल.`,
+        `सध्याच्या ${liveBirds.toLocaleString('en-IN')} पक्ष्यांसाठी अंदाजे ${suggestedFeedTomorrow.toLocaleString('en-IN')} किलो (${bags} पोती) खुराक आवश्यक आहे.`,
+        `बाजार भाव चालू स्थितीत ₹${puneRate.toFixed(2)}/अंडे आहे.`,
+        `नोंदणी पूर्ण करून दैनंदिन उत्पादन व खर्च अद्ययावत ठेवा.`
+      ],
+      summaryEn: [
+        `Daily log is pending for today. Accurate Hen-Day % and profit will compute once logged.`,
+        `Estimated feed requirement for ${liveBirds.toLocaleString('en-IN')} live birds is ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg (${bags} bags).`,
+        `Prevailing market egg price is ₹${puneRate.toFixed(2)}/egg.`,
+        `Complete today's log to maintain strict continuous records.`
+      ],
+      risks: [
+        {
+          severity: 'info',
+          titleMr: 'आजची नोंद प्रलंबित',
+          titleEn: "Today's Log Pending",
+          evidence: 'आजचे अंडी संकलन, मृत्यू व खुराक नोंदवणे बाकी आहे.',
+          probableCauses: 'दैनंदिन संकलन चालू आहे.',
+          suggestedCheck: 'शेडमधील अंतिम संकलन झाल्यावर ३० सेकंदात नोंद पूर्ण करावी.'
+        }
+      ],
+      actions: [
+        {
+          priority: 1,
+          titleMr: `आजची पहिली नोंद पूर्ण करा`,
+          titleEn: `Complete Today's Daily Log`,
+          detailMr: `अंडी उत्पादन, पक्षी मृत्यू आणि खुराक वापर त्वरित नोंदवा.`,
+          detailEn: `Log today's egg collection, mortality, and feed issued.`,
+          category: 'feed'
+        },
+        {
+          priority: 2,
+          titleMr: `उद्याचा खुराक अंदाज: ${suggestedFeedTomorrow.toLocaleString('en-IN')} किलो`,
+          titleEn: `Estimated Feed Requirement: ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg`,
+          detailMr: `${liveBirds.toLocaleString('en-IN')} पक्ष्यांसाठी ११०.५ ग्रॅम प्रमाणे ${bags} पोती खुराक वाटप करा.`,
+          detailEn: `Issue ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg (${bags} bags) based on 110.5g/bird.`,
+          category: 'feed'
+        }
+      ],
+      feedRecommendation: {
+        suggestedKgTomorrow: suggestedFeedTomorrow,
+        targetGramsPerBird: recommendedGrams,
+        formulaExplanation: `(${liveBirds.toLocaleString('en-IN')} जिवंत पक्षी × ११०.५ ग्रॅम) / १००० = ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg (~${bags} पोती)`,
+      },
+      salesRecommendation: {
+        verdict: 'normal',
+        priorityBuyerName: customers[0]?.name || 'स्थानिक व्यापारी',
+        reasonMr: 'नियमित बाजार भावानुसार विक्री नियोजन ठेवा.',
+        reasonEn: 'Plan sales based on current market rates.',
+      },
+      disclaimer: 'AI सूचना केवळ निर्णय सहाय्यासाठी आहेत. हे कायदेशीर, पशुवैद्यकीय किंवा आर्थिक अंतिम सल्ले नाहीत.'
+    };
+  }
+
   // 1. Calculate Health Score
-  // Production score: 91% -> 23/25
   const prodScore = Math.min(25, Math.max(0, Math.round((today.hdPct / 92) * 25)));
-  // Feed efficiency: 110g -> 24/25
-  const feedScore = today.feedPerBirdG <= 112 && today.feedPerBirdG >= 108 ? 24 : 20;
-  // Mortality: 15 / 30000 = 0.05% -> 24/25
-  const mortScore = today.mortality <= 20 ? 24 : 16;
-  // Profitability: margin per egg
+  const feedScore = today.feedPerBirdG <= 115 && today.feedPerBirdG >= 105 ? 24 : 20;
+  const mortScore = today.mortality <= (liveBirds * 0.001) ? 24 : 16;
   const margin = today.sellingPricePerEgg - today.costPerEgg;
   const profitScore = margin > 0.5 ? 24 : margin > 0 ? 18 : 10;
-
   const totalScore = prodScore + feedScore + mortScore + profitScore;
 
-  // 2. Feed recommendation formula
-  // Live birds * 110.5g / 1000 = ~3,310 kg
-  const recommendedGrams = 110.5;
-  const suggestedFeedTomorrow = Math.round((today.closingBirds * recommendedGrams) / 1000);
-
   // 3. Outstanding analysis
-  const highestOverdueCustomer = [...customers].sort((a, b) => b.days16to30 + b.days30Plus - (a.days16to30 + a.days30Plus))[0];
+  const overdueCustomers = [...customers].filter(c => (c.days16to30 + c.days30Plus) > 0);
+  const highestOverdueCustomer = overdueCustomers.sort((a, b) => (b.days16to30 + b.days30Plus) - (a.days16to30 + a.days30Plus))[0];
 
   // 4. Mandi rate comparison
   const puneRate = marketRates.find(m => m.mandiName.includes('Pune'))?.ratePerEgg || 5.40;
+
+  const risks: AIAnalysisOutput['risks'] = [];
+  if (highestOverdueCustomer) {
+    risks.push({
+      severity: 'warning',
+      titleMr: 'ग्राहकांची थकीत उधारी (Receivables Delay)',
+      titleEn: 'Customer Credit Overdue',
+      evidence: `${highestOverdueCustomer.name} कडे ₹${(highestOverdueCustomer.days16to30 + highestOverdueCustomer.days30Plus).toLocaleString('en-IN')} उधारी थकीत आहे.`,
+      probableCauses: 'उधारी वसुलीच्या पाठपुराव्यात विलंब.',
+      suggestedCheck: 'पुढील अंडी गाडी पाठवण्यापूर्वी किमान ५०% रक्कम जमा करून घ्यावी.'
+    });
+  }
+
+  const actions: AIAnalysisOutput['actions'] = [
+    {
+      priority: 1,
+      titleMr: `उद्याचा खुराक प्रमाण: ${suggestedFeedTomorrow.toLocaleString('en-IN')} किलो`,
+      titleEn: `Tomorrow Feed Intake: ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg`,
+      detailMr: `सध्याच्या ${today.closingBirds.toLocaleString('en-IN')} जिवंत पक्ष्यांसाठी ११०.५ ग्रॅम प्रमाणे ${bags} पोती खुराक द्यावा.`,
+      detailEn: `Issue ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg (${bags} bags) based on 110.5g/bird for ${today.closingBirds.toLocaleString('en-IN')} live birds.`,
+      category: 'feed'
+    }
+  ];
+
+  if (highestOverdueCustomer) {
+    actions.push({
+      priority: 2,
+      titleMr: `थकीत वसुली: ${highestOverdueCustomer.name}`,
+      titleEn: `Collect Overdue: ${highestOverdueCustomer.name}`,
+      detailMr: `थकीत ₹${highestOverdueCustomer.currentOutstanding.toLocaleString('en-IN')} पैकी वसुलीचा पाठपुरावा करा.`,
+      detailEn: `Follow up to collect from outstanding balance.`,
+      category: 'finance'
+    });
+  }
 
   return {
     runDate: today.recordDate,
@@ -90,71 +187,29 @@ export function generateDailyAIAnalysis(
       profitabilityScore: profitScore,
     },
     summaryMr: [
-      `आजचे हेन-डे (HD%) उत्पादन ${today.hdPct}% असून बीव्ही-३०० जातीच्या मानकांनुसार (९१.५%) अत्यंत समाधानकारक आहे.`,
-      `प्रति पक्षी खुराक ${today.feedPerBirdG} ग्रॅम राहिला असून एकूण खुराक खर्च ₹${today.feedPricePerKg}/किलो प्रमाणे मर्यादेत आहे.`,
-      `थेट रोख नफा ₹${today.simpleOperatingProfit.toLocaleString('en-IN')} झाला आहे; तर सर्व घसारा व कामगार खर्च धरून खरा नफा ₹${today.trueProfit.toLocaleString('en-IN')} राहिला.`,
-      `आजचा विक्री दर (₹${today.sellingPricePerEgg}) ब्रेक-इव्हन दरापेक्षा (₹${today.breakEvenEggPrice}) जास्त असल्याने व्यवसाय सुरक्षित स्थितीत आहे.`
+      `आजचे हेन-डे (HD%) उत्पादन ${today.hdPct}% आहे.`,
+      `प्रति पक्षी खुराक ${today.feedPerBirdG} ग्रॅम राहिला असून एकूण खुराक खर्च ₹${today.feedPricePerKg}/किलो प्रमाणे आहे.`,
+      `थेट रोख नफा ₹${today.simpleOperatingProfit.toLocaleString('en-IN')} झाला आहे.`,
+      `आजचा विक्री दर (₹${today.sellingPricePerEgg}) ब्रेक-इव्हन दरापेक्षा (₹${today.breakEvenEggPrice}) ${today.sellingPricePerEgg >= today.breakEvenEggPrice ? 'चांगला' : 'कमी'} आहे.`
     ],
     summaryEn: [
-      `Today's Hen-Day (HD%) production of ${today.hdPct}% aligns very well with BV-300 standard benchmarks (91.5%).`,
-      `Feed consumption was ${today.feedPerBirdG}g per bird, maintaining optimal feed conversion efficiency.`,
-      `Daily Operating Profit is ₹${today.simpleOperatingProfit.toLocaleString('en-IN')}, and True Profit (after all allocated overheads) is ₹${today.trueProfit.toLocaleString('en-IN')}.`,
-      `Selling price (₹${today.sellingPricePerEgg}) remains above the break-even threshold (₹${today.breakEvenEggPrice}), confirming a safe margin.`
+      `Today's Hen-Day (HD%) production is ${today.hdPct}%.`,
+      `Feed consumption was ${today.feedPerBirdG}g per bird.`,
+      `Daily Operating Profit is ₹${today.simpleOperatingProfit.toLocaleString('en-IN')}.`,
+      `Selling price is ₹${today.sellingPricePerEgg}/egg against break-even of ₹${today.breakEvenEggPrice}.`
     ],
-    risks: [
-      {
-        severity: 'warning',
-        titleMr: 'ग्राहकांची थकीत उधारी (Receivables Delay)',
-        titleEn: 'Customer Credit Overdue',
-        evidence: `${highestOverdueCustomer.name} कडे ₹${(highestOverdueCustomer.days16to30 + highestOverdueCustomer.days30Plus).toLocaleString('en-IN')} उधारी २१+ दिवस थकीत आहे.`,
-        probableCauses: 'उधारी वसुलीच्या पाठपुराव्यात विलंब किंवा बाजारातील रोखीचा ताण.',
-        suggestedCheck: 'उद्या गाडी पाठवण्यापूर्वी किमान ५०% रोख किंवा यूपीआय पेमेंट जमा करून घ्यावे.'
-      },
-      {
-        severity: 'info',
-        titleMr: 'दुपारच्या तापमानातील वाढ (Heat Stress Precaution)',
-        titleEn: 'Daytime Temperature Spike',
-        evidence: 'कमाल तापमान २९.८°C पर्यंत पोहोचले.',
-        probableCauses: 'ऑक्टोबर महिन्यातील उष्ण हवामान.',
-        suggestedCheck: 'दुपारी १२ ते ३ दरम्यान एक्झॉस्ट फॅन चालू ठेवावेत आणि व्हिटॅमिन सी / इलेक्ट्रोलाइट्स पाण्यात द्यावेत.'
-      }
-    ],
-    actions: [
-      {
-        priority: 1,
-        titleMr: 'उद्याचा खुराक प्रमाण: ३,३१० किलो',
-        titleEn: 'Tomorrow Feed Intake: 3,310 kg',
-        detailMr: 'सध्याच्या २९,९८५ जिवंत पक्ष्यांसाठी ११०.५ ग्रॅम प्रमाणे ६६ पोती खुराक द्यावा.',
-        detailEn: 'Issue 3,310 kg (66 bags) based on 110.5g/bird for 29,985 live birds.',
-        category: 'feed'
-      },
-      {
-        priority: 2,
-        titleMr: `थकीत वसुली: ${highestOverdueCustomer.name}`,
-        titleEn: `Collect Overdue: ${highestOverdueCustomer.name}`,
-        detailMr: `थकीत ₹${highestOverdueCustomer.currentOutstanding.toLocaleString('en-IN')} पैकी किमान ₹२५,००० त्वरित वसूल करा.`,
-        detailEn: `Collect at least ₹25,000 from current outstanding balance.`,
-        category: 'finance'
-      },
-      {
-        priority: 3,
-        titleMr: 'पुणे बाजारात दर वाढले - सर्व साठा विका',
-        titleEn: 'Pune Mandi Rate Surge - Clear Stocks',
-        detailMr: `बाजार भाव ₹५४०/१०० अंडी असून ब्रेक-इव्हनपेक्षा चांगला आहे. साठा न ठेवता चांगल्या भावात विक्री करावी.`,
-        detailEn: `Market rate at ₹540/100 is higher than 30-day average. Clear fresh stock today.`,
-        category: 'sales'
-      }
-    ],
+    risks,
+    actions,
     feedRecommendation: {
       suggestedKgTomorrow: suggestedFeedTomorrow,
       targetGramsPerBird: recommendedGrams,
-      formulaExplanation: `(२९,९८५ जिवंत पक्षी × ११०.५ ग्रॅम) / १००० = ३,३१३ kg ≈ ३,३१० kg (६६ पोती)`,
+      formulaExplanation: `(${today.closingBirds.toLocaleString('en-IN')} जिवंत पक्षी × ११०.५ ग्रॅम) / १००० = ${suggestedFeedTomorrow.toLocaleString('en-IN')} kg (~${bags} पोती)`,
     },
     salesRecommendation: {
-      verdict: 'sell_all',
-      priorityBuyerName: 'अमोल ट्रेडर्स (Amol Egg Traders)',
-      reasonMr: 'अमोल ट्रेडर्स वेळेवर ६ दिवसांत पेमेंट करतात (९२% ऑन-टाइम). त्यांना प्राधान्य द्या.',
-      reasonEn: 'Amol Egg Traders pays within 6 days with 92% on-time reliability score.',
+      verdict: puneRate >= today.breakEvenEggPrice ? 'sell_all' : 'normal',
+      priorityBuyerName: customers[0]?.name || 'नियमित खरेदीदार',
+      reasonMr: puneRate >= today.breakEvenEggPrice ? 'सध्या बाजार भाव ब्रेक-इव्हनपेक्षा चांगला असल्याने तात्काळ विक्री करा.' : 'बाजार भाव स्थिर आहे.',
+      reasonEn: puneRate >= today.breakEvenEggPrice ? 'Mandi price exceeds break-even cost, clear fresh stock.' : 'Mandi rates remain steady.',
     },
     disclaimer: 'AI सूचना केवळ निर्णय सहाय्यासाठी आहेत. हे कायदेशीर, पशुवैद्यकीय किंवा आर्थिक अंतिम सल्ले नाहीत.'
   };
@@ -211,7 +266,7 @@ export interface ForecastResult {
  * 30-day statistical forecast engine with what-if interactive modifiers
  */
 export function generate30DaysForecast(
-  baseDay: DailyRecord,
+  baseDay: DailyRecord | null | undefined,
   modifiers: {
     eggRateDelta: number; // e.g. -0.20 to +0.50
     feedPriceDelta: number; // e.g. -2 to +4
@@ -220,15 +275,15 @@ export function generate30DaysForecast(
   }
 ): ForecastResult {
   const days: ForecastDay[] = [];
-  const baseBirds = baseDay.closingBirds || 30000;
+  const baseBirds = baseDay?.closingBirds || 10000;
   let liveBirds = baseBirds;
 
-  const baseEggRate = baseDay.sellingPricePerEgg + modifiers.eggRateDelta;
-  const baseFeedPrice = baseDay.feedPricePerKg + modifiers.feedPriceDelta;
-  const baseProdPct = (baseDay.hdPct + modifiers.productionPctDelta) / 100;
-  const baseMortality = Math.max(5, baseDay.mortality + modifiers.mortalityDailyDelta);
+  const baseEggRate = (baseDay?.sellingPricePerEgg ?? 5.4) + modifiers.eggRateDelta;
+  const baseFeedPrice = (baseDay?.feedPricePerKg ?? 35) + modifiers.feedPriceDelta;
+  const baseProdPct = ((baseDay?.hdPct ?? 90) + modifiers.productionPctDelta) / 100;
+  const baseMortality = Math.max(1, (baseDay?.mortality ?? 5) + modifiers.mortalityDailyDelta);
 
-  let cumulativeCash = 428500; // current cash & bank balance
+  let cumulativeCash = 100000;
   let minCash = cumulativeCash;
 
   let totalEggs = 0;
@@ -239,7 +294,7 @@ export function generate30DaysForecast(
   let totalOperatingProfit = 0;
   let totalTrueProfit = 0;
 
-  const baseDate = new Date(2026, 9, 8); // Oct 8 to Nov 6
+  const baseDate = new Date();
 
   for (let i = 1; i <= 30; i++) {
     const d = new Date(baseDate);

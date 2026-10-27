@@ -174,60 +174,6 @@ def enroll_farm(
     )
     db.add(membership)
 
-    # 8. Seed Baseline Daily Records directly from Enrollment Data
-    # Ensures the new farm's OS immediately reflects the flock, feed, sales & finance details entered by the user
-    if created_flocks:
-        primary_flock = created_flocks[0]
-        flock_input = sheds_flocks.flocks[0] if sheds_flocks.flocks else None
-        num_birds = flock_input.currentLiveBirds if flock_input else total_capacity
-        age_wks = flock_input.ageWeeks if flock_input else 34
-        is_laying_stage = age_wks >= 18
-        feed_bags_day = feed_data.feedBagsPerDay or 22
-        bag_wt = feed_data.bagSizeKg or 50.0
-        base_feed_kg = feed_bags_day * bag_wt
-        daily_egg_price = sales_data.currentSellingPricePerEgg or 5.40
-        feed_cost_kg = feed_data.feedPricePerKg or 35.0
-
-        today_dt = datetime.now(timezone.utc).date()
-        d_mortality = max(1, round(num_birds * 0.0005))
-        d_opening = num_birds
-        d_closing = d_opening - d_mortality
-        d_hd = round(89.5, 2) if is_laying_stage else 0.0
-        d_eggs = round((d_opening * d_hd) / 100) if is_laying_stage else 0
-        d_broken = round(d_eggs * 0.006)
-        d_good = d_eggs - d_broken
-        d_morning = round(d_good * 0.65)
-        d_evening = d_good - d_morning
-        d_feed_kg = round(base_feed_kg, 1)
-        d_feed_bird = round((d_feed_kg * 1000) / d_closing, 1) if d_closing > 0 else 0.0
-
-        db_record = DailyRecord(
-            id=uuid.uuid4(),
-            farm_id=farm.id,
-            flock_id=primary_flock.id,
-            record_date=today_dt,
-            opening_birds=d_opening,
-            mortality=d_mortality,
-            culls=0,
-            closing_birds=d_closing,
-            total_eggs_collected=d_eggs,
-            broken_cracked_eggs=d_broken,
-            soft_shell_eggs=0,
-            reject_eggs=0,
-            good_eggs=d_good,
-            morning_collection=d_morning,
-            evening_collection=d_evening,
-            hd_pct=d_hd,
-            feed_issued_kg=d_feed_kg,
-            feed_per_bird_g=d_feed_bird,
-            water_consumption_litres=round(d_closing * 0.22, 1),
-            avg_egg_weight_g=55.5,
-            is_closed=True,
-            notes="नोंदणी दिवस १ आरंभीय नोंद (Day 1 Inaugural Enrollment Entry)",
-            created_by=user.id
-        )
-        db.add(db_record)
-
     db.commit()
     db.refresh(farm)
 
@@ -374,19 +320,7 @@ def get_mock_farm_dashboard(farm_id: str) -> FarmDashboardResponse:
         break_even_price=5.21,
         selling_price_per_egg=5.40
     )
-    daily_records = [{
-        "id": f"rec-{fid}-day-1",
-        "recordDate": now.date().isoformat(),
-        "totalEggsCollected": 27300,
-        "feedIssuedKg": 3300.0,
-        "mortality": 12,
-        "hdPct": 91.02,
-        "openingBirds": 30000,
-        "closingBirds": 29988,
-        "simpleOperatingProfit": 19920.0,
-        "breakEvenEggPrice": 5.21,
-        "sellingPricePerEgg": 5.40,
-    }]
+    daily_records = []
     return FarmDashboardResponse(
         farm=farm_resp,
         sheds=sheds,
@@ -493,17 +427,16 @@ def get_farm_dashboard(
         operating_profit = round(today_rev - today_cost, 2)
         break_even = round(today_cost / eggs_today, 2) if eggs_today > 0 else 5.21
     else:
-        # Fallback to computing from farm capacity
-        eggs_today = round(total_live_birds * 0.90)
-        feed_today = round(total_live_birds * 0.11, 1)
-        mortality_today = max(1, round(total_live_birds * 0.0005))
-        hd_pct = 90.0
-        feed_per_bird = 110.0
-        today_rev = round(eggs_today * selling_price, 2)
-        feed_cost = round(feed_today * feed_price, 2)
-        today_cost = round(feed_cost + daily_overhead, 2)
-        operating_profit = round(today_rev - today_cost, 2)
-        break_even = round(today_cost / eggs_today, 2) if eggs_today > 0 else 5.21
+        # No entries yet: user has not entered daily record
+        eggs_today = 0
+        feed_today = 0.0
+        mortality_today = 0
+        hd_pct = 0.0
+        feed_per_bird = 0.0
+        today_rev = 0.0
+        today_cost = 0.0
+        operating_profit = 0.0
+        break_even = 0.0
 
     summary = FarmDashboardSummary(
         total_birds=total_live_birds,

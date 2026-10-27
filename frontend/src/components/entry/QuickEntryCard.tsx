@@ -25,10 +25,10 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
 
   const todayDateStr = new Date().toISOString().split('T')[0];
   const [date, setDate] = useState(todayDateStr);
-  const [eggs, setEggs] = useState<string>(todayRecord ? String(todayRecord.totalEggsCollected) : '27300');
-  const [feedKg, setFeedKg] = useState<string>(todayRecord ? String(todayRecord.feedIssuedKg) : '3300');
-  const [mortality, setMortality] = useState<string>(todayRecord ? String(todayRecord.mortality) : '15');
-  const [soldEggs, setSoldEggs] = useState<string>(todayRecord ? String(todayRecord.totalEggsCollected) : '27300');
+  const [eggs, setEggs] = useState<string>(todayRecord ? String(todayRecord.totalEggsCollected) : '');
+  const [feedKg, setFeedKg] = useState<string>(todayRecord ? String(todayRecord.feedIssuedKg) : '');
+  const [mortality, setMortality] = useState<string>(todayRecord ? String(todayRecord.mortality) : '0');
+  const [soldEggs, setSoldEggs] = useState<string>(todayRecord ? String(todayRecord.totalEggsCollected) : '');
   const [sellingRate, setSellingRate] = useState<string>(todayRecord ? String(todayRecord.sellingPricePerEgg) : '5.40');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,7 +52,8 @@ export function QuickEntryCard({ onSuccessCloseDay, onSwitchToFullEntry }: Quick
   const mortNum = Number(mortality) || 0;
   const rateNum = Number(sellingRate) || 5.40;
 
-  const closingBirds = (flock.currentBirdCount || 30000) - mortNum;
+  const currentLive = (flock.currentBirdCount || (todayRecord ? todayRecord.closingBirds : 0)) || 10000;
+  const closingBirds = Math.max(0, currentLive - mortNum);
   const hdPct = closingBirds > 0 ? ((eggsNum / closingBirds) * 100).toFixed(1) : '0';
   const feedPerBirdG = closingBirds > 0 ? Math.round((feedNum * 1000) / closingBirds) : 0;
   const revenue = Math.round(eggsNum * rateNum);
