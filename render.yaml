@@ -17,10 +17,11 @@ services:
           name: layeros-db
           property: connectionString
       - key: CORS_ORIGINS
-        value: "https://your-frontend.vercel.app,http://localhost:5173"
+        value: "https://layer-os-orcin.vercel.app,http://localhost:5173"
 
 databases:
   - name: layeros-db
     databaseName: layer_os
     user: postgres
     plan: free
+
