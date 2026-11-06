@@ -15,6 +15,7 @@ import {
 } from './types';
 import { FarmStatus } from '../auth/farm-status';
 import { getSupabaseBrowserClient } from '../supabase/client';
+import { API_BASE_URL } from '@/services/api-client';
 
 export const INITIAL_PLATFORM_SETTINGS: PlatformSettings = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -218,7 +219,7 @@ export function calculatePlatformKPIs(farms: AdminFarmSummary[]): PlatformKPIs {
  */
 export async function getPlatformKPIs(): Promise<PlatformKPIs> {
   try {
-    const res = await fetch('http://localhost:8000/api/v1/admin/kpis');
+    const res = await fetch(`${API_BASE_URL}/api/v1/admin/kpis`);
     if (res.ok) {
       const data = await res.json();
       return {
@@ -276,7 +277,7 @@ export async function listAdminFarms(
   searchQuery?: string
 ): Promise<AdminFarmSummary[]> {
   try {
-    const url = `http://localhost:8000/api/v1/admin/farms${statusFilter && statusFilter !== 'all' ? `?status_filter=${statusFilter}` : ''}`;
+    const url = `${API_BASE_URL}/api/v1/admin/farms${statusFilter && statusFilter !== 'all' ? `?status_filter=${statusFilter}` : ''}`;
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();

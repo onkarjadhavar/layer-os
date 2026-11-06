@@ -13,6 +13,7 @@ import {
   createAdminSessionPayload,
   getAdminSession,
 } from '@/lib/admin/auth';
+import { API_BASE_URL } from '@/services/api-client';
 
 function AdminLoginContent() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ function AdminLoginContent() {
     setErrorMsg('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/auth', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/admin/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, totp }),

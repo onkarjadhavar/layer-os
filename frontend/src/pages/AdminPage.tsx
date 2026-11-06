@@ -24,6 +24,7 @@ import {
 } from '@/lib/admin/actions';
 import { FarmStatus } from '@/lib/auth/farm-status';
 import { getAdminSession, clearAdminSession } from '@/lib/admin/auth';
+import { API_BASE_URL } from '@/services/api-client';
 
 // Admin Modular Components
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -187,7 +188,7 @@ export function AdminPage() {
   const handleLogout = async () => {
     try {
       clearAdminSession();
-      await fetch('http://localhost:8000/api/v1/admin/auth', { method: 'DELETE' }).catch(() => {});
+      await fetch(`${API_BASE_URL}/api/v1/admin/auth`, { method: 'DELETE' }).catch(() => {});
     } catch {
       // Ignore network errors
     }
