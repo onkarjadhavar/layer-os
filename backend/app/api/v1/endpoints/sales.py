@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from app.db.session import get_db
+from app.api.deps import get_current_user_optional, check_farm_access
+from app.models.user import User
 from app.models.sale import Customer, Sale, Payment
 from app.schemas.sale import (
     CustomerCreate,
@@ -22,8 +24,12 @@ router = APIRouter()
 @router.get("/customers", response_model=List[CustomerResponse])
 def list_customers(
     farm_id: uuid.UUID = Query(...),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
+
     customers = db.query(Customer).filter(
         Customer.farm_id == farm_id,
         Customer.is_active == True
@@ -34,8 +40,12 @@ def list_customers(
 @router.post("/customers", response_model=CustomerResponse)
 def create_customer(
     customer_in: CustomerCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(customer_in.farm_id, current_user, db)
+
     customer = Customer(
         farm_id=customer_in.farm_id,
         name=customer_in.name,
@@ -56,20 +66,29 @@ def create_customer(
 
 
 @router.get("/", response_model=List[SaleResponse])
+@router.get("", response_model=List[SaleResponse])
 def list_sales(
     farm_id: uuid.UUID = Query(...),
     limit: int = Query(100, ge=1, le=500),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
+
     sales = db.query(Sale).filter(Sale.farm_id == farm_id).order_by(desc(Sale.sale_date)).limit(limit).all()
     return [SaleResponse.model_validate(s) for s in sales]
 
 
 @router.post("/", response_model=SaleResponse)
+@router.post("", response_model=SaleResponse)
 def create_sale(
     sale_in: SaleCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(sale_in.farm_id, current_user, db)
     invoice_number = sale_in.invoice_number or f"INV-{int(datetime.now().timestamp())}"
     gross_amount = sale_in.gross_amount or round(sale_in.quantity_units * sale_in.rate_per_unit, 2)
     net_amount = sale_in.net_amount or round(gross_amount - sale_in.discount, 2)
@@ -113,8 +132,12 @@ def create_sale(
 @router.post("/payments", response_model=PaymentResponse)
 def record_payment(
     payment_in: PaymentCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(payment_in.farm_id, current_user, db)
+
     payment = Payment(
         farm_id=payment_in.farm_id,
         customer_id=payment_in.customer_id,

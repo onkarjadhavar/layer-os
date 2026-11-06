@@ -64,7 +64,7 @@ export function SamplePreviewSection() {
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="text-lg font-black text-[var(--color-text-main)] dark:text-white">
-                  सह्याद्री लेयर फार्म (Sahyadri Layer Farm)
+                  रोहन फार्म (Rohan Farm)
                 </span>
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A2E24] dark:text-[var(--color-sage)] border border-[var(--color-sage)]/30">
                   {t.samplePreviewBadge}

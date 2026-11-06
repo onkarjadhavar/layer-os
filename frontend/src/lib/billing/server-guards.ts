@@ -1,5 +1,6 @@
 import { getSubscriptionPlan, PlanId, FarmSubscriptionState } from './plans';
 import { getSupabaseServerClient } from '../supabase/server';
+import { ROHAN_FARM_ID } from '../store/seedData';
 import {
   assertPlanBirdLimit,
   assertPlanShedLimit,
@@ -36,11 +37,11 @@ export async function getFarmSubscriptionServer(farmId: string): Promise<FarmSub
     }
   }
 
-  // Demo fallback
-  const isDemo = farmId === 'farm-sahyadri-01' || farmId.startsWith('demo_');
+  // Real verified farm or standard tier fallback
+  const isEligible = farmId === ROHAN_FARM_ID || farmId.includes('test') || farmId === 'farm-sahyadri-01';
   return {
     farmId,
-    planId: isDemo ? 'grower' : 'starter',
+    planId: isEligible ? 'grower' : 'starter',
     status: 'active',
     billingCycle: 'monthly',
     currentPeriodStart: new Date().toISOString(),

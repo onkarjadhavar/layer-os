@@ -38,11 +38,11 @@ export const recordsService = {
     return apiClient.get(`/api/v1/records/daily?${params.toString()}`);
   },
 
-  async saveQuickRecord(payload: QuickRecordPayload) {
+  async saveQuickRecord(payload: QuickRecordPayload | any) {
     return apiClient.post('/api/v1/records/daily/quick', payload);
   },
 
-  async saveFullRecord(payload: DailyRecordPayload) {
+  async saveFullRecord(payload: DailyRecordPayload | any) {
     return apiClient.post('/api/v1/records/daily', payload);
   },
 };

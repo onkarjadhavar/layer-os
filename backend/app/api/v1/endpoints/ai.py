@@ -1,64 +1,137 @@
+import uuid
+from typing import Optional
 import httpx
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 
 from app.db.session import get_db
 from app.core.config import settings
 from app.schemas.ai import AskAIInput, AIResponse
+from app.models.record import DailyRecord
 
 router = APIRouter()
 
 
-def generate_rule_based_advisory(query: str, lang: str = "mr") -> str:
+def generate_rule_based_advisory(
+    query: str,
+    lang: str = "mr",
+    farm_id: Optional[uuid.UUID] = None,
+    db: Optional[Session] = None
+) -> str:
     q = query.lower()
 
+    latest_rec = None
+    if farm_id and db:
+        latest_rec = (
+            db.query(DailyRecord)
+            .filter(DailyRecord.farm_id == farm_id)
+            .order_by(desc(DailyRecord.record_date))
+            .first()
+        )
+
     if "mortality" in q or "मृत्यू" in q:
-        if lang == "mr":
-            return (
-                "**मृत्यूदर (Mortality) विश्लेषण व सल्ला:**\n\n"
-                "१. आजचा मृत्यूदर ०.०५% (१५ पक्षी) आहे, जो BV-300 मानक मर्यादेत (०.०५%-०.०७%) आहे.\n"
-                "२. **कृती**: शेडमधील पाणी प्रेशर (Water Nipples) तपासा आणि मृत पक्षांचे पोस्टमार्टम (PM) करा.\n"
-                "३. उन्हाळा असल्यास दुपारी १२ ते ४ व्हिटॅमिन सी आणि इलेक्ट्रोल (ORS) पाण्यातून द्या."
-            )
+        if latest_rec:
+            mort_count = latest_rec.mortality
+            mort_pct = round((mort_count / latest_rec.opening_birds * 100), 2) if latest_rec.opening_birds else 0.0
+            if lang == "mr":
+                return (
+                    f"**मृत्यूदर (Mortality) विश्लेषण व सल्ला:**\n\n"
+                    f"१. आजचा प्रत्यक्ष मृत्यूदर {mort_pct}% ({mort_count} पक्षी) आहे.\n"
+                    "२. **कृती**: शेडमधील पाणी प्रेशर (Water Nipples) नियमित तपासा आणि मृत पक्षांचे पोस्टमार्टम (PM) करा.\n"
+                    "३. उन्हाळा असल्यास दुपारी १२ ते ४ व्हिटॅमिन सी आणि इलेक्ट्रोल (ORS) पाण्यातून द्या."
+                )
+            else:
+                return (
+                    f"**Mortality Analysis & Advice:**\n\n"
+                    f"1. Today's recorded mortality is {mort_pct}% ({mort_count} birds).\n"
+                    "2. **Action**: Check water nipple line pressure across all tiers and conduct routine post-mortem.\n"
+                    "3. In high ambient temperatures, supplement drinking water with Vitamin C and electrolytes between 12 PM - 4 PM."
+                )
         else:
-            return (
-                "**Mortality Analysis & Advice:**\n\n"
-                "1. Today's mortality is 0.05% (15 birds), which is strictly within the BV-300 standard threshold.\n"
-                "2. **Action**: Check water nipple pressure across all rows and conduct routine post-mortem.\n"
-                "3. In high ambient temperatures, supplement drinking water with Vitamin C and electrolytes between 12 PM - 4 PM."
-            )
+            if lang == "mr":
+                return (
+                    "**मृत्यूदर (Mortality) मार्गदर्शक तत्त्वे:**\n\n"
+                    "१. BV-300 मानकांनुसार दैनिक मृत्यूदर ०.०५% च्या आत असणे आवश्यक आहे.\n"
+                    "२. **कृती**: शेडमधील पाण्याचे प्रेशर आणि व्हेंटिलेशन तपासा. कोणतीही लक्षणे आढळल्यास तातडीने पशुवैद्यकांशी संपर्क साधा.\n"
+                    "३. अचूक विश्लेषणासाठी कृपया दैनिक नोंदी (Daily Records) भरा."
+                )
+            else:
+                return (
+                    "**Mortality Guidelines & Advisory:**\n\n"
+                    "1. Under BV-300 standards, daily mortality should be maintained below 0.05%.\n"
+                    "2. **Action**: Check waterline pressure and shed ventilation. In case of sudden spikes, consult your poultry veterinarian.\n"
+                    "3. Add daily records to get real-time flock-specific mortality analysis."
+                )
 
     if "feed" in q or "खुराक" in q:
+        if latest_rec:
+            feed_g = float(latest_rec.feed_per_bird_g)
+            feed_kg = float(latest_rec.feed_issued_kg)
+            feed_bags = round(feed_kg / 50.0, 1)
+            if lang == "mr":
+                return (
+                    f"**खुराक (Feed Intake) विश्लेषण व शिफारस:**\n\n"
+                    f"१. नोंदवलेला सरासरी खुराक प्रति पक्षी {feed_g} ग्रॅम (एकूण {feed_kg} किलो / ~{feed_bags} पोती) आहे.\n"
+                    "२. **कृती**: लेयर पक्षांसाठी ११०-११२ ग्रॅम हा प्रमाण खुराक आहे. सकाळी ६:३० वाजता खाद्य द्या.\n"
+                    "३. शेडचे तापमान वाढण्यापूर्वी खाद्य देणे पूर्ण करा."
+                )
+            else:
+                return (
+                    f"**Feed Intake Analysis & Recommendations:**\n\n"
+                    f"1. Recorded feed intake is {feed_g} g/bird (total {feed_kg} kg / ~{feed_bags} bags).\n"
+                    "2. **Action**: For peak laying birds, 110-112 g/bird is standard. Maintain early morning feeding.\n"
+                    "3. Complete morning feeding before ambient temperature rises."
+                )
+        else:
+            if lang == "mr":
+                return (
+                    "**खुराक (Feed Management) मार्गदर्शक तत्त्वे:**\n\n"
+                    "१. व्यावसायिक लेयर पक्षांसाठी दररोज ११० ते ११५ ग्रॅम प्रति पक्षी खाद्य आवश्यक असते.\n"
+                    "२. **कृती**: दररोज सकाळी ६:३० वाजता पहिली फीडिंग द्या आणि पाण्याची उपलब्धता तपासा.\n"
+                    "३. अचूक दैनिक खप ट्रॅक करण्यासाठी रोजची खुराक नोंद करा."
+                )
+            else:
+                return (
+                    "**Feed Management Guidelines:**\n\n"
+                    "1. Commercial layer standard requirement is 110-115 g/bird/day.\n"
+                    "2. **Action**: Administer early morning feeding and ensure uninterrupted clean water supply.\n"
+                    "3. Log daily feed issues to monitor feed conversion efficiency."
+                )
+
+    # General poultry advice
+    if latest_rec:
+        hd = float(latest_rec.hd_pct)
+        eggs = latest_rec.total_eggs_collected
         if lang == "mr":
             return (
-                "**खुराक (Feed Intake) विश्लेषण व शिफारस:**\n\n"
-                "१. सरासरी खुराक प्रति पक्षी ११० ग्रॅम (एकूण ३,३०० किलो / ६६ पोती) नोंदवला आहे.\n"
-                "२. **कृती**: BV-300 २४-२८ आठवड्यांच्या पक्षांसाठी ११०-११२ ग्रॅम हा सुवर्ण दर आहे.\n"
-                "३. उद्या सकाळसाठी ६६ पोती (३,३०० किलो) लेयर फेज-१ खुराक तयार ठेवा."
+                f"**LayerOS AI दैनिक सल्लागार:**\n\n"
+                f"१. **अंडी उत्पादन (HD%)**: नोंदवलेले उत्पादन {hd}% असून एकूण {eggs:,} अंडी गोळा झाली आहेत.\n"
+                "२. **व्यवस्थापन**: शेडमधील तापमान व स्वच्छता नियमित ठेवा.\n"
+                "३. **बाजार सल्ला**: स्थानिक मंडी दरांचा आढावा घेऊन अंडी विक्रीचे नियोजन करा."
             )
         else:
             return (
-                "**Feed Intake Analysis & Recommendations:**\n\n"
-                "1. Average feed intake is 110 grams/bird (3,300 kg / 66 bags), optimal for BV-300 peak laying.\n"
-                "2. **Action**: Maintain morning feeding at 6:30 AM before shed temperature rises.\n"
-                "3. Ensure minimum 66 bags of Layer Phase-1 feed are in stock for tomorrow."
+                f"**LayerOS AI Daily Advisory:**\n\n"
+                f"1. **Production (HD%)**: Recorded production is {hd}% with {eggs:,} eggs collected.\n"
+                "2. **Management**: Monitor shed temperature and maintain biosecurity protocols.\n"
+                "3. **Market Advice**: Review local mandi rates to optimize daily sales scheduling."
             )
-
-    # General poultry advice
-    if lang == "mr":
-        return (
-            "**LayerOS AI दैनिक सल्लागार:**\n\n"
-            "१. **अंडी उत्पादन (HD%)**: ९१.०२% उत्पादन उत्कृष्ट आहे. आज २७,३०० अंडी गोळा झाली.\n"
-            "२. **आर्थिक नफा**: प्रत्यक्ष निव्वळ नफा ₹५,३२० (सर्व खर्च व घसारा वजा जाता). ब्रेक-इव्हन दर ₹५.२१ प्रति अंडे.\n"
-            "३. **बाजार सल्ला**: पुणे आणि मुंबई मंडीमध्ये दर स्थिर आहेत. जुनी उधारी तातडीने वसूल करा."
-        )
     else:
-        return (
-            "**LayerOS AI Daily Advisory:**\n\n"
-            "1. **Production (HD%)**: 91.02% is well above regional benchmark. 27,300 eggs collected.\n"
-            "2. **Financial Status**: True profit after overheads is ₹5,320. Break-even threshold is ₹5.21/egg.\n"
-            "3. **Market Advice**: Mandi rates are steady across Western Maharashtra. Follow up on merchant credit."
-        )
+        if lang == "mr":
+            return (
+                "**LayerOS AI सल्लागार:**\n\n"
+                "१. **उत्पादन लक्ष्य**: व्यावसायिक लेयर पोल्ट्रीमध्ये ९०%+ HD उत्पादन आणि ०.०५% खाली मृत्यूदर राखणे फायदेशीर ठरते.\n"
+                "२. **दैनिक नोंद**: अचूक नफा-तोटा आणि उत्पादकता विश्लेषणासाठी कृपया आजची दैनिक नोंद करा.\n"
+                "३. **बाजार दर**: दैनंदिन स्थानिक मंडी दरांवर लक्ष ठेवा."
+            )
+        else:
+            return (
+                "**LayerOS AI Advisory:**\n\n"
+                "1. **Production Target**: Aim for 90%+ Hen-Day production and <0.05% mortality for peak profitability.\n"
+                "2. **Daily Logging**: Log daily collections and feed intake to unlock real-time predictive analytics.\n"
+                "3. **Market Rates**: Check the Mandi Rates tab for today's realized pricing."
+            )
 
 
 @router.post("/advisor", response_model=AIResponse)
@@ -96,7 +169,12 @@ async def ask_ai_advisor(
             pass
 
     # Deterministic rule-based poultry expert heuristic fallback
-    text_content = generate_rule_based_advisory(input_data.query, input_data.language)
+    text_content = generate_rule_based_advisory(
+        input_data.query,
+        input_data.language,
+        farm_id=input_data.farm_id,
+        db=db
+    )
     return AIResponse(
         success=True,
         source="rule_based",

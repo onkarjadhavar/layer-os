@@ -14,7 +14,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose, onOpenOnboarding }: AuthModalProps) {
-  const { loginWithPhone, loginAsDemo } = useLayerOS();
+  const { loginWithPhone } = useLayerOS();
   const { t } = useI18n();
 
   const [authMode, setAuthMode] = useState<'phone' | 'email'>('phone');
@@ -78,11 +78,6 @@ export function AuthModal({ isOpen, onClose, onOpenOnboarding }: AuthModalProps)
     }
   };
 
-  const handleDemoLaunch = () => {
-    loginAsDemo();
-    onClose();
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-md bg-white dark:bg-[#103528]/50 rounded-3xl p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] dark:border-[#263B30] relative overflow-hidden">
@@ -102,24 +97,6 @@ export function AuthModal({ isOpen, onClose, onOpenOnboarding }: AuthModalProps)
           <p className="text-xs text-[var(--color-text-muted)] dark:text-[#E8EFE2]/75 mt-1 font-medium">
             {t.loginSubtitle}
           </p>
-        </div>
-
-        {/* Quick Demo Access Button */}
-        <div className="mb-5 p-4 rounded-2xl bg-[#F6E5C9]/50 dark:bg-[#D5811F]/15 border border-[#D5811F]/30 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[#5A3E2B] dark:text-[#F6E5C9] mb-1">
-            <Sparkles className="w-4 h-4 text-[#D5811F]" />
-            त्वरित अनुभव (Instant Access)
-          </div>
-          <p className="text-xs text-[var(--color-text-muted)] dark:text-[#E8EFE2]/80 font-medium mb-3">
-            सह्याद्री लेयर फार्मचा ९० दिवसांचा प्रत्यक्ष डेटा आणि AI सल्लागार लगेच पहा.
-          </p>
-          <button
-            onClick={handleDemoLaunch}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#194B38] hover:bg-[#103528] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
-          >
-            <span>{t.tryDemo}</span>
-            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-          </button>
         </div>
 
         {/* Mode Switcher Tabs */}
@@ -240,7 +217,7 @@ export function AuthModal({ isOpen, onClose, onOpenOnboarding }: AuthModalProps)
                 <Mail className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
                 <input
                   type="email"
-                  placeholder="farmer@sahyadrilayer.com"
+                  placeholder="farmer@layeros.in"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[var(--color-border)] dark:border-[#263B30] bg-[var(--color-background)] dark:bg-[#103528]/40 text-sm font-bold text-[#17251D] dark:text-white focus:border-[#194B38] focus:ring-2 focus:ring-[#87A96B]/30"

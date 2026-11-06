@@ -32,65 +32,11 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
         phone = input_data.phone.strip()
         user = db.query(User).filter(User.phone == phone).first()
 
-    # If demo login or user not created yet for demo farm
     if not user:
-        phone = (input_data.phone or "").strip()
-        if phone == "9822012345" or (input_data.otp and len(input_data.otp) == 6):
-            # Seed demo farm & owner if missing
-            farm = db.query(Farm).filter(Farm.name == "सह्याद्री लेयर फार्म (पुणे)").first()
-            if not farm:
-                farm = Farm(
-                    name="सह्याद्री लेयर फार्म (पुणे)",
-                    owner_name="सचिन गायकवाड",
-                    phone="9822012345",
-                    district="Pune",
-                    total_capacity=35000,
-                    status="active"
-                )
-                db.add(farm)
-                db.flush()
-
-                unit_settings = UnitSettings(farm_id=farm.id)
-                db.add(unit_settings)
-
-                shed = Shed(farm_id=farm.id, shed_number="शेड क्र. १", name="क Cage Shed", capacity=35000)
-                db.add(shed)
-                db.flush()
-
-                flock = Flock(
-                    farm_id=farm.id,
-                    shed_id=shed.id,
-                    batch_code="BV300-2026-B1",
-                    breed="BV300",
-                    placement_date=datetime.now(timezone.utc).date() - timedelta(days=168),
-                    initial_chick_count=30000,
-                    current_bird_count=29985,
-                    current_phase="laying"
-                )
-                db.add(flock)
-
-            user = User(
-                farm_id=farm.id,
-                phone=phone or "9822012345",
-                email=input_data.email or "sachin@sahyadri.com",
-                full_name="सचिन गायकवाड (मालक)",
-                role="owner",
-                preferred_language="mr",
-                is_active=True
-            )
-            db.add(user)
-            db.flush()
-
-            # Member link
-            member = FarmMember(farm_id=farm.id, user_id=user.id, role="owner", is_active=True)
-            db.add(member)
-            db.commit()
-            db.refresh(user)
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="खाते सापडले नाही. कृपया ईमेल किंवा मोबाईल नंबर तपासा. (User not found with these credentials.)"
-            )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="खाते सापडले नाही. कृपया ईमेल किंवा मोबाईल नंबर तपासा. (User not found with these credentials.)"
+        )
 
     # Password validation if password provided and set
     if input_data.password:

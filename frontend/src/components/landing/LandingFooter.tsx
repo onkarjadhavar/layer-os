@@ -50,8 +50,20 @@ export function LandingFooter() {
         {/* Footer Navigation & Details */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-white/10">
           <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <LayerOSLogo size={36} showText />
+            <div className="flex items-center">
+              <Link
+                href="/"
+                className="inline-flex items-center px-3 py-1.5 rounded-xl bg-[#F5F3EC] shadow-xs hover:opacity-95 transition-all group"
+                aria-label="Layer OS Home"
+              >
+                <img
+                  src="/images/layer-os-horizontal-logo.png"
+                  alt="Layer OS Brand Logo"
+                  width={190}
+                  height={48}
+                  className="w-[140px] sm:w-[160px] md:w-[190px] h-auto max-h-[44px] sm:max-h-[48px] object-contain shrink-0"
+                />
+              </Link>
             </div>
             <p className="text-xs sm:text-sm text-[var(--color-sage-pale)]/80 max-w-sm leading-relaxed">
               {t.tagline}. व्यावसायिक लेयर पोल्ट्री फार्म्ससाठी आधुनिक, मराठी-प्रथम डिजिटल ऑपरेटिंग प्रणाली.

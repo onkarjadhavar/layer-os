@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export function SalesModule() {
-  const { customers, sales, addSale, recordPayment, unitSettings } = useLayerOS();
+  const { customers, sales, addSale, recordPayment, unitSettings, farm } = useLayerOS();
   const { t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<'sales-list' | 'new-sale' | 'customers' | 'ageing'>('sales-list');
@@ -202,7 +202,7 @@ export function SalesModule() {
             {sales.map(s => {
               const unpaid = s.netAmount - s.paidAmount;
               const waText = encodeURIComponent(
-                `*सह्याद्री लेयर फार्म - अंडी विक्री पावती*\nचलन क्र: ${s.invoiceNumber}\nग्राहक: ${s.customerName}\nप्रमाण: ${s.quantityUnits} ${s.unitName}\nदर: ₹${s.ratePerUnit}\nएकूण रक्कम: ₹${s.netAmount.toLocaleString('en-IN')}\nजमा रक्कम: ₹${s.paidAmount.toLocaleString('en-IN')}\nशिल्लक उधारी: ₹${unpaid.toLocaleString('en-IN')}\nवाहन: ${s.vehicleNumber || 'MH 12 QW 4421'}\nधन्यवाद!`
+                `*${farm.name} - अंडी विक्री पावती*\nचलन क्र: ${s.invoiceNumber}\nग्राहक: ${s.customerName}\nप्रमाण: ${s.quantityUnits} ${s.unitName}\nदर: ₹${s.ratePerUnit}\nएकूण रक्कम: ₹${s.netAmount.toLocaleString('en-IN')}\nजमा रक्कम: ₹${s.paidAmount.toLocaleString('en-IN')}\nशिल्लक उधारी: ₹${unpaid.toLocaleString('en-IN')}\nवाहन: ${s.vehicleNumber || 'MH 12 QW 4421'}\nधन्यवाद!`
               );
 
               return (

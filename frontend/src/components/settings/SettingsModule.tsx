@@ -44,7 +44,7 @@ import {
 } from '@/lib/billing/actions';
 
 export function SettingsModule() {
-  const { farm, unitSettings, updateUnitSettings, resetDemoData, isDemoMode, dailyRecords, customers, sales, user } = useLayerOS();
+  const { farm, unitSettings, updateUnitSettings, dailyRecords, customers, sales, user } = useLayerOS();
   const { t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<'units' | 'team' | 'billing' | 'backup'>('units');
@@ -53,7 +53,7 @@ export function SettingsModule() {
   // Billing & SaaS state
   const [subscription, setSubscription] = useState<FarmSubscriptionState>({
     farmId: farm.id,
-    planId: isDemoMode ? 'grower' : 'starter',
+    planId: 'grower',
     status: 'active',
     billingCycle: 'monthly',
     currentPeriodStart: '2026-10-01T00:00:00.000Z',
@@ -628,21 +628,6 @@ export function SettingsModule() {
                 <Download className="w-4 h-4 text-[#1F4D3A] dark:text-[#3BA378]" />
                 <span>संपूर्ण डेटा बॅकअप डाऊनलोड (JSON)</span>
               </button>
-
-              {isDemoMode && (
-                <button
-                  onClick={() => {
-                    if (confirm('तुम्हाला खरोखर सह्याद्री लेयर फार्मचा सर्व डेटा पूर्ववत (Reset) करायचा आहे का?')) {
-                      resetDemoData();
-                      alert('डेमो डेटा पूर्ववत रीसेट झाला!');
-                    }
-                  }}
-                  className="py-2.5 px-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-950 dark:text-amber-200 border border-amber-300 text-xs font-bold flex items-center justify-center gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>{t.resetDemoData}</span>
-                </button>
-              )}
             </div>
           </div>
         </div>

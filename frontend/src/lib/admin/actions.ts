@@ -217,6 +217,25 @@ export function calculatePlatformKPIs(farms: AdminFarmSummary[]): PlatformKPIs {
  * Fetches platform summary statistics
  */
 export async function getPlatformKPIs(): Promise<PlatformKPIs> {
+  try {
+    const res = await fetch('http://localhost:8000/api/v1/admin/kpis');
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        totalFarms: data.total_farms || 0,
+        activeFarms: data.active_farms || 0,
+        pendingFarms: data.pending_approvals || 0,
+        suspendedFarms: data.suspended_farms || 0,
+        rejectedFarms: 0,
+        totalBirds: data.total_live_birds || 0,
+        estimatedMRR: data.monthly_recurring_revenue_inr || 0,
+        expiringIn7Days: 0,
+      };
+    }
+  } catch {
+    // Network fallback
+  }
+
   const supabase = getSupabaseBrowserClient();
   if (supabase) {
     try {
@@ -243,7 +262,7 @@ export async function getPlatformKPIs(): Promise<PlatformKPIs> {
         return calculatePlatformKPIs(mapped);
       }
     } catch {
-      // Fallback to inMemoryFarms on query error
+      // Fallback
     }
   }
   return calculatePlatformKPIs(inMemoryFarms);
@@ -256,6 +275,46 @@ export async function listAdminFarms(
   statusFilter?: FarmStatus | 'all',
   searchQuery?: string
 ): Promise<AdminFarmSummary[]> {
+  try {
+    const url = `http://localhost:8000/api/v1/admin/farms${statusFilter && statusFilter !== 'all' ? `?status_filter=${statusFilter}` : ''}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        let mapped: AdminFarmSummary[] = data.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          ownerName: f.owner_name || '',
+          phone: f.phone || '',
+          email: '',
+          district: f.district || '',
+          state: 'Maharashtra',
+          totalCapacity: f.capacity || 0,
+          status: f.status || 'active',
+          enrolledAt: f.created_at || new Date().toISOString(),
+          planId: f.plan_id || 'starter',
+          planStartedAt: f.created_at || new Date().toISOString(),
+          planEndsAt: new Date(Date.now() + 30 * 86400000).toISOString(),
+          currentBirdCount: f.total_birds || 0,
+        }));
+
+        if (searchQuery && searchQuery.trim().length > 0) {
+          const q = searchQuery.toLowerCase().trim();
+          mapped = mapped.filter(
+            (f) =>
+              f.name.toLowerCase().includes(q) ||
+              f.ownerName.toLowerCase().includes(q) ||
+              f.phone.includes(q) ||
+              f.district.toLowerCase().includes(q)
+          );
+        }
+        return mapped;
+      }
+    }
+  } catch {
+    // Fallback to in-memory store
+  }
+
   let farms = [...inMemoryFarms];
 
   if (statusFilter && statusFilter !== 'all') {

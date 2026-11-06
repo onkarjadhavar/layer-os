@@ -1,12 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   ownerAccountSchema,
   shedsFlocksSchema,
   completeEnrollmentSchema,
 } from './schema';
 import { enrollFarmAction } from './actions';
+import { farmsService } from '../../services/farms.service';
 
 describe('LayerOS Farm Enrollment & Validation Suite', () => {
+  beforeEach(() => {
+    vi.spyOn(farmsService, 'enrollFarm').mockResolvedValue({
+      id: '6d84dce2-ec8b-4c70-831e-2c899b55b8f1',
+      user_id: '8bd103f0-5716-40af-880c-497bb0006560',
+      name: 'शिंदे लेयर फार्म (Shinde Layer Farm)',
+      owner_name: 'संजय शिंदे (Sanjay Shinde)',
+      phone: '9822156789',
+      status: 'active',
+    } as any);
+  });
+
   const validOwner = {
     fullName: 'संजय शिंदे (Sanjay Shinde)',
     mobileNumber: '9822156789',

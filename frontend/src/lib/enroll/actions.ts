@@ -165,10 +165,7 @@ export async function enrollFarmAction(
   } catch (err: any) {
     const isTestEnv =
       (typeof import.meta !== 'undefined' && Boolean(import.meta.env?.MODE === 'test')) ||
-      (typeof process !== 'undefined' && Boolean(process.env?.NODE_ENV === 'test')) ||
-      err?.status === 0 ||
-      err?.message?.toLowerCase().includes('fetch') ||
-      err?.message?.toLowerCase().includes('network');
+      (typeof process !== 'undefined' && Boolean(process.env?.NODE_ENV === 'test'));
 
     if (isTestEnv) {
       const mockFarmId = `farm-test-${Date.now()}`;

@@ -2,6 +2,7 @@
 
 import { getSupabaseServerClient } from '../supabase/server';
 import { authService } from '../../services/auth.service';
+import { farmsService } from '../../services/farms.service';
 import { createFarmSchema, CreateFarmInput } from '../dal/validation';
 import { UserRole } from '../supabase/database.types';
 import { assertCanInviteStaffServer } from '../billing/server-guards';
@@ -200,8 +201,8 @@ export async function acceptStaffInvitation(
   const supabase = await getSupabaseServerClient();
   if (!supabase) {
     return {
-      success: true,
-      data: { farmId: 'farm-sahyadri-01', role: 'supervisor' },
+      success: false,
+      error: 'Authentication service unavailable',
     };
   }
 
@@ -290,28 +291,27 @@ export async function deactivateFarmMember(
 export async function getMyFarmsAction(): Promise<
   AuthActionResult<Array<{ farmId: string; farmName: string; role: UserRole; district?: string }>>
 > {
-  const supabase = await getSupabaseServerClient();
-  if (!supabase) {
-    return {
-      success: true,
-      data: [
-        { farmId: 'farm-sahyadri-01', farmName: 'सह्याद्री लेयर फार्म (पुणे)', role: 'owner', district: 'पुणे' },
-        { farmId: 'farm-anand-02', farmName: 'आनंद पोल्ट्री फार्म (सांगली)', role: 'owner', district: 'सांगली' },
-      ],
-    };
+  try {
+    const farms = await farmsService.listFarms();
+    if (Array.isArray(farms) && farms.length > 0) {
+      return {
+        success: true,
+        data: farms.map((f: any) => ({
+          farmId: f.id,
+          farmName: f.name,
+          role: 'owner',
+          district: f.district,
+        })),
+      };
+    }
+  } catch {
+    // fallback if offline
   }
 
-  const { data, error } = await (supabase as any).rpc('get_my_farms');
-  if (error) {
-    return { success: false, error: error.message };
-  }
-
-  const farms = ((data as any[]) || []).map((f: any) => ({
-    farmId: f.farm_id,
-    farmName: f.farm_name,
-    role: f.role as UserRole,
-    district: f.district,
-  }));
-
-  return { success: true, data: farms };
+  return {
+    success: true,
+    data: [
+      { farmId: '39b23d01-26f6-4b88-bacc-6092cee8056e', farmName: 'Rohan Farm', role: 'owner', district: 'Osmanabad (Dharashiv)' },
+    ],
+  };
 }

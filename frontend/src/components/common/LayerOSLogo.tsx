@@ -4,7 +4,7 @@ interface LayerOSLogoProps {
   className?: string;
   size?: number | 'sm' | 'md' | 'lg';
   showText?: boolean;
-  variant?: 'light' | 'dark' | 'auto';
+  variant?: 'light' | 'dark' | 'auto' | 'circular' | 'horizontal';
 }
 
 export function LayerOSLogo({
@@ -14,6 +14,43 @@ export function LayerOSLogo({
   variant = 'auto',
 }: LayerOSLogoProps) {
   const pixelSize = typeof size === 'number' ? size : size === 'sm' ? 28 : size === 'lg' ? 48 : 36;
+
+  if (variant === 'circular') {
+    return (
+      <div className={`inline-flex items-center gap-2.5 ${className}`}>
+        <img
+          src="/images/layer-os-circular-logo.png"
+          alt="Layer OS Circular Logo"
+          width={pixelSize}
+          height={pixelSize}
+          className="object-contain shrink-0"
+          style={{ width: `${pixelSize}px`, height: `${pixelSize}px` }}
+        />
+        {showText && (
+          <div className="flex flex-col leading-none select-none">
+            <div className="text-xl font-black tracking-tight text-[var(--color-text-main)] dark:text-white flex items-center">
+              Layer<span className="text-[var(--color-amber)] ml-0.5">OS</span>
+            </div>
+            <span className="text-[10px] font-bold text-[var(--color-text-muted)] dark:text-[var(--color-sage)] uppercase tracking-wider mt-0.5">
+              Poultry ERP
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (variant === 'horizontal') {
+    return (
+      <div className={`inline-flex items-center ${className}`}>
+        <img
+          src="/images/layer-os-horizontal-logo.png"
+          alt="Layer OS Brand Logo"
+          className="w-auto max-w-[190px] max-h-[48px] object-contain shrink-0"
+        />
+      </div>
+    );
+  }
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
       {/* Precision Engineered Agricultural Vector Emblem */}

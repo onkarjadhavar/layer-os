@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 from app.db.session import get_db
-from app.api.deps import get_current_user_optional
+from app.api.deps import get_current_user_optional, check_farm_access
 from app.models.user import User
 from app.models.farm import Flock, UnitSettings
 from app.models.record import DailyRecord
@@ -26,11 +26,15 @@ router = APIRouter()
 
 
 @router.post("/quick", response_model=DailyRecordResponse)
+@router.post("/daily/quick", response_model=DailyRecordResponse)
 def save_quick_daily_record(
     input_data: QuickDailyRecordInput,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(input_data.farm_id, current_user, db)
+
     flock = db.query(Flock).filter(Flock.id == input_data.flock_id).first()
     if not flock:
         raise HTTPException(status_code=404, detail="Flock not found.")
@@ -121,11 +125,15 @@ def save_quick_daily_record(
 
 
 @router.post("/full", response_model=DailyRecordResponse)
+@router.post("/daily", response_model=DailyRecordResponse)
 def save_full_daily_record(
     input_data: FullDailyRecordInput,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(input_data.farm_id, current_user, db)
+
     flock = db.query(Flock).filter(Flock.id == input_data.flock_id).first()
     if not flock:
         raise HTTPException(status_code=404, detail="Flock not found.")
@@ -183,12 +191,18 @@ def save_full_daily_record(
 
 
 @router.get("/", response_model=List[DailyRecordResponse])
+@router.get("", response_model=List[DailyRecordResponse])
+@router.get("/daily", response_model=List[DailyRecordResponse])
 def get_daily_records(
     farm_id: Optional[uuid.UUID] = Query(None),
     flock_id: Optional[uuid.UUID] = Query(None),
     limit: int = Query(90, ge=1, le=365),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user and farm_id:
+        check_farm_access(farm_id, current_user, db)
+
     query = db.query(DailyRecord)
     if farm_id:
         query = query.filter(DailyRecord.farm_id == farm_id)

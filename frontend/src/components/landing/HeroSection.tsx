@@ -18,10 +18,10 @@ import {
 import { formatIndianCurrency, formatIndianNumber } from '@/lib/calc';
 
 interface HeroSectionProps {
-  onTryDemo: () => void;
+  onLogin?: () => void;
 }
 
-export function HeroSection({ onTryDemo }: HeroSectionProps) {
+export function HeroSection({ onLogin }: HeroSectionProps) {
   const { t } = useI18n();
 
   // Interactive Live Farm Simulation (The Taste-Skill "One Live Thing")
@@ -74,20 +74,10 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
                 <ArrowRight className="w-4 h-4 text-[var(--color-amber)]" />
               </Link>
 
-              <button
-                id="landing-hero-demo-btn"
-                type="button"
-                onClick={onTryDemo}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold text-[var(--color-walnut)] dark:text-[var(--color-amber)] bg-[var(--color-amber-soft)]/60 dark:bg-[#2B2113] border border-[var(--color-amber)]/40 hover:bg-[var(--color-amber-soft)] transition-colors min-h-[48px]"
-              >
-                <PlayCircle className="w-5 h-5 text-[var(--color-amber)]" />
-                <span>{t.heroTryDemo}</span>
-              </button>
-
               <Link
-                id="landing-hero-login-link"
+                id="landing-hero-login-btn"
                 href="/login"
-                className="inline-flex items-center justify-center px-4 py-3 text-sm font-semibold text-[var(--color-forest)] dark:text-[var(--color-sage)] hover:underline min-h-[44px]"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold text-[var(--color-walnut)] dark:text-[var(--color-amber)] bg-[var(--color-amber-soft)]/60 dark:bg-[#2B2113] border border-[var(--color-amber)]/40 hover:bg-[var(--color-amber-soft)] transition-colors min-h-[48px]"
               >
                 <span>{t.heroAlreadyRegistered}</span>
               </Link>
@@ -121,7 +111,7 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
                   </div>
                   <div>
                     <div className="text-sm font-black text-[var(--color-text-main)] dark:text-white">
-                      सह्याद्री लेयर फार्म (थेट पूर्वावलोकन)
+                      रोहन फार्म (थेट पूर्वावलोकन)
                     </div>
                     <div className="text-[11px] text-[var(--color-text-muted)]">
                       BV300 लेयर • वय: ३४ आठवडे
@@ -228,13 +218,12 @@ export function HeroSection({ onTryDemo }: HeroSectionProps) {
               </div>
 
               {/* Mini CTA inside Preview */}
-              <button
-                type="button"
-                onClick={onTryDemo}
+              <Link
+                href="/login"
                 className="w-full py-2.5 px-3 rounded-xl bg-[var(--color-surface-subtle)] dark:bg-[#192B23] hover:bg-[var(--color-sage-pale)] border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-main)] dark:text-white transition-colors flex items-center justify-center gap-1.5"
               >
-                <span>पूर्ण फार्म डॅशबोर्ड तपासा →</span>
-              </button>
+                <span>फार्म डॅशबोर्ड लॉगिन →</span>
+              </Link>
             </div>
           </div>
         </div>

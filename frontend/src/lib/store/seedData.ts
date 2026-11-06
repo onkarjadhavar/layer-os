@@ -188,69 +188,43 @@ export interface UserProfile {
   farmId: string;
 }
 
+export const ROHAN_FARM_ID = "39b23d01-26f6-4b88-bacc-6092cee8056e";
+
 export const SEED_FARM: Farm = {
-  id: "farm-sahyadri-01",
-  name: "सह्याद्री लेयर फार्म (Sahyadri Layer Farm)",
-  ownerName: "सचिन गायकवाड (Sachin Gaikwad)",
-  phone: "+91 98220 12345",
-  email: "sachin@sahyadrilayer.com",
-  district: "Pune / दौंड",
+  id: ROHAN_FARM_ID,
+  name: "Rohan Farm",
+  ownerName: "Rohan Tukaram Umbarepatil",
+  phone: "7666040924",
+  email: "umbarepatilrohan@gmail.com",
+  district: "Osmanabad (Dharashiv)",
   state: "Maharashtra",
-  totalCapacity: 35000,
-  gstin: "27AABCS1429B1Z8",
+  totalCapacity: 10000,
+  gstin: "",
 };
 
-export const SECONDARY_SEED_FARM: Farm = {
-  id: "farm-anand-02",
-  name: "आनंद पोल्ट्री फार्म (Anand Poultry Farm)",
-  ownerName: "सचिन गायकवाड (Sachin Gaikwad)",
-  phone: "+91 98220 12345",
-  email: "sachin@anandpoultry.com",
-  district: "Sangli / तासगाव",
-  state: "Maharashtra",
-  totalCapacity: 20000,
-  gstin: "27AABCS1429B1Z9",
-};
-
-export const SEED_FARMS: Farm[] = [SEED_FARM, SECONDARY_SEED_FARM];
+export const SEED_FARMS: Farm[] = [SEED_FARM];
 
 export const SEED_SHEDS: Shed[] = [
-  { id: "shed-01", farmId: "farm-sahyadri-01", shedNumber: "S-1", name: "शेड १ (Phase-1 Cage)", capacity: 10000, shedType: "elevated_cage", hasSensors: true },
-  { id: "shed-02", farmId: "farm-sahyadri-01", shedNumber: "S-2", name: "शेड २ (Phase-2 Cage)", capacity: 10000, shedType: "elevated_cage", hasSensors: true },
-  { id: "shed-03", farmId: "farm-sahyadri-01", shedNumber: "S-3", name: "शेड ३ (Phase-3 Cage)", capacity: 10000, shedType: "elevated_cage", hasSensors: false },
+  { id: "shed-01", farmId: ROHAN_FARM_ID, shedNumber: "Shed-01", name: "शेड १", capacity: 5000, shedType: "elevated_cage", hasSensors: false },
+  { id: "shed-02", farmId: ROHAN_FARM_ID, shedNumber: "Shed-02", name: "शेड २", capacity: 5000, shedType: "elevated_cage", hasSensors: false },
 ];
 
 export const SEED_FLOCK: Flock = {
-  id: "flock-bv300-batch-24",
-  farmId: "farm-sahyadri-01",
+  id: "flock-rohan-01",
+  farmId: ROHAN_FARM_ID,
   shedId: "shed-01",
-  batchCode: "FLOCK-2024-B34",
-  breed: "BV-300 Layer",
-  hatcherySource: "Venkateshwara Hatcheries (Venky's), Pune",
-  placementDate: "2024-02-15",
-  initialChickCount: 30450,
-  chickCostPerBird: 44.00,
-  currentBirdCount: 29985,
-  ageWeeks: 34,
+  batchCode: "Batch-1",
+  breed: "BV300",
+  hatcherySource: "Direct Placement",
+  placementDate: "2024-05-01",
+  initialChickCount: 10000,
+  chickCostPerBird: 42.00,
+  currentBirdCount: 10000,
+  ageWeeks: 24,
   currentPhase: "laying",
 };
 
-export const SECONDARY_SEED_FLOCK: Flock = {
-  id: "flock-bv300-batch-25",
-  farmId: "farm-sahyadri-01",
-  shedId: "shed-02",
-  batchCode: "FLOCK-2025-B18",
-  breed: "BV-300 Layer",
-  hatcherySource: "Venkateshwara Hatcheries (Venky's), Pune",
-  placementDate: "2024-06-10",
-  initialChickCount: 10200,
-  chickCostPerBird: 44.00,
-  currentBirdCount: 10080,
-  ageWeeks: 18,
-  currentPhase: "pre_lay",
-};
-
-export const SEED_FLOCKS: Flock[] = [SEED_FLOCK, SECONDARY_SEED_FLOCK];
+export const SEED_FLOCKS: Flock[] = [SEED_FLOCK];
 
 export const SEED_CUSTOMERS: Customer[] = [
   { id: "cust-01", name: "अमोल ट्रेडर्स (Amol Egg Traders)", phone: "9822199001", area: "गुलटेकडी मार्केटयार्ड, पुणे", customerType: "wholesaler", creditLimit: 300000, creditDays: 7, currentOutstanding: 148500, days0to7: 100000, days8to15: 48500, days16to30: 0, days30Plus: 0, averageDaysToPay: 6, onTimePaymentPct: 92, defaultPriceUnit: "per_100" },
@@ -416,8 +390,8 @@ export function generate90DaysDailyRecords(): DailyRecord[] {
 
       records.push({
         id: `rec-day-${dateStr}`,
-        farmId: "farm-sahyadri-01",
-        flockId: "flock-bv300-batch-24",
+        farmId: ROHAN_FARM_ID,
+        flockId: "flock-rohan-01",
         recordDate: dateStr,
         openingBirds,
         mortality,
@@ -498,8 +472,8 @@ export function generate90DaysDailyRecords(): DailyRecord[] {
 
     records.push({
       id: `rec-day-${dateStr}`,
-      farmId: "farm-sahyadri-01",
-      flockId: "flock-bv300-batch-24",
+      farmId: ROHAN_FARM_ID,
+      flockId: "flock-rohan-01",
       recordDate: dateStr,
       openingBirds,
       mortality: dailyMortality,

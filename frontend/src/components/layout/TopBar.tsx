@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from '@/components/common/Link';
 import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
 import { useTheme } from '@/lib/theme/context';
-import { LayerOSLogo } from '@/components/common/LayerOSLogo';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import {
   Bell,
   Globe,
@@ -18,8 +19,6 @@ import {
   Check,
   Sun,
   Moon,
-  Home,
-  ShieldCheck,
   LogOut,
 } from 'lucide-react';
 
@@ -28,6 +27,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ onOpenNotifications }: TopBarProps) {
+  const navigate = useNavigate();
   const {
     farm,
     farms,
@@ -35,9 +35,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
     flock,
     user,
     switchRole,
-    isDemoMode,
     isDatabaseConnected,
-    resetDemoData,
     alerts,
     logout,
   } = useLayerOS();
@@ -71,7 +69,15 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Farm Avatar & Selector */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <LayerOSLogo size={36} />
+          <Link href="/?landing=true" title="Layer OS Home" className="shrink-0 group flex items-center">
+            <img
+              src="/images/layer-os-circular-logo.png"
+              alt="Layer OS Circular Logo"
+              width={40}
+              height={40}
+              className="w-[34px] h-[34px] sm:w-[40px] sm:h-[40px] object-contain shrink-0 transition-transform group-hover:scale-105"
+            />
+          </Link>
           <div className="min-w-0 relative">
             <div className="flex items-center gap-1.5">
               <button
@@ -88,16 +94,11 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                 <ChevronDown className="w-3.5 h-3.5 text-[var(--color-text-muted)] group-hover:text-[var(--color-forest)] flex-shrink-0 transition-transform" />
               </button>
 
-              {isDemoMode ? (
-                <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] border border-[var(--color-amber)]/40">
-                  <Sparkles className="w-2.5 h-2.5 mr-1 text-[var(--color-amber)]" />
-                  {t.demoBadge}
-                </span>
-              ) : isDatabaseConnected ? (
+              {isDatabaseConnected && (
                 <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)] border border-[var(--color-sage)]/40">
                   {t.postgresLive}
                 </span>
-              ) : null}
+              )}
             </div>
 
             {/* Farm Switcher Dropdown */}
@@ -117,6 +118,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                         onClick={() => {
                           switchFarm(f.id);
                           setShowFarmDropdown(false);
+                          navigate(`/dashboard/farms/${f.id}`);
                         }}
                         className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between gap-2 hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer ${
                           isCurrent
@@ -169,19 +171,6 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
 
         {/* Right: Operational Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          {/* Demo Reset Button */}
-          {isDemoMode && (
-            <button
-              type="button"
-              onClick={resetDemoData}
-              title={t.resetDemoData}
-              className="hidden xl:flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-[var(--color-text-main)] hover:bg-[var(--color-surface-subtle)] border border-[var(--color-border)] transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[var(--color-amber)]" />
-              <span>{t.resetDemoData}</span>
-            </button>
-          )}
-
           {/* Role Switcher */}
           <div className="relative">
             <button
@@ -241,94 +230,8 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
             )}
           </div>
 
-          {/* Return to Public Landing Link */}
-          <Link
-            href="/?landing=true"
-            id="btn-back-to-home"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] border border-[var(--color-border)] hover:border-[var(--color-forest)] transition-all"
-            title={t.backToHome}
-          >
-            <Home className="w-3.5 h-3.5 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
-            <span className="hidden sm:inline">{t.backToHome}</span>
-          </Link>
-
-          {/* Admin Portal Link */}
-          <Link
-            href="/admin/login"
-            id="topbar-btn-admin-login"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] border border-[var(--color-border)] hover:border-[var(--color-forest)] transition-all"
-            title="Platform Admin Login"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
-            <span className="hidden sm:inline">Admin</span>
-          </Link>
-
-          {/* Trilingual Language Selector */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setShowLangDropdown(!showLangDropdown);
-                setShowRoleDropdown(false);
-                setShowFarmDropdown(false);
-              }}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-main)] border border-[var(--color-border)] hover:border-[var(--color-amber)] transition-colors cursor-pointer"
-            >
-              <Globe className="w-3.5 h-3.5 text-[var(--color-amber)]" />
-              <span className="uppercase">{language}</span>
-              <ChevronDown className="w-3 h-3 text-[var(--color-text-muted)]" />
-            </button>
-
-            {showLangDropdown && (
-              <div className="absolute right-0 mt-2 w-36 bg-[var(--color-surface)] rounded-2xl shadow-xl border border-[var(--color-border)] py-1.5 z-50">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLanguage('mr');
-                    setShowLangDropdown(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer ${
-                    language === 'mr'
-                      ? 'font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] bg-[var(--color-sage-pale)] dark:bg-[#1A3024]'
-                      : 'text-[var(--color-text-main)]'
-                  }`}
-                >
-                  <span>मराठी (MR)</span>
-                  {language === 'mr' && <span className="font-bold">✓</span>}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLanguage('en');
-                    setShowLangDropdown(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer ${
-                    language === 'en'
-                      ? 'font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] bg-[var(--color-sage-pale)] dark:bg-[#1A3024]'
-                      : 'text-[var(--color-text-main)]'
-                  }`}
-                >
-                  <span>English (EN)</span>
-                  {language === 'en' && <span className="font-bold">✓</span>}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLanguage('hi');
-                    setShowLangDropdown(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-[var(--color-surface-subtle)] transition-colors cursor-pointer ${
-                    language === 'hi'
-                      ? 'font-bold text-[var(--color-forest)] dark:text-[var(--color-sage)] bg-[var(--color-sage-pale)] dark:bg-[#1A3024]'
-                      : 'text-[var(--color-text-main)]'
-                  }`}
-                >
-                  <span>हिंदी (HI)</span>
-                  {language === 'hi' && <span className="font-bold">✓</span>}
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Accessible Trilingual Language Switcher */}
+          <LanguageSwitcher />
 
           {/* Theme Toggle Button */}
           <button

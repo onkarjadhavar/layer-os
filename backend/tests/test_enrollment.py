@@ -80,19 +80,39 @@ def test_enroll_farm_and_retrieve_dashboard():
 
     farm_id = data["id"]
 
-    # 2. Retrieve Specific Dashboard
-    dash_response = client.get(f"/api/v1/farms/{farm_id}/dashboard")
-    assert dash_response.status_code == 200, f"Dashboard retrieval failed: {dash_response.text}"
+    try:
+        # 2. Retrieve Specific Dashboard
+        dash_response = client.get(f"/api/v1/farms/{farm_id}/dashboard")
+        assert dash_response.status_code == 200, f"Dashboard retrieval failed: {dash_response.text}"
 
-    dash_data = dash_response.json()
-    assert dash_data["farm"]["id"] == farm_id
-    assert dash_data["farm"]["name"] == farm_name
-    assert dash_data["farm"]["owner_name"] == owner_name
-    assert len(dash_data["sheds"]) == 2
-    assert len(dash_data["flocks"]) == 1
-    assert dash_data["flocks"][0]["batch_code"] == "Batch-A1"
-    assert dash_data["flocks"][0]["breed"] == "BV300"
-    assert dash_data["summary"]["total_birds"] == 19950
+        dash_data = dash_response.json()
+        assert dash_data["farm"]["id"] == farm_id
+        assert dash_data["farm"]["name"] == farm_name
+        assert dash_data["farm"]["owner_name"] == owner_name
+        assert len(dash_data["sheds"]) == 2
+        assert len(dash_data["flocks"]) == 1
+        assert dash_data["flocks"][0]["batch_code"] == "Batch-A1"
+        assert dash_data["flocks"][0]["breed"] == "BV300"
+        assert dash_data["summary"]["total_birds"] == 19950
+    finally:
+        from app.db.session import SessionLocal
+        from app.models.farm import Farm, Shed, Flock, FarmMember
+        from app.models.user import User
+        from app.models.record import DailyRecord
+        from app.models.sale import Customer, Sale
+        db = SessionLocal()
+        fid_uuid = uuid.UUID(farm_id) if isinstance(farm_id, str) else farm_id
+        db.query(DailyRecord).filter(DailyRecord.farm_id == fid_uuid).delete()
+        db.query(Sale).filter(Sale.farm_id == fid_uuid).delete()
+        db.query(Customer).filter(Customer.farm_id == fid_uuid).delete()
+        db.query(FarmMember).filter(FarmMember.farm_id == fid_uuid).delete()
+        db.query(Flock).filter(Flock.farm_id == fid_uuid).delete()
+        db.query(Shed).filter(Shed.farm_id == fid_uuid).delete()
+        db.query(Farm).filter(Farm.id == fid_uuid).delete()
+        if unique_phone:
+            db.query(User).filter(User.phone == unique_phone).delete()
+        db.commit()
+        db.close()
 
 
 def test_dashboard_not_found_for_invalid_id():

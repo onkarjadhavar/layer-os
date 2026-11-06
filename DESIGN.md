@@ -176,3 +176,38 @@
 - **Mobile (< 600px)**: 1-column cards, bottom thumb navigation bar, 48px touch targets, full-width bottom sheets.
 - **Tablet (600px - 1024px)**: 2-column KPI grid, compact collapsible drawer.
 - **Desktop (1024px+)**: Fixed 260px structured sidebar, multi-column dashboard, spacious layout.
+
+---
+
+## 7. Enterprise Platform Admin Control Center (`/admin`) Specification
+
+### 🏛️ Architectural Hierarchy & Application Shell
+- **Left Navigation Sidebar (250px)**:
+  - Header: Circular LayerOS Emblem (32px), Platform Admin title, and Role Badge (`super_admin` vs `operator`).
+  - Navigation Groups:
+    1. **PLATFORM**: Overview (`dashboard`), Farms Directory (`farms`), Approvals Queue (`approvals`), Operators & Roles (`operators`).
+    2. **BUSINESS**: Subscriptions (`subscriptions`), Billing & Payments (`billing`), Platform Analytics (`analytics`).
+    3. **OPERATIONS**: Support Center (`support`), Activity Logs (`audit`), System Health (`health`).
+    4. **CONFIGURATION**: Platform Settings (`settings`).
+  - Footer: Current Administrator Profile card (avatar initials, name, role badge, session status, and direct Sign Out action).
+  - Responsive collapse: Collapses to 68px icon bar on tablet or full slide-out drawer on mobile screens.
+
+### 🧭 Top Navigation Header
+- **Breadcrumb Navigation**: Shows path hierarchy (`LayerOS Platform / Farms / Farm Details`).
+- **Global Search**: Search across farms, owners, contact numbers, and invoice identifiers.
+- **System Actions**: Language switcher (Marathi, Hindi, English), Theme switcher (Light, Dark, System), Pending Approvals badge counter, Admin profile menu.
+
+### 📊 KPI Cards & Analytical Density (Linear / Stripe Inspired)
+- **Compact Metric Tiles**: Height 104px, 1px subtle border (`var(--color-border)`), tabular figures, subdued contextual icon.
+- **Zero Fabrication**: Only display real counts derived from PostgreSQL database. Never show fake percentage trends.
+- **Status Badges**:
+  - `Active`: Emerald green soft fill + border + subtle dot.
+  - `Pending Approval`: Warm amber soft fill + border + clock icon.
+  - `Suspended`: Deep coral / ruby soft fill + border + lock icon.
+  - `Rejected`: Slate gray neutral fill + border + x icon.
+
+### 🛡️ Operational Safeguards & Audit Integrity
+- **Mandatory Confirmation Dialogs**: Suspending, rejecting, approving, or extending subscriptions requires an explicit administrative reason.
+- **DPDP 2023 Audit Logging**: Every administrative action logs actor, role, target farm, timestamp, IP, and reason.
+- **Support Impersonation Guard**: Support view explicitly banners that read-only platform monitoring is in progress.
+

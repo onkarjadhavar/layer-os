@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
 import { farmsService } from '@/services/farms.service';
-import { Farm, Shed, Flock, DailyRecord, UserProfile } from '@/lib/store/seedData';
+import { Farm, Shed, Flock, DailyRecord, Sale, UserProfile } from '@/lib/store/seedData';
 import { UnitSettings } from '@/lib/calc';
 
 // Layout Components
@@ -48,11 +48,37 @@ import { Sparkles, Zap, MessageSquare, AlertCircle, Lightbulb, TrendingUp, Shiel
 
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
-  const { user, farm, setActiveFarmData, loginAsDemo, logout } = useLayerOS();
+  const navigate = useNavigate();
+  const { user, farm, setActiveFarmData, logout } = useLayerOS();
+  const { t } = useI18n();
 
-  // Root route visitor handoff state: default to false for 100% hydration parity, switch to landing for fresh visitors
-  const [showLanding, setShowLanding] = useState(false);
-  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(Boolean(farmId));
+  // Root route visitor handoff state: default evaluated synchronously to prevent any flash of Rohan Farm
+  const [showLanding, setShowLanding] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname;
+    if (path.startsWith('/dashboard/')) return false;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('landing') === 'true') return true;
+
+    const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
+    const isLive = localStorage.getItem('layeros_live_active') === 'true';
+    const queryLive = params.get('live') === 'true';
+    const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
+
+    // If active dashboard session explicitly requested
+    if (queryLive || hasEntered || isLive || isAutomatedTest) {
+      return false;
+    }
+
+    // Default to landing page on root "/" for fresh or unauthenticated visitors
+    return true;
+  });
+
+  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(() => {
+    if (farmId) return true;
+    return false;
+  });
   const [farmLoadError, setFarmLoadError] = useState<string | null>(null);
 
   // Synchronize visitor vs returning dashboard state
@@ -73,12 +99,12 @@ export function HomePage() {
 
       const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
       const isLive = localStorage.getItem('layeros_live_active') === 'true';
-      const queryDemo = params.get('demo') === 'true';
       const queryLive = params.get('live') === 'true';
       const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
 
       // Automated tests or returning sessions remain on dashboard
-      if (queryDemo || queryLive || hasEntered || isLive || isAutomatedTest) {
+      if (queryLive || hasEntered || isLive || isAutomatedTest) {
+        setShowLanding(false);
         return;
       }
 
@@ -89,17 +115,21 @@ export function HomePage() {
     }
   }, [farmId]);
 
-  // When a farmId is specified in URL, fetch live farm data from FastAPI
+  const activeFarmId = farmId || (!showLanding ? (user?.farmId || farm.id) : null);
+
+  // When a farm is specified or active, fetch live farm data from FastAPI
   useEffect(() => {
-    if (!farmId) return;
+    if (!activeFarmId) return;
 
     let isMounted = true;
     setIsLoadingFarm(true);
     setFarmLoadError(null);
-    setShowLanding(false);
+    if (farmId) {
+      setShowLanding(false);
+    }
 
     farmsService
-      .getFarmDashboard(farmId)
+      .getFarmDashboard(activeFarmId)
       .then(data => {
         if (!isMounted) return;
 
@@ -119,26 +149,26 @@ export function HomePage() {
         const shedsModel: Shed[] = (data.sheds || []).map((s: any, idx: number) => ({
           id: s.id || `shed-${idx + 1}`,
           farmId: s.farm_id || data.farm.id,
-          shedNumber: s.name || `Shed-0${idx + 1}`,
+          shedNumber: s.shed_number || s.name || `Shed-0${idx + 1}`,
           name: s.name || `शेड ${idx + 1}`,
           capacity: s.capacity || Math.round(data.farm.total_capacity / Math.max(1, data.sheds?.length || 1)),
-          shedType: (s.equipment_type as any) || 'elevated_cage',
-          hasSensors: false,
+          shedType: (s.shed_type || s.equipment_type as any) || 'elevated_cage',
+          hasSensors: Boolean(s.has_climate_sensors),
         }));
 
         const flocksModel: Flock[] = (data.flocks || []).map((f: any, idx: number) => ({
           id: f.id || `flock-${idx + 1}`,
           farmId: f.farm_id || data.farm.id,
           shedId: f.shed_id || (shedsModel[0]?.id || 'shed-1'),
-          batchCode: f.name || `Batch-${idx + 1}`,
+          batchCode: f.batch_code || f.name || `Batch-${idx + 1}`,
           breed: f.breed || 'BV300',
-          hatcherySource: 'Direct Placement',
+          hatcherySource: f.hatchery_source || 'Direct Placement',
           placementDate: f.placement_date || new Date().toISOString().split('T')[0],
-          initialChickCount: f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
-          chickCostPerBird: 42.0,
-          currentBirdCount: f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
-          ageWeeks: f.age_weeks || 34,
-          currentPhase: 'laying' as const,
+          initialChickCount: f.initial_chick_count || f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
+          chickCostPerBird: Number(f.chick_cost_per_bird || 42.0),
+          currentBirdCount: f.current_bird_count ?? f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
+          ageWeeks: f.age_weeks || 24,
+          currentPhase: (f.current_phase as any) || 'laying',
         }));
 
         const unitSettingsModel: UnitSettings = data.unit_settings || data.farm.unit_settings || {
@@ -151,35 +181,57 @@ export function HomePage() {
 
         const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => ({
           id: r.id,
-          farmId: r.farm_id || data.farm.id,
-          flockId: r.flock_id || (flocksModel[0]?.id || ''),
-          recordDate: r.record_date,
-          openingBirds: r.opening_birds || 0,
-          mortality: r.mortality || 0,
-          culls: r.culls || 0,
-          closingBirds: r.closing_birds || 0,
-          totalEggsCollected: r.eggs_collected || 0,
-          brokenCrackedEggs: r.damaged_eggs || 0,
-          softShellEggs: 0,
-          rejectEggs: 0,
-          goodEggs: (r.eggs_collected || 0) - (r.damaged_eggs || 0),
-          morningCollection: 0,
-          eveningCollection: 0,
-          hdPct: r.opening_birds > 0 ? ((r.eggs_collected || 0) / r.opening_birds) * 100 : 0,
-          productionPct: r.opening_birds > 0 ? ((r.eggs_collected || 0) / r.opening_birds) * 100 : 0,
-          feedIssuedKg: r.feed_used_kg || 0,
-          feedPerBirdG: r.opening_birds > 0 ? ((r.feed_used_kg || 0) * 1000) / r.opening_birds : 0,
-          waterConsumptionLitres: 0,
-          avgEggWeightG: 55,
-          sellingPricePerEgg: 5.4,
-          feedPricePerKg: 35.0,
-          otherCashExpenses: 0,
+          farmId: r.farm_id || r.farmId || data.farm.id,
+          flockId: r.flock_id || r.flockId || (flocksModel[0]?.id || ''),
+          recordDate: r.record_date || r.recordDate,
+          openingBirds: r.opening_birds ?? r.openingBirds ?? 0,
+          mortality: r.mortality ?? 0,
+          culls: r.culls ?? 0,
+          closingBirds: r.closing_birds ?? r.closingBirds ?? 0,
+          totalEggsCollected: r.total_eggs_collected ?? r.totalEggsCollected ?? r.eggs_collected ?? 0,
+          brokenCrackedEggs: r.broken_cracked_eggs ?? r.brokenCrackedEggs ?? r.damaged_eggs ?? 0,
+          softShellEggs: r.soft_shell_eggs ?? r.softShellEggs ?? 0,
+          rejectEggs: r.reject_eggs ?? r.rejectEggs ?? 0,
+          goodEggs: r.good_eggs ?? r.goodEggs ?? ((r.total_eggs_collected ?? r.eggs_collected ?? 0) - (r.broken_cracked_eggs ?? 0)),
+          morningCollection: r.morning_collection ?? r.morningCollection ?? 0,
+          eveningCollection: r.evening_collection ?? r.eveningCollection ?? 0,
+          hdPct: Number(r.hd_pct ?? r.hdPct ?? 0),
+          productionPct: Number(r.production_pct ?? r.productionPct ?? r.hd_pct ?? 0),
+          feedIssuedKg: Number(r.feed_issued_kg ?? r.feedIssuedKg ?? r.feed_used_kg ?? 0),
+          feedPerBirdG: Number(r.feed_per_bird_g ?? r.feedPerBirdG ?? 0),
+          waterConsumptionLitres: r.water_consumption_litres ?? r.waterConsumptionLitres ?? 0,
+          avgEggWeightG: Number(r.avg_egg_weight_g ?? r.avgEggWeightG ?? 58.5),
+          sellingPricePerEgg: Number(r.selling_price_per_egg ?? r.sellingPricePerEgg ?? 5.4),
+          feedPricePerKg: Number(r.feed_price_per_kg ?? r.feedPricePerKg ?? 35.0),
+          otherCashExpenses: Number(r.other_cash_expenses ?? r.otherCashExpenses ?? 0),
           otherIncome: 0,
-          simpleOperatingProfit: 0,
-          trueProfit: 0,
-          costPerEgg: 4.8,
-          breakEvenEggPrice: 4.8,
-          isClosed: true,
+          simpleOperatingProfit: Number(r.simple_operating_profit ?? r.simpleOperatingProfit ?? 0),
+          trueProfit: Number(r.true_profit ?? r.trueProfit ?? 0),
+          costPerEgg: Number(r.cost_per_egg ?? r.costPerEgg ?? 4.8),
+          breakEvenEggPrice: Number(r.break_even_egg_price ?? r.breakEvenEggPrice ?? 4.8),
+          isClosed: r.is_closed ?? true,
+          notes: r.notes || undefined,
+        }));
+        dailyRecordsModel.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+
+        const salesModel: Sale[] = (data.sales || []).map((s: any) => ({
+          id: s.id,
+          invoiceNumber: s.invoice_number || s.invoiceNumber || `INV-${s.id}`,
+          customerId: s.customer_id || s.customerId || '',
+          customerName: s.customer_name || s.customerName || 'ग्राहक',
+          saleDate: s.sale_date || s.saleDate,
+          saleType: s.sale_type || s.saleType || 'eggs',
+          quantityUnits: Number(s.quantity_units || s.quantityUnits || 0),
+          unitName: s.unit_name || s.unitName || 'eggs',
+          ratePerUnit: Number(s.rate_per_unit || s.ratePerUnit || 0),
+          grossAmount: Number(s.gross_amount || s.grossAmount || 0),
+          discount: Number(s.discount || 0),
+          netAmount: Number(s.net_amount || s.netAmount || 0),
+          paidAmount: Number(s.paid_amount || s.paidAmount || 0),
+          paymentStatus: (s.payment_status || s.paymentStatus || 'pending') as any,
+          vehicleNumber: s.vehicle_number || s.vehicleNumber || undefined,
+          deliveryPerson: s.delivery_person || s.deliveryPerson || undefined,
+          notes: s.notes || undefined,
         }));
 
         const userModel: UserProfile = {
@@ -196,7 +248,7 @@ export function HomePage() {
           flocks: flocksModel,
           unitSettings: unitSettingsModel,
           dailyRecords: dailyRecordsModel,
-          sales: [],
+          sales: salesModel,
           user: userModel,
         });
 
@@ -218,16 +270,35 @@ export function HomePage() {
     };
   }, [farmId]);
 
-  const handleTryDemo = () => {
-    loginAsDemo();
-    try {
-      sessionStorage.setItem('layeros_entered', 'true');
-    } catch {}
-    setShowLanding(false);
+  const handleLogin = () => {
+    navigate('/login');
   };
 
-  // Navigation State
-  const [currentTab, setCurrentTab] = useState<NavTab>('home');
+  // Navigation State: synchronized synchronously with URL search params & sessionStorage so refresh never flashes 'home'
+  const [currentTab, setCurrentTab] = useState<NavTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlTab = params.get('tab') as NavTab;
+      if (urlTab) return urlTab;
+      const savedTab = sessionStorage.getItem('layeros_active_tab') as NavTab;
+      if (savedTab) return savedTab;
+    }
+    return 'home';
+  });
+
+  const handleSelectTab = (tab: NavTab) => {
+    setCurrentTab(tab);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('layeros_active_tab', tab);
+      const url = new URL(window.location.href);
+      if (tab === 'home') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', tab);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   // Modals Open State
   const [showFullEntryModal, setShowFullEntryModal] = useState(false);
@@ -279,7 +350,7 @@ export function HomePage() {
             to="/"
             className="px-5 py-3 rounded-xl border border-[#DCD3C3] dark:border-[#263B30] text-sm font-bold text-[#1B2A24] dark:text-white hover:bg-gray-50 dark:hover:bg-[#1F2E26] transition-all"
           >
-            मुख्य पानावर जा
+            {t.backToHome || 'Back to Home'}
           </Link>
         </div>
       </div>
@@ -294,7 +365,7 @@ export function HomePage() {
           ⚠️
         </div>
         <h2 className="text-2xl font-black text-[#1B2A24] dark:text-white">
-          डेटा लोड करण्यात अडचण आली
+          {t.error || 'Failed to load farm data'}
         </h2>
         <p className="text-sm text-[#55695F] dark:text-[#CBDCD4] mt-2 max-w-md">
           {farmLoadError}
@@ -303,15 +374,15 @@ export function HomePage() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="px-5 py-3 rounded-xl bg-[#1F4D3A] text-white text-sm font-bold shadow hover:bg-[#173A2C] transition-all"
+            className="px-5 py-3 rounded-xl bg-[#1F4D3A] text-white text-sm font-bold shadow hover:bg-[#173A2C] transition-all cursor-pointer"
           >
-            पुन्हा प्रयत्न करा (Retry)
+            {t.refresh || 'Retry'}
           </button>
           <Link
             to="/"
             className="px-5 py-3 rounded-xl border border-[#DCD3C3] text-sm font-bold text-[#1B2A24] dark:text-white hover:bg-gray-50 transition-all"
           >
-            मुख्य पान
+            {t.navHome || 'Home'}
           </Link>
         </div>
       </div>
@@ -320,7 +391,7 @@ export function HomePage() {
 
   // If logged-out / fresh visitor on root without a farmId, render public landing page
   if (showLanding && !farmId) {
-    return <LandingPage onTryDemo={handleTryDemo} />;
+    return <LandingPage onLogin={handleLogin} />;
   }
 
   // Central Farm Status Enforcement:
@@ -343,32 +414,32 @@ export function HomePage() {
   // Quick Action Navigator
   const handleQuickAction = (key: string) => {
     if (key === 'quick-log') {
-      setCurrentTab('quick-log');
+      handleSelectTab('quick-log');
     } else if (key === 'sales') {
-      setCurrentTab('sales');
+      handleSelectTab('sales');
     } else if (key === 'expenses') {
-      setCurrentTab('expenses');
+      handleSelectTab('expenses');
     } else if (key === 'health') {
-      setCurrentTab('health');
+      handleSelectTab('health');
     } else if (key === 'market-rates') {
-      setCurrentTab('market-rates');
+      handleSelectTab('market-rates');
     } else if (key === 'mortality') {
       setShowFullEntryModal(true);
     } else if (key === 'feed') {
       setShowFullEntryModal(true);
     } else if (key === 'reports') {
-      setCurrentTab('reports');
+      handleSelectTab('reports');
     }
   };
 
   const handleKPISelect = (kpiKey: string) => {
-    if (kpiKey === 'birds' || kpiKey === 'production') setCurrentTab('flocks');
-    else if (kpiKey === 'sales' || kpiKey === 'receivables') setCurrentTab('sales');
-    else if (kpiKey === 'expenses' || kpiKey === 'accounts') setCurrentTab('expenses');
-    else if (kpiKey === 'breakeven') setCurrentTab('forecast');
-    else if (kpiKey === 'mortality') setCurrentTab('health');
+    if (kpiKey === 'birds' || kpiKey === 'production') handleSelectTab('flocks');
+    else if (kpiKey === 'sales' || kpiKey === 'receivables') handleSelectTab('sales');
+    else if (kpiKey === 'expenses' || kpiKey === 'accounts') handleSelectTab('expenses');
+    else if (kpiKey === 'breakeven') handleSelectTab('forecast');
+    else if (kpiKey === 'mortality') handleSelectTab('health');
     else if (kpiKey === 'feed') setShowFullEntryModal(true);
-    else setCurrentTab('quick-log');
+    else handleSelectTab('quick-log');
   };
 
   return (
@@ -386,7 +457,7 @@ export function HomePage() {
             if (tab === 'full-entry') {
               setShowFullEntryModal(true);
             } else {
-              setCurrentTab(tab);
+              handleSelectTab(tab);
             }
           }}
         />
@@ -401,7 +472,7 @@ export function HomePage() {
               </span>
               <button
                 type="button"
-                onClick={() => setCurrentTab('quick-log')}
+                onClick={() => handleSelectTab('quick-log')}
                 className="underline hover:opacity-80 touch-target flex items-center"
               >
                 नोंद सुरू करा →
@@ -503,7 +574,7 @@ export function HomePage() {
               <ActionCard
                 onNavigateTab={tab => {
                   if (tab === 'full-entry') setShowFullEntryModal(true);
-                  else setCurrentTab(tab as any);
+                  else handleSelectTab(tab as any);
                 }}
               />
             </div>
@@ -555,7 +626,7 @@ export function HomePage() {
           if (tab === 'full-entry') {
             setShowFullEntryModal(true);
           } else {
-            setCurrentTab(tab);
+            handleSelectTab(tab);
           }
         }}
         onOpenMoreMenu={() => setShowMobileMoreDrawer(true)}
@@ -581,7 +652,7 @@ export function HomePage() {
       <NotificationsDrawer
         isOpen={showNotificationsDrawer}
         onClose={() => setShowNotificationsDrawer(false)}
-        onNavigateToTab={tab => setCurrentTab(tab)}
+        onNavigateToTab={tab => handleSelectTab(tab)}
       />
 
       <MobileMoreDrawer
@@ -591,7 +662,7 @@ export function HomePage() {
           if (tab === 'full-entry') {
             setShowFullEntryModal(true);
           } else {
-            setCurrentTab(tab);
+            handleSelectTab(tab);
           }
         }}
       />
@@ -605,7 +676,7 @@ export function HomePage() {
       <OnboardingModal
         isOpen={showOnboardingModal}
         onClose={() => setShowOnboardingModal(false)}
-        onCompleted={() => setCurrentTab('home')}
+        onCompleted={() => handleSelectTab('home')}
       />
     </div>
   );

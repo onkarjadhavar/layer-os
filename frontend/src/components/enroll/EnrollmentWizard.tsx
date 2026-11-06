@@ -30,6 +30,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { LayerOSLogo } from '@/components/common/LayerOSLogo';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 
 const DRAFT_STORAGE_KEY = 'layeros_enroll_draft_v1';
 
@@ -450,24 +451,8 @@ export function EnrollmentWizard() {
               {t.enrollTitle}
             </span>
 
-            {/* Trilingual Switcher */}
-            <div className="flex items-center bg-[var(--color-background)] dark:bg-[#103528]/40 p-0.5 rounded-xl border border-[var(--color-border)] dark:border-[#263B30]">
-              {(['mr', 'hi', 'en'] as const).map(lang => (
-                <button
-                  key={lang}
-                  id={`enroll-lang-${lang}`}
-                  type="button"
-                  onClick={() => setLanguage(lang)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all min-h-[28px] cursor-pointer ${
-                    language === lang
-                      ? 'bg-[#194B38] text-white shadow-xs'
-                      : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 hover:text-[#17251D] dark:hover:text-white'
-                  }`}
-                >
-                  {lang === 'mr' ? 'मराठी' : lang === 'hi' ? 'हिंदी' : 'English'}
-                </button>
-              ))}
-            </div>
+            {/* Accessible Trilingual Switcher */}
+            <LanguageSwitcher variant="segment" />
           </div>
         </div>
       </header>
@@ -492,7 +477,7 @@ export function EnrollmentWizard() {
           {step <= 7 && (
             <div className="mb-8">
               <div className="flex items-center justify-between text-xs font-bold text-[#17251D] dark:text-white mb-2">
-                <span className="tabular-nums">पायरी {step} / ७</span>
+                <span className="tabular-nums">{t.step || 'Step'} {step} / 7</span>
                 <span className="text-[#194B38] dark:text-[#87A96B]">
                   {step === 1 && t.enrollStep1}
                   {step === 2 && t.enrollStep2}

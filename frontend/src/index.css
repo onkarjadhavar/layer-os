@@ -1,9 +1,35 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: 'Oxanium', 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Merriweather', 'Noto Serif Devanagari', Georgia, serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-forest: var(--color-forest);
+  --color-forest-deep: var(--color-forest-deep);
+  --color-sage: var(--color-sage);
+  --color-sage-pale: var(--color-sage-pale);
+  --color-walnut: var(--color-walnut);
+  --color-amber: var(--color-amber);
+  --color-amber-soft: var(--color-amber-soft);
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-surface-subtle: var(--color-surface-subtle);
+  --color-text-main: var(--color-text-main);
+  --color-text-muted: var(--color-text-muted);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
+    /* LayerOS Typography Stack with Devanagari Fallback */
+    --font-sans: 'Oxanium', 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-serif: 'Merriweather', 'Noto Serif Devanagari', Georgia, serif;
+    --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
     /* LayerOS Design System Anchor Tokens */
     --color-forest: #194B38;
     --color-forest-rgb: 25, 75, 56;
@@ -163,7 +189,7 @@ html, body {
 body {
   background-color: var(--color-background);
   color: var(--color-text-main);
-  font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.55;
   word-break: break-word;
   -webkit-font-smoothing: antialiased;

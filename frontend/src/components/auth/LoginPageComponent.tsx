@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from '@/components/common/Link';
 import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { signInWithEmail } from '@/lib/auth/actions';
 import { authService } from '@/services/auth.service';
 import { Phone, Mail, Sparkles, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
@@ -13,7 +14,7 @@ import { LayerOSLogo } from '@/components/common/LayerOSLogo';
 export function LoginPageComponent() {
   const navigate = useNavigate();
   const router = { push: (url: string) => navigate(url) };
-  const { loginWithPhone, loginAsDemo } = useLayerOS();
+  const { loginWithPhone } = useLayerOS();
   const { t } = useI18n();
 
   const [authMode, setAuthMode] = useState<'phone' | 'email'>('phone');
@@ -103,11 +104,6 @@ export function LoginPageComponent() {
     setSuccessMsg('पासवर्ड रीसेट लिंक आपल्या ईमेलवर पाठवण्यात आली आहे. (Password reset email sent.)');
   };
 
-  const handleDemoLaunch = () => {
-    loginAsDemo();
-    router.push('/?demo=true');
-  };
-
   return (
     <div className="min-h-screen bg-[var(--color-background)] dark:bg-[#103528]/30 text-[var(--color-text)] dark:text-[#E8EFE2] flex flex-col justify-between transition-colors">
       <header className="px-4 py-4 max-w-5xl mx-auto w-full flex items-center justify-between border-b border-[var(--color-border)] dark:border-[#263B30]/60">
@@ -115,12 +111,15 @@ export function LoginPageComponent() {
           <LayerOSLogo size="md" showText />
         </Link>
 
-        <Link
-          href="/enroll"
-          className="text-xs sm:text-sm font-bold text-[#194B38] dark:text-[#87A96B] hover:text-[#103528] dark:hover:text-white transition-colors underline-offset-4 hover:underline"
-        >
-          नवीन खाते? नोंदणी करा
-        </Link>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher variant="segment" />
+          <Link
+            href="/enroll"
+            className="text-xs sm:text-sm font-bold text-[#194B38] dark:text-[#87A96B] hover:text-[#103528] dark:hover:text-white transition-colors underline-offset-4 hover:underline"
+          >
+            {t.register || 'नवीन नोंदणी (Enroll)'}
+          </Link>
+        </div>
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 py-8">
@@ -335,19 +334,6 @@ export function LoginPageComponent() {
               </button>
             </form>
           )}
-
-          {/* Sandbox Demo Button */}
-          <div className="mt-6 pt-6 border-t border-[var(--color-border)] dark:border-[#263B30] text-center">
-            <button
-              id="login-demo-btn"
-              type="button"
-              onClick={handleDemoLaunch}
-              className="w-full py-3 rounded-xl bg-[#F6E5C9]/60 dark:bg-[#D5811F]/15 border border-[#D5811F]/40 text-[#5A3E2B] dark:text-[#F6E5C9] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#F6E5C9] transition-colors min-h-[44px] cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-[#D5811F]" />
-              <span>{t.heroTryDemo}</span>
-            </button>
-          </div>
 
           {/* Platform Admin Portal Link */}
           <div className="mt-4 pt-3 border-t border-[var(--color-border)]/60 dark:border-[#1E3027] text-center">

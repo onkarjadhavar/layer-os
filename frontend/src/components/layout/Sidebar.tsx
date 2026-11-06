@@ -59,13 +59,13 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
 
   const navigationGroups: NavGroup[] = [
     {
-      groupTitle: 'मुख्य विभाग (Overview)',
+      groupTitle: t.groupOverview || 'Overview',
       items: [
         { id: 'home', label: t.navHome, icon: LayoutDashboard },
       ],
     },
     {
-      groupTitle: 'दैनंदिन कामकाज (Operations)',
+      groupTitle: t.groupOperations || 'Operations',
       items: [
         { id: 'quick-log', label: t.navQuickLog, icon: Zap, badge: '३०s' },
         { id: 'full-entry', label: t.fullEntryTitle, icon: ClipboardList },
@@ -73,7 +73,7 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
       ],
     },
     {
-      groupTitle: 'विक्री व बाजार (Commercial)',
+      groupTitle: t.groupCommercial || 'Commercial',
       items: [
         { id: 'sales', label: t.navSales, icon: CircleDollarSign },
         { id: 'market-rates', label: t.navMarketRates, icon: TrendingUp },
@@ -81,7 +81,7 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
       ],
     },
     {
-      groupTitle: 'हिशोब व आरोग्य (Accounts & Health)',
+      groupTitle: t.groupAccountsHealth || 'Accounts & Health',
       items: [
         { id: 'expenses', label: t.navExpenses, icon: Receipt },
         { id: 'health', label: t.navHealth, icon: HeartPulse },
@@ -89,7 +89,7 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
       ],
     },
     {
-      groupTitle: 'व्यवस्थापन (Admin)',
+      groupTitle: t.groupManagement || 'Management',
       items: [
         { id: 'public-tools', label: t.navPublicTools, icon: HelpCircle },
         { id: 'settings', label: t.navSettings, icon: Settings },
@@ -166,7 +166,7 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold text-xs text-[var(--color-sage-pale)]/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
         >
           <LogOut className="w-4 h-4 text-[var(--color-amber)]" />
-          <span>लॉगआउट (Logout)</span>
+          <span>{t.logout || 'Log Out'}</span>
         </button>
       </div>
 

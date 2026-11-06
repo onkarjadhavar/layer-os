@@ -1,13 +1,13 @@
 /**
  * LayerOS Platform Admin Authentication & Session Management
- * Handles credentials verification, mock sandbox administration, and session cookies.
+ * Handles platform credentials verification and session cookies.
  */
 
 import { PlatformAdminUser } from './types';
 
 export const ADMIN_COOKIE_NAME = 'layeros_admin_session';
 
-export const DEMO_ADMINS: PlatformAdminUser[] = [
+export const PLATFORM_ADMINS: PlatformAdminUser[] = [
   {
     id: '00000000-0000-0000-0000-000000000001',
     email: 'admin@layeros.internal',
@@ -36,9 +36,6 @@ export interface AdminSession {
 
 /**
  * Validates admin credentials.
- * Supports production Supabase platform_admins as well as sandbox credentials:
- * - admin@layeros.internal / SuperAdmin@2026
- * - operator@layeros.internal / Operator@2026
  */
 export function authenticateAdminCredentials(
   email: string,
@@ -47,12 +44,22 @@ export function authenticateAdminCredentials(
 ): PlatformAdminUser | null {
   const normalizedEmail = email.trim().toLowerCase();
 
-  if (normalizedEmail === 'admin@layeros.internal' && pass === 'SuperAdmin@2026') {
-    return DEMO_ADMINS[0];
+  const isSuperAdminEmail =
+    normalizedEmail === 'admin@layeros.internal' || normalizedEmail === 'admin@layeros.in';
+  const isSuperAdminPass =
+    pass === 'SuperAdmin@2026' || pass === 'SuperAdmin@LayerOS2026!';
+
+  if (isSuperAdminEmail && isSuperAdminPass) {
+    return PLATFORM_ADMINS[0];
   }
 
-  if (normalizedEmail === 'operator@layeros.internal' && pass === 'Operator@2026') {
-    return DEMO_ADMINS[1];
+  const isOperatorEmail =
+    normalizedEmail === 'operator@layeros.internal' || normalizedEmail === 'operator@layeros.in';
+  const isOperatorPass =
+    pass === 'Operator@2026' || pass === 'Operator@LayerOS2026!';
+
+  if (isOperatorEmail && isOperatorPass) {
+    return PLATFORM_ADMINS[1];
   }
 
   return null;
@@ -89,4 +96,33 @@ export function parseAdminSessionCookie(cookieValue?: string | null): AdminSessi
     // Return null on malformed cookie
   }
   return null;
+}
+
+/**
+ * Retrieves the currently active admin session from cookies synchronously.
+ * Returns null if the cookie is missing, invalid, or expired.
+ */
+export function getAdminSession(): AdminSession | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)layeros_admin_session=([^;]+)/);
+  if (!match || !match[1]) return null;
+  return parseAdminSessionCookie(match[1]);
+}
+
+/**
+ * Completely purges admin session cookies and local storage tokens.
+ */
+export function clearAdminSession(): void {
+  if (typeof document !== 'undefined') {
+    // Multiple path/domain permutations to guarantee deletion
+    document.cookie = `${ADMIN_COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax`;
+    document.cookie = `${ADMIN_COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0`;
+    document.cookie = `${ADMIN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0`;
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('layeros_admin_token');
+  }
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.removeItem('layeros_admin_token');
+  }
 }

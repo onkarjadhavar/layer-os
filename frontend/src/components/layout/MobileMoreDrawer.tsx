@@ -4,6 +4,7 @@ import React from 'react';
 import { NavTab } from './Sidebar';
 import { useI18n } from '@/lib/i18n/context';
 import { useLayerOS } from '@/lib/store';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import {
   X,
   ClipboardList,
@@ -29,7 +30,7 @@ interface MobileMoreDrawerProps {
 
 export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDrawerProps) {
   const { t } = useI18n();
-  const { farm, flock, user, isDemoMode, resetDemoData, logout } = useLayerOS();
+  const { farm, flock, user, logout } = useLayerOS();
 
   if (!isOpen) return null;
 
@@ -44,35 +45,35 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
     {
       id: 'flocks',
       title: t.navFlocks,
-      sub: 'बॅचेस, शेड व पक्षी संख्या',
+      sub: t.navFlocksSub || 'बॅचेस, शेड व पक्षी संख्या',
       icon: Layers,
       color: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
     },
     {
       id: 'expenses',
       title: t.navExpenses,
-      sub: 'खुराक, औषधे व इतर खर्च',
+      sub: t.navExpensesSub || 'खुराक, औषधे व इतर खर्च',
       icon: Receipt,
       color: 'bg-blue-50 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300',
     },
     {
       id: 'health',
       title: t.navHealth,
-      sub: 'लसींचे वेळापत्रक व औषधे',
+      sub: t.navHealthSub || 'लसींचे वेळापत्रक व औषधे',
       icon: HeartPulse,
       color: 'bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300',
     },
     {
       id: 'market-rates',
       title: t.navMarketRates,
-      sub: 'पुणे, मुंबई व नाशिक दर',
+      sub: t.navMarketRatesSub || 'पुणे, मुंबई व नाशिक दर',
       icon: TrendingUp,
       color: 'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
     },
     {
       id: 'forecast',
       title: t.navForecast,
-      sub: '३० दिवसांचा नफा अंदाज',
+      sub: t.navForecastSub || '३० दिवसांचा नफा अंदाज',
       icon: LineChart,
       color: 'bg-purple-50 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300',
       badge: 'AI',
@@ -80,21 +81,21 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
     {
       id: 'full-entry',
       title: t.fullEntryTitle,
-      sub: 'सविस्तर २-मिनिट नोंद',
+      sub: t.quickLogBtn || 'सविस्तर २-मिनिट नोंद',
       icon: ClipboardList,
       color: 'bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300',
     },
     {
       id: 'public-tools',
-      title: 'मोफत कॅल्क्युलेटर',
-      sub: 'FCR, ब्रेक-इव्हन व खुराक',
+      title: t.navPublicTools || 'मोफत कॅल्क्युलेटर',
+      sub: t.navToolsSub || 'FCR, ब्रेक-इव्हन व खुराक',
       icon: HelpCircle,
       color: 'bg-indigo-50 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300',
     },
     {
       id: 'settings',
       title: t.navSettings,
-      sub: 'युनिट्स, भाषा व बॅकअप',
+      sub: t.navSettingsSub || 'युनिट्स, भाषा व बॅकअप',
       icon: Settings,
       color: 'bg-slate-50 text-slate-800 dark:bg-slate-900/60 dark:text-slate-300',
     },
@@ -171,25 +172,13 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
           })}
         </div>
 
-        {/* Demo Data Reset option */}
-        {isDemoMode && (
-          <div className="pt-3 border-t border-[var(--color-border)] dark:border-[#263B30]">
-            <button
-              type="button"
-              onClick={() => {
-                resetDemoData();
-                onClose();
-              }}
-              className="w-full py-3 px-4 rounded-xl bg-[#F6E5C9]/60 dark:bg-[#D5811F]/20 border border-[#D5811F]/30 text-[#5A3E2B] dark:text-[#F6E5C9] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#F6E5C9] transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4 text-[#D5811F]" />
-              <span>{t.resetDemoData}</span>
-            </button>
+        {/* Language Selection & Logout Action */}
+        <div className="pt-3 border-t border-[var(--color-border)] dark:border-[#263B30] mt-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">भाषा / Language</span>
+            <LanguageSwitcher variant="segment" />
           </div>
-        )}
 
-        {/* Logout Action */}
-        <div className="pt-3 border-t border-[var(--color-border)] dark:border-[#263B30] mt-3">
           <button
             type="button"
             id="mobile-btn-logout"
@@ -200,7 +189,7 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
             className="w-full py-3 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-            <span>लॉगआउट (Logout)</span>
+            <span>{t.logout || 'लॉगआउट (Logout)'}</span>
           </button>
         </div>
       </div>
