@@ -41,8 +41,18 @@ def seed_default_production_data():
                 unit_settings = UnitSettings(farm_id=rohan_farm.id)
                 db.add(unit_settings)
 
-                shed1 = Shed(name="शेड 1", capacity=5000, farm_id=rohan_farm.id)
-                shed2 = Shed(name="शेड 2", capacity=5000, farm_id=rohan_farm.id)
+                shed1 = Shed(
+                    shed_number="SHED-01",
+                    name="शेड 1",
+                    capacity=5000,
+                    farm_id=rohan_farm.id
+                )
+                shed2 = Shed(
+                    shed_number="SHED-02",
+                    name="शेड 2",
+                    capacity=5000,
+                    farm_id=rohan_farm.id
+                )
                 db.add_all([shed1, shed2])
                 db.flush()
 
@@ -51,10 +61,10 @@ def seed_default_production_data():
                     shed_id=shed1.id,
                     batch_code="Batch-1",
                     breed="BV300",
-                    initial_count=10000,
+                    placement_date=datetime.now(timezone.utc).date() - timedelta(days=120),
+                    initial_chick_count=10000,
                     current_bird_count=9985,
-                    start_date=datetime.now(timezone.utc).date() - timedelta(days=120),
-                    status="active"
+                    current_phase="laying"
                 )
                 db.add(flock)
 
@@ -147,4 +157,14 @@ def root():
         "version": settings.VERSION,
         "docs": "/docs",
         "api_v1": settings.API_V1_STR
+    }
+
+
+@app.get("/api/v1/init-production-seed")
+def trigger_production_seed():
+    """Manual or health-check trigger to seed production baseline data."""
+    seed_default_production_data()
+    return {
+        "status": "success",
+        "message": "Production seed completed. Rohan Farm, Admin and Operator accounts are active."
     }
