@@ -161,7 +161,7 @@ export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
           id="sidebar-btn-logout"
           onClick={() => {
             logout();
-            window.location.href = '/?landing=true';
+            window.location.href = '/';
           }}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold text-xs text-[var(--color-sage-pale)]/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
         >

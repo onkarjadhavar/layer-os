@@ -308,7 +308,7 @@ export function AdminSidebar({
 
             <div className="flex items-center gap-1.5 pt-1">
               <Link
-                href="/?landing=true"
+                href="/"
                 className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-[11px] font-semibold text-[var(--color-sage-pale)]/80 hover:bg-white/10 hover:text-white transition-colors"
                 title="View Public Farm Landing"
               >

@@ -44,7 +44,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/?landing=true';
+    window.location.href = '/';
   };
 
   const [showFarmDropdown, setShowFarmDropdown] = useState(false);
@@ -69,7 +69,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Farm Avatar & Selector */}
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-          <Link href="/?landing=true" title="Layer OS Home" className="shrink-0 group flex items-center">
+          <Link href="/" title="Layer OS Home" className="shrink-0 group flex items-center">
             <img
               src="/images/layer-os-circular-logo.png"
               alt="Layer OS Circular Logo"
@@ -146,7 +146,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
                     <span>+ {t.landingEnrollBtn}</span>
                   </Link>
                   <Link
-                    href="/?landing=true"
+                    href="/"
                     onClick={() => setShowFarmDropdown(false)}
                     className="w-full text-left px-2 py-1.5 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] rounded-lg transition-colors flex items-center gap-1.5"
                   >

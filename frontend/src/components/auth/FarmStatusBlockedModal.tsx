@@ -122,7 +122,7 @@ export function FarmStatusBlockedModal({
         {/* Navigation & Logout options */}
         <div className="pt-4 border-t border-[#E7E2D6] dark:border-[#263B30] flex items-center justify-between gap-2">
           <Link
-            href="/?landing=true"
+            href="/"
             className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-[#6B7A72] dark:text-[#CBDCD4] hover:text-[#1F4D3A] dark:hover:text-white transition-colors"
           >
             <Home className="w-3.5 h-3.5" />
