@@ -44,7 +44,7 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/login';
+    window.location.href = '/?landing=true';
   };
 
   const [showFarmDropdown, setShowFarmDropdown] = useState(false);
