@@ -270,3 +270,16 @@ input[type="number"] {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* Prevent auto-zooming on inputs in iOS / Mobile browsers */
+@media screen and (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Ensure no unintentional document body overflow when modals/drawers open */
+body.drawer-open, body.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+}

@@ -64,6 +64,15 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const { t } = useI18n();
 
+  React.useEffect(() => {
+    if (isMobileOpen) {
+      document.body.classList.add('drawer-open');
+      return () => {
+        document.body.classList.remove('drawer-open');
+      };
+    }
+  }, [isMobileOpen]);
+
   const isSuperAdmin = currentAdmin.role === 'super_admin';
 
   const navigationGroups: NavGroup[] = [

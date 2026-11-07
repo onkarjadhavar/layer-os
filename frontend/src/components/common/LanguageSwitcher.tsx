@@ -113,13 +113,16 @@ export function LanguageSwitcher({
         aria-controls={isOpen ? listboxId : undefined}
         aria-label={`Current language: ${currentOption.nativeLabel}. Click to switch language.`}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] hover:bg-[var(--color-surface-subtle)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-amber)] ${buttonClassName}`}
+        className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-main)] hover:bg-[var(--color-surface-subtle)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-amber)] ${buttonClassName}`}
       >
-        {showIcon && <Globe className="w-3.5 h-3.5 text-[var(--color-amber)]" />}
-        <span className="font-bold">{currentOption.nativeLabel}</span>
-        <span className="text-[10px] text-[var(--color-text-muted)] uppercase">({currentOption.code})</span>
+        {showIcon && <Globe className="w-3.5 h-3.5 text-[var(--color-amber)] shrink-0" />}
+        <span className="font-bold hidden sm:inline">{currentOption.nativeLabel}</span>
+        <span className="text-[10px] text-[var(--color-text-muted)] uppercase font-bold sm:font-normal">
+          <span className="sm:hidden">{currentOption.code}</span>
+          <span className="hidden sm:inline">({currentOption.code})</span>
+        </span>
         <ChevronDown
-          className={`w-3 h-3 text-[var(--color-text-muted)] transition-transform duration-200 ${
+          className={`w-3 h-3 text-[var(--color-text-muted)] transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />

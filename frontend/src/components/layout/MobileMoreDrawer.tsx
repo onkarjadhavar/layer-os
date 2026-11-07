@@ -32,6 +32,15 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
   const { t } = useI18n();
   const { farm, flock, user, logout } = useLayerOS();
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('drawer-open');
+      return () => {
+        document.body.classList.remove('drawer-open');
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const items: Array<{

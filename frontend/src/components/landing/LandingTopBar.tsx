@@ -37,25 +37,30 @@ export function LandingTopBar({ onLogin }: LandingTopBarProps = {}) {
         </Link>
 
         {/* Right Navigation & Trilingual Language Selector */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Trilingual Segment Control */}
-          <LanguageSwitcher variant="segment" />
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          {/* Trilingual Selector: Segment on sm+, Dropdown on mobile */}
+          <div className="hidden sm:block">
+            <LanguageSwitcher variant="segment" />
+          </div>
+          <div className="sm:hidden">
+            <LanguageSwitcher variant="dropdown" buttonClassName="px-2 py-1 text-[11px]" />
+          </div>
 
           {/* Existing User Login Button */}
           <Link
             id="landing-topbar-login-btn"
             href="/login"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-forest)] dark:text-[var(--color-amber)] hover:bg-[var(--color-sage-pale)]/50 dark:hover:bg-[#1A2D23] transition-colors min-h-[40px]"
+            className="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-forest)] dark:text-[var(--color-amber)] hover:bg-[var(--color-sage-pale)]/50 dark:hover:bg-[#1A2D23] transition-colors min-h-[36px] sm:min-h-[40px] shrink-0"
           >
             <User className="w-4 h-4" />
             <span>{t.landingLoginBtn}</span>
           </Link>
 
-          {/* Primary Farm Enrollment CTA */}
+          {/* Primary Farm Enrollment CTA (sm+ only, hero section covers mobile) */}
           <Link
             id="landing-topbar-enroll-btn"
             href="/enroll"
-            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--color-forest)] hover:bg-[#143F2F] shadow-sm hover:shadow transition-all min-h-[40px] border border-[var(--color-forest-deep)]"
+            className="hidden sm:inline-flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[var(--color-forest)] hover:bg-[#143F2F] shadow-sm hover:shadow transition-all min-h-[36px] sm:min-h-[40px] border border-[var(--color-forest-deep)] shrink-0"
           >
             <span>{t.landingEnrollBtn}</span>
             <ArrowRight className="w-4 h-4 text-[var(--color-amber)]" />
