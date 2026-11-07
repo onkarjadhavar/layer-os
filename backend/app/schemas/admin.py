@@ -47,15 +47,25 @@ class AdminFarmResponse(BaseModel):
 
 
 class ChangeFarmStatusInput(BaseModel):
-    farm_id: uuid.UUID
-    new_status: str
-    reason: str
+    farm_id: Optional[uuid.UUID] = None
+    new_status: Optional[str] = None
+    status: Optional[str] = None
+    reason: Optional[str] = "Status updated by admin"
+
+    @property
+    def target_status(self) -> str:
+        return self.new_status or self.status or "active"
 
 
 class ExtendPlanInput(BaseModel):
+    farm_id: Optional[uuid.UUID] = None
+    days: int = 30
+    reason: Optional[str] = "Trial extended by admin"
+
+
+class SupportViewInput(BaseModel):
     farm_id: uuid.UUID
-    days: int
-    reason: str
+    reason: Optional[str] = "Support assistance"
 
 
 class AdminAuditLogResponse(BaseModel):

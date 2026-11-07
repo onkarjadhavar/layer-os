@@ -40,6 +40,7 @@ from app.schemas.admin import (
     AdminFarmResponse,
     ChangeFarmStatusInput,
     ExtendPlanInput,
+    SupportViewInput,
     AdminAuditLogResponse,
     PlatformSettingsResponse,
     PlatformSettingsUpdate,

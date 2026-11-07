@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
@@ -17,6 +17,7 @@ from app.schemas.admin import (
     AdminFarmResponse,
     ChangeFarmStatusInput,
     ExtendPlanInput,
+    SupportViewInput,
     AdminAuditLogResponse,
     PlatformSettingsResponse,
     PlatformSettingsUpdate,
@@ -150,6 +151,7 @@ def list_admin_farms(
 
 
 @router.patch("/farms/{farm_id}/status")
+@router.post("/farms/{farm_id}/status")
 def change_farm_status(
     farm_id: uuid.UUID,
     payload: ChangeFarmStatusInput,
@@ -161,13 +163,44 @@ def change_farm_status(
         raise HTTPException(status_code=404, detail="Farm not found.")
 
     old_status = farm.status
-    farm.status = payload.new_status
+    target = payload.target_status
+    farm.status = target
 
     # Record immutable audit log
     client_ip = request.client.host if request.client else "127.0.0.1"
     audit = AdminAuditLog(
         admin_email="admin@layeros.in",
-        action=f"STATUS_CHANGE: {old_status} -> {payload.new_status}",
+        action=f"STATUS_CHANGE: {old_status} -> {target}",
+        target_farm_id=farm.id,
+        target_farm_name=farm.name,
+        reason=payload.reason or "Status changed by admin",
+        ip_address=client_ip
+    )
+    db.add(audit)
+    db.commit()
+
+    return {"success": True, "farm_id": str(farm.id), "status": farm.status}
+
+
+@router.post("/farms/{farm_id}/extend-plan")
+def extend_farm_plan(
+    farm_id: uuid.UUID,
+    payload: ExtendPlanInput,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    farm = db.query(Farm).filter(Farm.id == farm_id).first()
+    if not farm:
+        raise HTTPException(status_code=404, detail="Farm not found.")
+
+    sub = db.query(Subscription).filter(Subscription.farm_id == farm.id).first()
+    if sub and sub.current_period_end:
+        sub.current_period_end = sub.current_period_end + timedelta(days=payload.days)
+    
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    audit = AdminAuditLog(
+        admin_email="admin@layeros.in",
+        action=f"EXTEND_PLAN: +{payload.days} days",
         target_farm_id=farm.id,
         target_farm_name=farm.name,
         reason=payload.reason,
@@ -176,7 +209,32 @@ def change_farm_status(
     db.add(audit)
     db.commit()
 
-    return {"success": True, "farm_id": str(farm.id), "status": farm.status}
+    return {"success": True, "farm_id": str(farm.id), "days_added": payload.days}
+
+
+@router.post("/support-view")
+def admin_support_view(
+    payload: SupportViewInput,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    farm = db.query(Farm).filter(Farm.id == payload.farm_id).first()
+    if not farm:
+        raise HTTPException(status_code=404, detail="Farm not found.")
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    audit = AdminAuditLog(
+        admin_email="admin@layeros.in",
+        action="SUPPORT_VIEW_SESSION",
+        target_farm_id=farm.id,
+        target_farm_name=farm.name,
+        reason=payload.reason,
+        ip_address=client_ip
+    )
+    db.add(audit)
+    db.commit()
+
+    return {"success": True, "farm_id": str(farm.id), "farm_name": farm.name}
 
 
 @router.get("/audit-logs", response_model=List[AdminAuditLogResponse])

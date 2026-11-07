@@ -71,6 +71,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/register-owner")
+@router.post("/register")
 def register_owner(data: RegisterOwnerInput, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.phone == data.phone).first()
     if existing:

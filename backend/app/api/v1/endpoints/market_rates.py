@@ -45,6 +45,22 @@ def get_latest_market_rates(db: Session = Depends(get_db)):
     return [MarketRateResponse.model_validate(r) for r in rates]
 
 
+@router.get("/history", response_model=List[MarketRateResponse])
+def get_market_rate_history(
+    zone: str = "Pune",
+    days: int = 30,
+    db: Session = Depends(get_db)
+):
+    query = db.query(MarketRate)
+    if zone and zone.lower() != "all":
+        query = query.filter(MarketRate.mandi_name.ilike(f"%{zone}%"))
+    rates = query.order_by(desc(MarketRate.rate_date)).limit(days).all()
+    if not rates:
+        # Fall back to latest rates
+        rates = db.query(MarketRate).order_by(desc(MarketRate.rate_date)).limit(days).all()
+    return [MarketRateResponse.model_validate(r) for r in rates]
+
+
 @router.post("/", response_model=MarketRateResponse)
 def create_market_rate(
     rate_in: MarketRateCreate,

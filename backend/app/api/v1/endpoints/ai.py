@@ -135,6 +135,7 @@ def generate_rule_based_advisory(
 
 
 @router.post("/advisor", response_model=AIResponse)
+@router.post("/ask", response_model=AIResponse)
 async def ask_ai_advisor(
     input_data: AskAIInput,
     db: Session = Depends(get_db)
