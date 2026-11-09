@@ -53,26 +53,18 @@ export function HomePage() {
   const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, switchFarm, logout } = useLayerOS();
   const { t } = useI18n();
 
-  // Root route visitor handoff state: default evaluated synchronously to prevent any flash of Rohan Farm
+  // Root route visitor handoff state: default evaluated synchronously
+  // Root URL "/" ALWAYS defaults to the public Landing Page so prospective customers see the product first!
   const [showLanding, setShowLanding] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') return true;
     const path = window.location.pathname;
     if (path.startsWith('/dashboard/')) return false;
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('landing') === 'true') return true;
+    if (params.get('demo') === 'true' || params.get('live') === 'true') return false;
 
-    const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
-    const isLive = localStorage.getItem('layeros_live_active') === 'true';
-    const queryLive = params.get('live') === 'true';
-    const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
-
-    // If active dashboard session explicitly requested
-    if (queryLive || hasEntered || isLive || isAutomatedTest) {
-      return false;
-    }
-
-    // Default to landing page on root "/" for fresh or unauthenticated visitors
+    // Default to Landing Page on root "/"
     return true;
   });
 
@@ -94,20 +86,20 @@ export function HomePage() {
       }
 
       const params = new URLSearchParams(window.location.search);
-      // Only switch to demo dashboard if explicitly requested via ?demo=true
+      if (params.get('landing') === 'true') {
+        setShowLanding(true);
+        return;
+      }
+
+      // Explicit demo request: opens demo dashboard
       if (params.get('demo') === 'true') {
         loginAsDemo();
         setShowLanding(false);
         return;
       }
 
-      const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
-      const isLive = localStorage.getItem('layeros_live_active') === 'true';
-      const queryLive = params.get('live') === 'true';
-      const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
-
-      // Automated tests or returning sessions remain on dashboard
-      if (queryLive || hasEntered || isLive || isAutomatedTest) {
+      // Explicit live request: opens dashboard
+      if (params.get('live') === 'true') {
         setShowLanding(false);
         return;
       }

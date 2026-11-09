@@ -14,6 +14,7 @@ import {
   Egg,
   Wheat,
   Scale,
+  Sparkles,
 } from 'lucide-react';
 import { formatIndianCurrency, formatIndianNumber } from '@/lib/calc';
 
@@ -22,7 +23,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ onLogin }: HeroSectionProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   // Interactive Live Farm Simulation (The Taste-Skill "One Live Thing")
   const [flockScale, setFlockScale] = useState<number>(30000);
@@ -72,6 +73,15 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
               >
                 <span>{t.heroEnrollCta}</span>
                 <ArrowRight className="w-4 h-4 text-[var(--color-amber)]" />
+              </Link>
+
+              <Link
+                id="landing-hero-demo-btn"
+                href="/?demo=true"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold text-[#173F20] dark:text-[#E8F1C9] bg-[#E8F1C9] hover:bg-[#d8e4b1] dark:bg-[#1A3024] dark:hover:bg-[#234232] border border-[#718B35]/30 transition-all min-h-[48px] shadow-xs cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-[#D5811F]" />
+                <span>{language === 'mr' ? 'थेट डॅशबोर्ड डेमो पहा' : language === 'hi' ? 'लाइव डैशबोर्ड डेमो देखें' : 'Try Live Demo'}</span>
               </Link>
 
               <Link

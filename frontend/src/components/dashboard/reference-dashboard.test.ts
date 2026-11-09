@@ -114,3 +114,4 @@ describe('Layer OS Reference-Match Dashboard & Shell Specification Suite', () =>
     expect(content).toContain('handleSelectTab');
   });
 });
+
