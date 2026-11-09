@@ -1,0 +1,20 @@
+:root {
+  --layer-forest: #173F20;
+  --layer-forest-deep: #12351B;
+  --layer-forest-light: #28572B;
+  --layer-olive: #718B35;
+  --layer-cream: #FFF9ED;
+  --layer-cream-deep: #F7EEDB;
+  --layer-text: #211F18;
+  --layer-text-muted: #625D50;
+  --layer-sage-card: #E8F1C9;
+  --layer-peach-card: #FBE5C2;
+  --layer-lavender-card: #EADCF5;
+  --layer-blue-card: #DCEBF2;
+  --layer-border: rgba(71, 83, 43, 0.12);
+  --layer-shadow: 0 3px 12px rgba(54, 55, 31, 0.10);
+  --layer-radius-card: 20px;
+}
+
+/* Reference tokens only. Integrate into the EXISTING frontend styling system.
+   Do not replace app architecture, backend, APIs, database, or business logic. */

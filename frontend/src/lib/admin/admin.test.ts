@@ -8,7 +8,29 @@ import {
   INITIAL_DEMO_FARMS,
 } from './actions';
 import { PlatformAdminUser } from './types';
-import { authenticateAdminCredentials, parseAdminSessionCookie, createAdminSessionPayload } from './auth';
+import {
+  authenticateAdminCredentials,
+  parseAdminSessionCookie,
+  createAdminSessionPayload,
+  getAdminSession,
+  clearAdminSession,
+  ADMIN_COOKIE_NAME,
+} from './auth';
+
+// Node test environment mock for document and localStorage
+if (typeof (globalThis as any).document === 'undefined') {
+  (globalThis as any).document = { cookie: '' };
+}
+if (typeof (globalThis as any).localStorage === 'undefined') {
+  class MockLocalStorage {
+    private store: Record<string, string> = {};
+    getItem(key: string) { return this.store[key] || null; }
+    setItem(key: string, value: string) { this.store[key] = value; }
+    removeItem(key: string) { delete this.store[key]; }
+    clear() { this.store = {}; }
+  }
+  (globalThis as any).localStorage = new MockLocalStorage();
+}
 
 describe('LayerOS Platform Admin Engine (Stage 5)', () => {
   const superAdmin: PlatformAdminUser = {
@@ -123,5 +145,37 @@ describe('LayerOS Platform Admin Engine (Stage 5)', () => {
     const csv = exportFarmsToCsv(INITIAL_DEMO_FARMS);
     expect(csv).toContain('Farm ID,Farm Name');
     expect(csv).toContain('farm-sahyadri-01');
+  });
+
+  it('correctly handles getAdminSession and clearAdminSession lifecycle', () => {
+    // 1. Without cookie, returns null
+    document.cookie = `${ADMIN_COOKIE_NAME}=; max-age=0; path=/`;
+    expect(getAdminSession()).toBeNull();
+
+    // 2. With valid session cookie, returns parsed admin
+    const payload = createAdminSessionPayload(superAdmin);
+    document.cookie = `${ADMIN_COOKIE_NAME}=${payload}; path=/`;
+    const session = getAdminSession();
+    expect(session).not.toBeNull();
+    expect(session?.admin.email).toBe('admin@layeros.internal');
+    expect(session?.admin.role).toBe('super_admin');
+
+    // 3. Clear session removes the cookie and storage
+    localStorage.setItem('layeros_admin_token', 'token_123');
+    clearAdminSession();
+    expect(getAdminSession()).toBeNull();
+    expect(localStorage.getItem('layeros_admin_token')).toBeNull();
+  });
+
+  it('rejects expired session cookies in getAdminSession', () => {
+    const expiredPayload = encodeURIComponent(
+      JSON.stringify({
+        admin: superAdmin,
+        token: 'layeros_adm_expired',
+        expiresAt: new Date(Date.now() - 10000).toISOString(),
+      })
+    );
+    document.cookie = `${ADMIN_COOKIE_NAME}=${expiredPayload}; path=/`;
+    expect(getAdminSession()).toBeNull();
   });
 });

@@ -14,7 +14,7 @@ def parse_uuid_safe(val: Any) -> uuid.UUID:
         return uuid.uuid5(uuid.NAMESPACE_DNS, str(val))
 
 from app.db.session import get_db
-from app.api.deps import get_current_user_optional
+from app.api.deps import get_current_user_optional, check_farm_access
 from app.models.user import User
 from app.models.farm import Flock, UnitSettings
 from app.models.record import DailyRecord
@@ -34,6 +34,7 @@ router = APIRouter()
 
 
 @router.post("/quick", response_model=DailyRecordResponse)
+@router.post("/daily/quick", response_model=DailyRecordResponse)
 def save_quick_daily_record(
     input_data: QuickDailyRecordInput,
     current_user: Optional[User] = Depends(get_current_user_optional),
@@ -42,10 +43,8 @@ def save_quick_daily_record(
     farm_uuid = parse_uuid_safe(input_data.farm_id)
     flock_uuid = parse_uuid_safe(input_data.flock_id)
 
-    # Enforce multi-tenant isolation: non-admin users cannot write records to other farms
-    if current_user and current_user.role not in ["platform_admin", "super_admin"]:
-        if current_user.farm_id and str(current_user.farm_id) != str(farm_uuid):
-            raise HTTPException(status_code=403, detail="Cross-tenant write prohibited.")
+    if current_user:
+        check_farm_access(farm_uuid, current_user, db)
 
     flock = db.query(Flock).filter(Flock.id == flock_uuid).first()
     if not flock:
@@ -140,11 +139,15 @@ def save_quick_daily_record(
 
 
 @router.post("/full", response_model=DailyRecordResponse)
+@router.post("/daily", response_model=DailyRecordResponse)
 def save_full_daily_record(
     input_data: FullDailyRecordInput,
     current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(input_data.farm_id, current_user, db)
+
     flock = db.query(Flock).filter(Flock.id == input_data.flock_id).first()
     if not flock:
         raise HTTPException(status_code=404, detail="Flock not found.")
@@ -202,6 +205,8 @@ def save_full_daily_record(
 
 
 @router.get("/", response_model=List[DailyRecordResponse])
+@router.get("", response_model=List[DailyRecordResponse])
+@router.get("/daily", response_model=List[DailyRecordResponse])
 def get_daily_records(
     farm_id: Optional[uuid.UUID] = Query(None),
     flock_id: Optional[uuid.UUID] = Query(None),
@@ -213,6 +218,8 @@ def get_daily_records(
     if current_user and current_user.role not in ["platform_admin", "super_admin"]:
         if current_user.farm_id:
             farm_id = current_user.farm_id
+    elif current_user and farm_id:
+        check_farm_access(farm_id, current_user, db)
 
     query = db.query(DailyRecord)
     if farm_id:

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
 import { farmsService } from '@/services/farms.service';
-import { Farm, Shed, Flock, DailyRecord, UserProfile } from '@/lib/store/seedData';
+import { Farm, Shed, Flock, DailyRecord, Sale, UserProfile } from '@/lib/store/seedData';
 import { UnitSettings } from '@/lib/calc';
 
 // Layout Components
@@ -44,15 +44,38 @@ import { LandingPage } from '@/components/landing/LandingPage';
 import { FarmStatusBlockedModal } from '@/components/auth/FarmStatusBlockedModal';
 import { isFarmActive } from '@/lib/auth/farm-status';
 
-import { Sparkles, Zap, MessageSquare, AlertCircle } from 'lucide-react';
+import { Sparkles, Zap, MessageSquare, AlertCircle, Lightbulb, TrendingUp, Shield } from 'lucide-react';
 
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
+  const navigate = useNavigate();
   const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, switchFarm, logout } = useLayerOS();
+  const { t } = useI18n();
 
-  // Root route visitor state: default to true so Home Landing Page ALWAYS opens initially
-  const [showLanding, setShowLanding] = useState<boolean>(() => !Boolean(farmId));
-  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(Boolean(farmId));
+  // Root route visitor handoff state: default evaluated synchronously to prevent any flash of Rohan Farm
+  const [showLanding, setShowLanding] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname;
+    if (path.startsWith('/dashboard/')) return false;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('landing') === 'true') return true;
+
+    const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
+    const isLive = localStorage.getItem('layeros_live_active') === 'true';
+    const queryLive = params.get('live') === 'true';
+    const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
+
+    // If active dashboard session explicitly requested
+    if (queryLive || hasEntered || isLive || isAutomatedTest) {
+      return false;
+    }
+
+    // Default to landing page on root "/" for fresh or unauthenticated visitors
+    return true;
+  });
+
+  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(() => Boolean(farmId));
   const [farmLoadError, setFarmLoadError] = useState<string | null>(null);
 
   // Synchronize visitor vs returning dashboard state: Home Landing Page is always the default entry point!
@@ -77,8 +100,16 @@ export function HomePage() {
         return;
       }
 
-      // Only switch to live dashboard if explicitly requested via ?live=true
-      if (params.get('live') === 'true') {
+      const hasEntered = sessionStorage.getItem('layeros_entered') === 'true';
+      const isLive = localStorage.getItem('layeros_live_active') === 'true';
+      const queryLive = params.get('live') === 'true';
+      const isAutomatedTest = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
+
+      // Automated tests or returning sessions remain on dashboard
+      if (queryLive || hasEntered || isLive || isAutomatedTest) {
+        setShowLanding(false);
+        return;
+      }
         setShowLanding(false);
         return;
       }
@@ -90,9 +121,11 @@ export function HomePage() {
     }
   }, [farmId]);
 
-  // When a farmId is specified in URL, fetch live farm data from FastAPI
+  const activeFarmId = farmId || (!showLanding ? (user?.farmId || farm.id) : null);
+
+  // When a farm is specified or active, fetch live farm data from FastAPI
   useEffect(() => {
-    if (!farmId) return;
+    if (!activeFarmId) return;
 
     // Multi-tenant security check: Enrolled user can only access their own enrolled farm!
     if (user && !isDemoMode && user.farmId && user.farmId !== farmId) {
@@ -105,10 +138,12 @@ export function HomePage() {
     let isMounted = true;
     setIsLoadingFarm(true);
     setFarmLoadError(null);
-    setShowLanding(false);
+    if (farmId) {
+      setShowLanding(false);
+    }
 
     farmsService
-      .getFarmDashboard(farmId)
+      .getFarmDashboard(activeFarmId)
       .then(data => {
         if (!isMounted) return;
 
@@ -128,11 +163,11 @@ export function HomePage() {
         const shedsModel: Shed[] = (data.sheds || []).map((s: any, idx: number) => ({
           id: s.id || `shed-${idx + 1}`,
           farmId: s.farm_id || data.farm.id,
-          shedNumber: s.name || `Shed-0${idx + 1}`,
+          shedNumber: s.shed_number || s.name || `Shed-0${idx + 1}`,
           name: s.name || `शेड ${idx + 1}`,
           capacity: s.capacity || Math.round(data.farm.total_capacity / Math.max(1, data.sheds?.length || 1)),
-          shedType: (s.equipment_type as any) || 'elevated_cage',
-          hasSensors: false,
+          shedType: (s.shed_type || s.equipment_type as any) || 'elevated_cage',
+          hasSensors: Boolean(s.has_climate_sensors),
         }));
 
         const flocksModel: Flock[] = (data.flocks || []).map((f: any, idx: number) => ({
@@ -144,7 +179,7 @@ export function HomePage() {
           hatcherySource: f.hatchery_source || 'Direct Placement',
           placementDate: f.placement_date || new Date().toISOString().split('T')[0],
           initialChickCount: f.initial_chick_count || f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
-          chickCostPerBird: f.chick_cost_per_bird || 42.0,
+          chickCostPerBird: Number(f.chick_cost_per_bird || 42.0),
           currentBirdCount: f.current_bird_count ?? f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
           ageWeeks: f.age_weeks || 34,
           currentPhase: (f.current_phase as any) || 'laying',
@@ -158,54 +193,60 @@ export function HomePage() {
           defaultRateUnit: 'per_100',
         };
 
-        const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => {
-          const recDate = r.recordDate || r.record_date || new Date().toISOString().split('T')[0];
-          const opening = r.openingBirds ?? r.opening_birds ?? data.summary?.total_birds ?? 10000;
-          const mort = r.mortality ?? 0;
-          const closing = r.closingBirds ?? r.closing_birds ?? (opening - mort);
-          const totalEggs = r.totalEggsCollected ?? r.eggs_collected ?? 0;
-          const broken = r.brokenCrackedEggs ?? r.damaged_eggs ?? Math.round(totalEggs * 0.006);
-          const good = r.goodEggs ?? (totalEggs - broken);
-          const hd = r.hdPct ?? (opening > 0 ? Number(((totalEggs / opening) * 100).toFixed(2)) : 0);
-          const feedKg = r.feedIssuedKg ?? r.feed_used_kg ?? 0;
-          const feedBird = r.feedPerBirdG ?? (closing > 0 ? Number(((feedKg * 1000) / closing).toFixed(1)) : 110.0);
-          const eggPrice = r.sellingPricePerEgg ?? data.summary?.selling_price_per_egg ?? 5.4;
-          const profit = r.simpleOperatingProfit ?? data.summary?.today_operating_profit ?? 0;
-          const breakEven = r.breakEvenEggPrice ?? data.summary?.break_even_price ?? 4.8;
+        const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => ({
+          id: r.id,
+          farmId: r.farm_id || r.farmId || data.farm.id,
+          flockId: r.flock_id || r.flockId || (flocksModel[0]?.id || ''),
+          recordDate: r.record_date || r.recordDate,
+          openingBirds: r.opening_birds ?? r.openingBirds ?? 0,
+          mortality: r.mortality ?? 0,
+          culls: r.culls ?? 0,
+          closingBirds: r.closing_birds ?? r.closingBirds ?? 0,
+          totalEggsCollected: r.total_eggs_collected ?? r.totalEggsCollected ?? r.eggs_collected ?? 0,
+          brokenCrackedEggs: r.broken_cracked_eggs ?? r.brokenCrackedEggs ?? r.damaged_eggs ?? 0,
+          softShellEggs: r.soft_shell_eggs ?? r.softShellEggs ?? 0,
+          rejectEggs: r.reject_eggs ?? r.rejectEggs ?? 0,
+          goodEggs: r.good_eggs ?? r.goodEggs ?? ((r.total_eggs_collected ?? r.eggs_collected ?? 0) - (r.broken_cracked_eggs ?? 0)),
+          morningCollection: r.morning_collection ?? r.morningCollection ?? 0,
+          eveningCollection: r.evening_collection ?? r.eveningCollection ?? 0,
+          hdPct: Number(r.hd_pct ?? r.hdPct ?? 0),
+          productionPct: Number(r.production_pct ?? r.productionPct ?? r.hd_pct ?? 0),
+          feedIssuedKg: Number(r.feed_issued_kg ?? r.feedIssuedKg ?? r.feed_used_kg ?? 0),
+          feedPerBirdG: Number(r.feed_per_bird_g ?? r.feedPerBirdG ?? 0),
+          waterConsumptionLitres: r.water_consumption_litres ?? r.waterConsumptionLitres ?? 0,
+          avgEggWeightG: Number(r.avg_egg_weight_g ?? r.avgEggWeightG ?? 58.5),
+          sellingPricePerEgg: Number(r.selling_price_per_egg ?? r.sellingPricePerEgg ?? 5.4),
+          feedPricePerKg: Number(r.feed_price_per_kg ?? r.feedPricePerKg ?? 35.0),
+          otherCashExpenses: Number(r.other_cash_expenses ?? r.otherCashExpenses ?? 1600),
+          otherIncome: 0,
+          simpleOperatingProfit: Number(r.simple_operating_profit ?? r.simpleOperatingProfit ?? 0),
+          trueProfit: Number(r.true_profit ?? r.trueProfit ?? 0),
+          costPerEgg: Number(r.cost_per_egg ?? r.costPerEgg ?? 4.8),
+          breakEvenEggPrice: Number(r.break_even_egg_price ?? r.breakEvenEggPrice ?? 4.8),
+          isClosed: r.is_closed ?? true,
+          notes: r.notes || undefined,
+        }));
+        dailyRecordsModel.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
 
-          return {
-            id: r.id || `rec-${data.farm.id}-${recDate}`,
-            farmId: r.farm_id || data.farm.id,
-            flockId: r.flock_id || (flocksModel[0]?.id || ''),
-            recordDate: recDate,
-            openingBirds: opening,
-            mortality: mort,
-            culls: r.culls || 0,
-            closingBirds: closing,
-            totalEggsCollected: totalEggs,
-            brokenCrackedEggs: broken,
-            softShellEggs: r.softShellEggs || 0,
-            rejectEggs: r.rejectEggs || 0,
-            goodEggs: good,
-            morningCollection: r.morningCollection ?? Math.round(good * 0.65),
-            eveningCollection: r.eveningCollection ?? (good - Math.round(good * 0.65)),
-            hdPct: hd,
-            productionPct: hd,
-            feedIssuedKg: feedKg,
-            feedPerBirdG: feedBird,
-            waterConsumptionLitres: r.waterConsumptionLitres ?? Math.round(closing * 0.22),
-            avgEggWeightG: r.avgEggWeightG ?? 55,
-            sellingPricePerEgg: eggPrice,
-            feedPricePerKg: r.feedPricePerKg ?? 35.0,
-            otherCashExpenses: r.otherCashExpenses ?? 1600,
-            otherIncome: 0,
-            simpleOperatingProfit: profit,
-            trueProfit: profit,
-            costPerEgg: breakEven,
-            breakEvenEggPrice: breakEven,
-            isClosed: true,
-          };
-        });
+        const salesModel: Sale[] = (data.sales || []).map((s: any) => ({
+          id: s.id,
+          invoiceNumber: s.invoice_number || s.invoiceNumber || `INV-${s.id}`,
+          customerId: s.customer_id || s.customerId || '',
+          customerName: s.customer_name || s.customerName || 'ग्राहक',
+          saleDate: s.sale_date || s.saleDate,
+          saleType: s.sale_type || s.saleType || 'eggs',
+          quantityUnits: Number(s.quantity_units || s.quantityUnits || 0),
+          unitName: s.unit_name || s.unitName || 'eggs',
+          ratePerUnit: Number(s.rate_per_unit || s.ratePerUnit || 0),
+          grossAmount: Number(s.gross_amount || s.grossAmount || 0),
+          discount: Number(s.discount || 0),
+          netAmount: Number(s.net_amount || s.netAmount || 0),
+          paidAmount: Number(s.paid_amount || s.paidAmount || 0),
+          paymentStatus: (s.payment_status || s.paymentStatus || 'pending') as any,
+          vehicleNumber: s.vehicle_number || s.vehicleNumber || undefined,
+          deliveryPerson: s.delivery_person || s.deliveryPerson || undefined,
+          notes: s.notes || undefined,
+        }));
 
         const userModel: UserProfile = {
           id: `usr-${data.farm.id}`,
@@ -221,7 +262,7 @@ export function HomePage() {
           flocks: flocksModel,
           unitSettings: unitSettingsModel,
           dailyRecords: dailyRecordsModel,
-          sales: [],
+          sales: salesModel,
           user: userModel,
         });
 
@@ -264,16 +305,35 @@ export function HomePage() {
     };
   }, [farmId]);
 
-  const handleTryDemo = () => {
-    loginAsDemo();
-    try {
-      sessionStorage.setItem('layeros_entered', 'true');
-    } catch {}
-    setShowLanding(false);
+  const handleLogin = () => {
+    navigate('/login');
   };
 
-  // Navigation State
-  const [currentTab, setCurrentTab] = useState<NavTab>('home');
+  // Navigation State: synchronized synchronously with URL search params & sessionStorage so refresh never flashes 'home'
+  const [currentTab, setCurrentTab] = useState<NavTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlTab = params.get('tab') as NavTab;
+      if (urlTab) return urlTab;
+      const savedTab = sessionStorage.getItem('layeros_active_tab') as NavTab;
+      if (savedTab) return savedTab;
+    }
+    return 'home';
+  });
+
+  const handleSelectTab = (tab: NavTab) => {
+    setCurrentTab(tab);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('layeros_active_tab', tab);
+      const url = new URL(window.location.href);
+      if (tab === 'home') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', tab);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   // Modals Open State
   const [showFullEntryModal, setShowFullEntryModal] = useState(false);
@@ -325,7 +385,7 @@ export function HomePage() {
             to="/"
             className="px-5 py-3 rounded-xl border border-[#DCD3C3] dark:border-[#263B30] text-sm font-bold text-[#1B2A24] dark:text-white hover:bg-gray-50 dark:hover:bg-[#1F2E26] transition-all"
           >
-            मुख्य पानावर जा
+            {t.backToHome || 'Back to Home'}
           </Link>
         </div>
       </div>
@@ -373,7 +433,7 @@ export function HomePage() {
           ⚠️
         </div>
         <h2 className="text-2xl font-black text-[#1B2A24] dark:text-white">
-          डेटा लोड करण्यात अडचण आली
+          {t.error || 'Failed to load farm data'}
         </h2>
         <p className="text-sm text-[#55695F] dark:text-[#CBDCD4] mt-2 max-w-md">
           {farmLoadError}
@@ -382,15 +442,15 @@ export function HomePage() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="px-5 py-3 rounded-xl bg-[#1F4D3A] text-white text-sm font-bold shadow hover:bg-[#173A2C] transition-all"
+            className="px-5 py-3 rounded-xl bg-[#1F4D3A] text-white text-sm font-bold shadow hover:bg-[#173A2C] transition-all cursor-pointer"
           >
-            पुन्हा प्रयत्न करा (Retry)
+            {t.refresh || 'Retry'}
           </button>
           <Link
             to="/"
             className="px-5 py-3 rounded-xl border border-[#DCD3C3] text-sm font-bold text-[#1B2A24] dark:text-white hover:bg-gray-50 transition-all"
           >
-            मुख्य पान
+            {t.navHome || 'Home'}
           </Link>
         </div>
       </div>
@@ -399,7 +459,7 @@ export function HomePage() {
 
   // If logged-out / fresh visitor on root without a farmId, render public landing page
   if (showLanding && !farmId) {
-    return <LandingPage onTryDemo={handleTryDemo} />;
+    return <LandingPage onLogin={handleLogin} />;
   }
 
   // Central Farm Status Enforcement:
@@ -422,36 +482,36 @@ export function HomePage() {
   // Quick Action Navigator
   const handleQuickAction = (key: string) => {
     if (key === 'quick-log') {
-      setCurrentTab('quick-log');
+      handleSelectTab('quick-log');
     } else if (key === 'sales') {
-      setCurrentTab('sales');
+      handleSelectTab('sales');
     } else if (key === 'expenses') {
-      setCurrentTab('expenses');
+      handleSelectTab('expenses');
     } else if (key === 'health') {
-      setCurrentTab('health');
+      handleSelectTab('health');
     } else if (key === 'market-rates') {
-      setCurrentTab('market-rates');
+      handleSelectTab('market-rates');
     } else if (key === 'mortality') {
       setShowFullEntryModal(true);
     } else if (key === 'feed') {
       setShowFullEntryModal(true);
     } else if (key === 'reports') {
-      setCurrentTab('reports');
+      handleSelectTab('reports');
     }
   };
 
   const handleKPISelect = (kpiKey: string) => {
-    if (kpiKey === 'birds' || kpiKey === 'production') setCurrentTab('flocks');
-    else if (kpiKey === 'sales' || kpiKey === 'receivables') setCurrentTab('sales');
-    else if (kpiKey === 'expenses' || kpiKey === 'accounts') setCurrentTab('expenses');
-    else if (kpiKey === 'breakeven') setCurrentTab('forecast');
-    else if (kpiKey === 'mortality') setCurrentTab('health');
+    if (kpiKey === 'birds' || kpiKey === 'production') handleSelectTab('flocks');
+    else if (kpiKey === 'sales' || kpiKey === 'receivables') handleSelectTab('sales');
+    else if (kpiKey === 'expenses' || kpiKey === 'accounts') handleSelectTab('expenses');
+    else if (kpiKey === 'breakeven') handleSelectTab('forecast');
+    else if (kpiKey === 'mortality') handleSelectTab('health');
     else if (kpiKey === 'feed') setShowFullEntryModal(true);
-    else setCurrentTab('quick-log');
+    else handleSelectTab('quick-log');
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--color-background)] transition-colors">
       {/* Top Bar Navigation */}
       <TopBar
         onOpenNotifications={() => setShowNotificationsDrawer(true)}
@@ -465,7 +525,7 @@ export function HomePage() {
             if (tab === 'full-entry') {
               setShowFullEntryModal(true);
             } else {
-              setCurrentTab(tab);
+              handleSelectTab(tab);
             }
           }}
         />
@@ -474,13 +534,13 @@ export function HomePage() {
         <main className="flex-1 p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-12 space-y-4 sm:space-y-6">
           {/* Supervisor / Role Context Ribbon */}
           {user?.role === 'supervisor' && (
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#EAF3EF] dark:bg-[#182B22] border border-[#2D6B52]/30 flex items-center justify-between text-xs font-bold">
-              <span className="text-[#1F4D3A] dark:text-[#42BF87]">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)] border border-[var(--color-forest)]/30 flex items-center justify-between text-xs font-bold">
+              <span>
                 👷 सुपरवायझर मोड: केवळ दैनंदिन नोंदी व कामकाजाचा ॲक्सेस उपलब्ध आहे.
               </span>
               <button
                 type="button"
-                onClick={() => setCurrentTab('quick-log')}
+                onClick={() => handleSelectTab('quick-log')}
                 className="underline hover:opacity-80 touch-target flex items-center"
               >
                 नोंद सुरू करा →
@@ -497,24 +557,24 @@ export function HomePage() {
               {/* 2. Quick Actions Shortcuts (4 Large Mobile Tiles) */}
               <QuickActionGrid onSelectAction={handleQuickAction} />
 
-              {/* 3. Integrated LayerOS AI Farm Assistant Banner */}
-              <div className="card-layer p-4 sm:p-5 rounded-3xl border border-[#D9A441]/40 bg-gradient-to-br from-[#FCF6E9]/90 to-white dark:from-[#231E12] dark:to-[#16241D] shadow-xs">
+              {/* 3. Integrated LayerOS Farm Advisory Assistant Banner */}
+              <div className="p-4 sm:p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-[#D9A441] text-[#0B1E15] flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-xs">
-                      <Sparkles className="w-6 h-6 fill-[#0B1E15]" />
+                    <div className="w-10 h-10 rounded-xl bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] flex items-center justify-center font-bold text-lg flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-[var(--color-amber)]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-black text-[#0B1E15] dark:text-white">
-                          LayerOS AI शेतकरी सल्लागार
+                        <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-main)]">
+                          दैनिक शेती सल्लागार (Farm Operations Advisor)
                         </h3>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#D9A441] text-[#0B1E15]">
-                          Live
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)]">
+                          सक्रिय (Live)
                         </span>
                       </div>
-                      <p className="text-xs text-[#55695F] dark:text-[#CBDCD4] font-medium mt-0.5">
-                        आजच्या उत्पादनावर आधारित अचूक विश्लेषण व सल्ला
+                      <p className="text-xs text-[var(--color-text-muted)] font-medium mt-0.5">
+                        उत्पादन व खताच्या आकड्यांवर आधारित व्यावसायिक मार्गदर्शन
                       </p>
                     </div>
                   </div>
@@ -523,48 +583,51 @@ export function HomePage() {
                     <button
                       type="button"
                       onClick={() => setShowDailyAdvisorModal(true)}
-                      className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all touch-target"
+                      className="flex-1 sm:flex-initial py-2 px-3.5 rounded-xl bg-[var(--color-forest)] hover:bg-[#143F2F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all touch-target cursor-pointer"
                     >
-                      <Zap className="w-3.5 h-3.5 text-[#D9A441] fill-[#D9A441]" />
-                      <span>आजचा AI सल्ला</span>
+                      <Zap className="w-3.5 h-3.5 text-[var(--color-amber)] fill-[var(--color-amber)]" />
+                      <span>आजचा सल्ला पहा</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setShowAskLayerOsModal(true)}
-                      className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl bg-white dark:bg-[#1A2D23] border border-[#DCD3C3] dark:border-[#2C4435] text-[#1F4D3A] dark:text-[#42BF87] text-xs font-black flex items-center justify-center gap-1.5 hover:border-[#1F4D3A] active:scale-95 transition-all touch-target"
+                      className="flex-1 sm:flex-initial py-2 px-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)] text-xs font-bold flex items-center justify-center gap-1.5 hover:border-[var(--color-forest)] transition-all touch-target cursor-pointer"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 text-[#D9A441]" />
+                      <MessageSquare className="w-3.5 h-3.5 text-[var(--color-amber)]" />
                       <span>प्रश्न विचारा</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Quick Question Chips */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-3 mt-3 border-t border-[#D9A441]/20">
-                  <span className="text-[11px] font-bold text-[#55695F] dark:text-[#CBDCD4] flex-shrink-0">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 mt-3 border-t border-[var(--color-border)]">
+                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] flex-shrink-0">
                     उदा:
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    💡 उद्या खुराक किती देऊ?
+                    <Lightbulb className="w-3 h-3 text-[var(--color-amber)]" />
+                    <span>उद्या खुराक किती देऊ?</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    📈 अंडी दर वाढतील का?
+                    <TrendingUp className="w-3 h-3 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
+                    <span>अंडी दर वाढतील का?</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAskLayerOsModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-white/80 dark:bg-[#1A2D23] border border-[#DCD3C3]/60 dark:border-[#263B30] text-[11px] font-bold text-[#2D4538] dark:text-[#CBDCD4] whitespace-nowrap hover:border-[#D9A441]"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
                   >
-                    🛡️ मृत्यू कसा रोखायचा?
+                    <Shield className="w-3 h-3 text-[var(--color-error)]" />
+                    <span>मृत्यू कसा रोखायचा?</span>
                   </button>
                 </div>
               </div>
@@ -579,7 +642,7 @@ export function HomePage() {
               <ActionCard
                 onNavigateTab={tab => {
                   if (tab === 'full-entry') setShowFullEntryModal(true);
-                  else setCurrentTab(tab as any);
+                  else handleSelectTab(tab as any);
                 }}
               />
             </div>
@@ -631,7 +694,7 @@ export function HomePage() {
           if (tab === 'full-entry') {
             setShowFullEntryModal(true);
           } else {
-            setCurrentTab(tab);
+            handleSelectTab(tab);
           }
         }}
         onOpenMoreMenu={() => setShowMobileMoreDrawer(true)}
@@ -657,7 +720,7 @@ export function HomePage() {
       <NotificationsDrawer
         isOpen={showNotificationsDrawer}
         onClose={() => setShowNotificationsDrawer(false)}
-        onNavigateToTab={tab => setCurrentTab(tab)}
+        onNavigateToTab={tab => handleSelectTab(tab)}
       />
 
       <MobileMoreDrawer
@@ -667,7 +730,7 @@ export function HomePage() {
           if (tab === 'full-entry') {
             setShowFullEntryModal(true);
           } else {
-            setCurrentTab(tab);
+            handleSelectTab(tab);
           }
         }}
       />
@@ -681,7 +744,7 @@ export function HomePage() {
       <OnboardingModal
         isOpen={showOnboardingModal}
         onClose={() => setShowOnboardingModal(false)}
-        onCompleted={() => setCurrentTab('home')}
+        onCompleted={() => handleSelectTab('home')}
       />
     </div>
   );

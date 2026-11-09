@@ -79,4 +79,29 @@ describe('LayerOS Localization & Trilingual Parity (Phase 4)', () => {
       expect(dict.unitCarton).toBeDefined();
     });
   });
+
+  it('supports functional, namespaced, and dotted lookup with fallback to English', async () => {
+    const { createTFunction } = await import('./context');
+    const mrT = createTFunction('mr', translations.mr);
+    const enT = createTFunction('en', translations.en);
+    const hiT = createTFunction('hi', translations.hi);
+
+    // Dotted lookup
+    expect(mrT('Common.save')).toBe('जतन करा');
+    expect(enT('Common.save')).toBe('Save');
+    expect(hiT('Common.save')).toBe('सहेजें');
+
+    // Explicit namespace lookup
+    expect(mrT('cancel', 'Common')).toBe('रद्द करा');
+    expect(enT('cancel', 'Common')).toBe('Cancel');
+    expect(hiT('cancel', 'Common')).toBe('रद्द करें');
+
+    // Property lookup
+    expect(mrT.navHome).toBe('मुख्य डॅशबोर्ड');
+    expect(enT.navHome).toBe('Dashboard');
+    expect(hiT.navHome).toBe('डैशबोर्ड');
+
+    // Parameter interpolation
+    expect(enT('welcome {name}', undefined, { name: 'Rohan' })).toBe('welcome Rohan');
+  });
 });

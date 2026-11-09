@@ -24,16 +24,13 @@ export function FAQSection() {
   };
 
   return (
-    <section className="py-12 sm:py-20 px-4 bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
+    <section className="py-14 sm:py-20 px-4 bg-[var(--color-background)] dark:bg-[#0E1713] transition-colors border-b border-[var(--color-border)] dark:border-[#23372E]">
       <div className="max-w-4xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#1F4D3A]/10 text-[#1F4D3A] dark:text-[#64D8A1]">
-            {t.faqTitle}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#0B1E15] dark:text-white mt-3 mb-3 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-[var(--color-text-main)] dark:text-white mb-3 tracking-tight">
             शेतकरी बंधूंचे नेहमी विचारले जाणारे प्रश्न
           </h2>
-          <p className="text-sm sm:text-base text-[#3D5248] dark:text-[#CBDCD4]">
+          <p className="text-sm sm:text-base text-[var(--color-text-muted)] dark:text-[#9BAEA4]">
             LayerOS बद्दल मनात असलेल्या शंकांचे सोपे आणि स्पष्ट निरसन.
           </p>
         </div>
@@ -44,26 +41,26 @@ export function FAQSection() {
             return (
               <div
                 key={idx}
-                className="bg-white dark:bg-[#16241D] rounded-2xl border border-[#E7E2D6] dark:border-[#263B30] overflow-hidden transition-all"
+                className="bg-[var(--color-surface)] dark:bg-[#14221C] rounded-xl border border-[var(--color-border)] dark:border-[#23372E] overflow-hidden transition-all shadow-xs"
               >
                 <button
                   type="button"
                   onClick={() => toggle(idx)}
-                  className="w-full text-left p-5 flex items-center justify-between gap-4 font-black text-sm sm:text-base text-[#0B1E15] dark:text-white hover:text-[#1F4D3A] dark:hover:text-[#64D8A1] min-h-[52px]"
+                  className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-[var(--color-text-main)] dark:text-white hover:text-[var(--color-forest)] dark:hover:text-[var(--color-sage)] min-h-[48px]"
                 >
-                  <span className="flex items-center gap-2.5">
-                    <HelpCircle className="w-4 h-4 text-[#D9A441] flex-shrink-0" />
+                  <span className="flex items-center gap-3">
+                    <HelpCircle className="w-4 h-4 text-[var(--color-amber)] flex-shrink-0" />
                     <span>{faq.q}</span>
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-[#5A6E64] transition-transform duration-200 flex-shrink-0 ${
-                      isOpen ? 'rotate-180 text-[#1F4D3A] dark:text-[#64D8A1]' : ''
+                    className={`w-5 h-5 text-[var(--color-text-muted)] transition-transform duration-200 flex-shrink-0 ${
+                      isOpen ? 'rotate-180 text-[var(--color-forest)] dark:text-[var(--color-sage)]' : ''
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-[#3D5248] dark:text-[#CBDCD4] leading-relaxed border-t border-[#E7E2D6]/60 dark:border-[#263B30]/60 animate-in fade-in duration-150">
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-[#CBDCD4] leading-relaxed border-t border-[var(--color-border)]/60 dark:border-[#23372E]/60 animate-in fade-in duration-150">
                     {faq.a}
                   </div>
                 )}
@@ -75,3 +72,4 @@ export function FAQSection() {
     </section>
   );
 }
+export default FAQSection;

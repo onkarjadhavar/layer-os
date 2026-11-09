@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   Sparkles,
   FileText,
-  Lock,
 } from 'lucide-react';
 
 export function FeaturesGrid() {
@@ -20,65 +19,82 @@ export function FeaturesGrid() {
       title: t.featMarathiFirst,
       desc: t.featMarathiFirstDesc,
       icon: Globe2,
+      accent: 'border-[var(--color-forest)]/30',
+      badge: 'मराठी / हिंदी / English',
     },
     {
       title: t.featOffline,
       desc: t.featOfflineDesc,
       icon: WifiOff,
+      accent: 'border-[var(--color-sage)]/40',
+      badge: '100% Offline PWA',
     },
     {
       title: t.featMultiRole,
       desc: t.featMultiRoleDesc,
       icon: Users,
+      accent: 'border-[var(--color-border)]',
+      badge: 'मालक • व्यवस्थापक • डॉक्टर',
     },
     {
       title: t.featDataPrivate,
       desc: t.featDataPrivateDesc,
       icon: ShieldCheck,
+      accent: 'border-[var(--color-border)]',
+      badge: 'DPDP कायदा सुसंगत',
     },
     {
       title: t.featAiAdvisor,
       desc: t.featAiAdvisorDesc,
       icon: Sparkles,
+      accent: 'border-[var(--color-amber)]/40',
+      badge: 'वैज्ञानिक विश्लेषण',
     },
     {
       title: t.featPdfReports,
       desc: t.featPdfReportsDesc,
       icon: FileText,
+      accent: 'border-[var(--color-border)]',
+      badge: 'व्हॉट्सॲप व PDF बिलिंग',
     },
   ];
 
   return (
-    <section className="py-12 sm:py-20 px-4 bg-white dark:bg-[#121F18] border-b border-[#E7E2D6] dark:border-[#263B30] transition-colors">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 bg-[var(--color-surface)] dark:bg-[#14221C] border-b border-[var(--color-border)] dark:border-[#23372E] transition-colors">
+      <div className="max-w-6xl mx-auto">
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#EAF3EF] dark:bg-[#1A2E24] text-[#1F4D3A] dark:text-[#42BF87]">
-            {t.featuresGridTitle}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#0B1E15] dark:text-white mt-3 mb-3 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-[var(--color-text-main)] dark:text-white mb-3 tracking-tight">
             शेतकऱ्यांच्या प्रत्यक्ष गरजांचा अभ्यास करून विकसित
           </h2>
-          <p className="text-sm sm:text-base text-[#3D5248] dark:text-[#CBDCD4]">
-            शेडमधील धूळ, इंटरनेटची अडचण आणि स्थानिक भाषेची गरज लक्षात घेऊन बनवलेले तंत्रज्ञान.
+          <p className="text-sm sm:text-base text-[var(--color-text-muted)] dark:text-[#9BAEA4] leading-relaxed">
+            प्रत्येक बटण, गणना आणि अहवाल व्यावसायिक लेयर फार्मच्या दैनंदिन कामासाठी खास डिझाइन केलेले आहे.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 6 Feature Bento Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((feat, idx) => {
             const Icon = feat.icon;
             return (
               <div
                 key={idx}
-                className="bg-[#FAF8F3] dark:bg-[#16241D] p-6 rounded-3xl border border-[#E7E2D6] dark:border-[#263B30] hover:border-[#1F4D3A]/40 dark:hover:border-[#3BA378]/40 transition-all flex flex-col justify-between"
+                className={`bg-[var(--color-background)] dark:bg-[#0E1713] p-6 rounded-2xl border ${feat.accent} dark:border-[#23372E] shadow-xs hover:border-[var(--color-sage)] transition-colors flex flex-col justify-between`}
               >
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-[#1F4D3A] text-white flex items-center justify-center mb-4 shadow">
-                    <Icon className="w-6 h-6 text-[#D9A441]" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--color-surface)] dark:bg-[#14221C] text-[var(--color-forest)] dark:text-[var(--color-sage)] border border-[var(--color-border)] dark:border-[#23372E] flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
+                    </div>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-[var(--color-surface)] dark:bg-[#14221C] text-[var(--color-text-muted)] dark:text-[#9BAEA4] border border-[var(--color-border)] dark:border-[#23372E]">
+                      {feat.badge}
+                    </span>
                   </div>
-                  <h3 className="text-base font-black text-[#0B1E15] dark:text-white mb-2">
+
+                  <h3 className="text-base font-bold text-[var(--color-text-main)] dark:text-white mb-2">
                     {feat.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#5A6E64] dark:text-[#9FB1A7] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-[#9BAEA4] leading-relaxed">
                     {feat.desc}
                   </p>
                 </div>
@@ -90,3 +106,4 @@ export function FeaturesGrid() {
     </section>
   );
 }
+export default FeaturesGrid;

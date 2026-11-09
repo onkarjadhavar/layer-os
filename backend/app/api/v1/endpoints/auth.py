@@ -38,7 +38,6 @@ def login(input_data: LoginInput, db: Session = Depends(get_db)):
             (User.phone == f"+91{ten_digit}")
         ).first()
 
-    # If demo login or user not created yet for demo farm
     if not user:
         raw_phone = (input_data.phone or "").strip()
         digits = "".join(c for c in raw_phone if c.isdigit())
@@ -134,6 +133,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/register-owner")
+@router.post("/register")
 def register_owner(data: RegisterOwnerInput, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.phone == data.phone).first()
     if existing:

@@ -237,7 +237,7 @@ export function SalesModule() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('new-sale')}
-                  className="px-4 py-2 rounded-xl bg-[#1F4D3A] text-white text-xs font-black shadow-xs"
+                  className="px-4 py-2 rounded-xl bg-[#1F4D3A] text-white text-xs font-black shadow-xs cursor-pointer"
                 >
                   + पहिली विक्री नोंदवा
                 </button>

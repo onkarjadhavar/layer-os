@@ -1,22 +1,30 @@
 import { apiClient } from './api-client';
 
 export interface ShedPayload {
-  name: string;
+  shed_number?: string;
+  name?: string;
   capacity: number;
+  shed_type?: string;
+  has_climate_sensors?: boolean;
   length_ft?: number;
   width_ft?: number;
   equipment_type?: string;
 }
 
 export interface FlockPayload {
-  name: string;
-  shed_id: string;
+  batch_code?: string;
+  name?: string;
+  shed_id?: string;
   breed?: string;
-  initial_birds: number;
-  current_birds: number;
-  hatch_date?: string;
+  hatchery_source?: string;
+  initial_chick_count?: number;
+  initial_birds?: number;
+  current_bird_count?: number;
+  current_birds?: number;
+  current_phase?: string;
+  chick_cost_per_bird?: number;
   placement_date: string;
-  age_weeks: number;
+  age_weeks?: number;
   is_active?: boolean;
 }
 
@@ -80,6 +88,14 @@ export const farmsService = {
       localStorage.setItem('layeros_live_active', 'true');
     }
     return res;
+  },
+
+  async listFarms(): Promise<any[]> {
+    return apiClient.get('/api/v1/farms/');
+  },
+
+  async getMyFarms(): Promise<any[]> {
+    return apiClient.get('/api/v1/farms/my');
   },
 
   async getFarm(farmId: string) {

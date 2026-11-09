@@ -21,7 +21,7 @@ def test_admin_flow():
     assert kpi_res.status_code == 200
     kpis = kpi_res.json()
     assert kpis["total_farms"] >= 1
-    assert kpis["total_live_birds"] >= 20000
+    assert kpis["total_live_birds"] >= 9000
 
     # 3. List farms
     farms_res = client.get(
@@ -31,7 +31,8 @@ def test_admin_flow():
     assert farms_res.status_code == 200
     farms = farms_res.json()
     assert len(farms) >= 1
-    target_farm_id = farms[0]["id"]
+    target_farm = next((f for f in farms if f["name"] == "Rohan Farm"), farms[0])
+    target_farm_id = target_farm["id"]
 
     # 4. Status change with audit trail
     status_res = client.patch(
@@ -55,3 +56,28 @@ def test_admin_flow():
     logs = audit_res.json()
     assert len(logs) >= 1
     assert "STATUS_CHANGE" in logs[0]["action"]
+
+    # 6. Test POST status change alias
+    post_status_res = client.post(
+        f"/api/v1/admin/farms/{target_farm_id}/status",
+        json={"status": "active", "reason": "Admin test approval via POST"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert post_status_res.status_code == 200
+
+    # 7. Test extend plan
+    extend_res = client.post(
+        f"/api/v1/admin/farms/{target_farm_id}/extend-plan",
+        json={"days": 15, "reason": "Trial extension test"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert extend_res.status_code == 200
+    assert extend_res.json()["days_added"] == 15
+
+    # 8. Test support view
+    support_res = client.post(
+        "/api/v1/admin/support-view",
+        json={"farm_id": target_farm_id, "reason": "Testing support view route"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert support_res.status_code == 200

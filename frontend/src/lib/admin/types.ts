@@ -7,6 +7,19 @@ import { FarmStatus } from '../auth/farm-status';
 
 export type PlatformAdminRole = 'super_admin' | 'operator';
 
+export type AdminTab =
+  | 'dashboard'
+  | 'farms'
+  | 'approvals'
+  | 'operators'
+  | 'subscriptions'
+  | 'billing'
+  | 'analytics'
+  | 'support'
+  | 'audit'
+  | 'health'
+  | 'settings';
+
 export interface PlatformAdminUser {
   id: string;
   email: string;

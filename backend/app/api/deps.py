@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.security import decode_access_token
 from app.models.user import User
 from app.models.admin import PlatformAdminUser
+from app.models.farm import FarmMember
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login",
@@ -87,3 +88,26 @@ def get_current_admin(
         return admin
     except Exception:
         raise credentials_exception
+
+
+def has_farm_access(farm_id: uuid.UUID, user: Optional[User], db: Session) -> bool:
+    if not user:
+        return False
+    if getattr(user, "role", None) == "platform_admin":
+        return True
+    if user.farm_id == farm_id:
+        return True
+    membership = db.query(FarmMember).filter(
+        FarmMember.farm_id == farm_id,
+        FarmMember.user_id == user.id,
+        FarmMember.is_active == True
+    ).first()
+    return membership is not None
+
+
+def check_farm_access(farm_id: uuid.UUID, user: User, db: Session) -> None:
+    if not has_farm_access(farm_id, user, db):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to access or modify this farm's records."
+        )

@@ -324,7 +324,7 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
           </p>
           <button
             onClick={handleOpenAddModal}
-            className="py-3 px-6 rounded-2xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2"
+            className="py-3 px-6 rounded-2xl bg-[#1F4D3A] hover:bg-[#173A2C] text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-[#D9A441]" />
             <span>+ दिवस १ ची नोंद करा (Log Day 1 Entry)</span>

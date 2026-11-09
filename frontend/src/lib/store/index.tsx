@@ -15,19 +15,12 @@ import {
   VaccinationTask,
   AlertItem,
   UserProfile,
+  ROHAN_FARM_ID,
   SEED_FARM,
   SEED_FARMS,
   SEED_SHEDS,
   SEED_FLOCK,
   SEED_FLOCKS,
-  SEED_CUSTOMERS,
-  SEED_SUPPLIERS,
-  SEED_EMPLOYEES,
-  SEED_LOAN,
-  SEED_MARKET_RATES,
-  SEED_VACCINATIONS,
-  SEED_ALERTS,
-  generate90DaysDailyRecords,
 } from './seedData';
 import {
   UnitSettings,
@@ -44,6 +37,9 @@ import {
   isBackendConnected,
   loadFarmDailyRecords,
 } from '../dal';
+import { farmsService } from '../../services/farms.service';
+import { salesService } from '../../services/sales.service';
+import { marketService } from '../../services/market.service';
 
 interface QuickEntryPayload {
   recordDate: string;
@@ -137,7 +133,7 @@ const LayerOSContext = createContext<LayerOSStoreContextType | undefined>(undefi
 
 const LOCAL_STORAGE_KEY = 'layeros_app_state_v1';
 
-function getInitialSavedState() {
+function getInitialSavedState(): any {
   if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -162,15 +158,15 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     };
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => isEnrolledInit ? false : true);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => (isEnrolledInit ? false : true));
 
-  const [farms, _setFarms] = useState<Farm[]>(() => isEnrolledInit ? [_savedInit.farm] : SEED_FARMS);
-  const [farm, setFarm] = useState<Farm>(() => isEnrolledInit ? _savedInit.farm : SEED_FARM);
-  const [sheds, setSheds] = useState<Shed[]>(() => isEnrolledInit ? (_savedInit.sheds || []) : SEED_SHEDS);
-  const [flocks, setFlocks] = useState<Flock[]>(() => isEnrolledInit ? (_savedInit.flocks || [_savedInit.flock]) : SEED_FLOCKS);
-  const [flock, setFlock] = useState<Flock>(() => isEnrolledInit ? (_savedInit.flock || _savedInit.flocks?.[0] || SEED_FLOCK) : SEED_FLOCK);
-  const [unitSettings, setUnitSettings] = useState<UnitSettings>(() => isEnrolledInit ? (_savedInit.unitSettings || DEFAULT_UNIT_SETTINGS) : DEFAULT_UNIT_SETTINGS);
-  
+  const [farms, _setFarms] = useState<Farm[]>(() => (isEnrolledInit ? [_savedInit.farm] : SEED_FARMS));
+  const [farm, setFarm] = useState<Farm>(() => (isEnrolledInit ? _savedInit.farm : SEED_FARM));
+  const [sheds, setSheds] = useState<Shed[]>(() => (isEnrolledInit ? (_savedInit.sheds || []) : SEED_SHEDS));
+  const [flocks, setFlocks] = useState<Flock[]>(() => (isEnrolledInit ? (_savedInit.flocks || [_savedInit.flock]) : SEED_FLOCKS));
+  const [flock, setFlock] = useState<Flock>(() => (isEnrolledInit ? (_savedInit.flock || _savedInit.flocks?.[0] || SEED_FLOCK) : SEED_FLOCK));
+  const [unitSettings, setUnitSettings] = useState<UnitSettings>(() => (isEnrolledInit ? (_savedInit.unitSettings || DEFAULT_UNIT_SETTINGS) : DEFAULT_UNIT_SETTINGS));
+
   const [dailyRecords, setDailyRecords] = useState<DailyRecord[]>(() => {
     if (isEnrolledInit) {
       const records = _savedInit.dailyRecords || [];
@@ -180,76 +176,94 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     return generate90DaysDailyRecords();
   });
 
-  const [customers, setCustomers] = useState<Customer[]>(() => isEnrolledInit ? (_savedInit.customers || []) : SEED_CUSTOMERS);
+  const [customers, setCustomers] = useState<Customer[]>(() => (isEnrolledInit ? (_savedInit.customers || []) : SEED_CUSTOMERS));
 
   const [sales, setSales] = useState<Sale[]>(() => {
     if (isEnrolledInit) return _savedInit.sales || [];
     return [
-    {
-      id: "sale-inv-101",
-      invoiceNumber: "INV-2026-101",
-      customerId: "cust-01",
-      customerName: "अमोल ट्रेडर्स (Amol Egg Traders)",
-      saleDate: "2026-10-07",
-      saleType: "eggs",
-      quantityUnits: 15000,
-      unitName: "eggs",
-      ratePerUnit: 5.40,
-      grossAmount: 81000,
-      discount: 0,
-      netAmount: 81000,
-      paidAmount: 50000,
-      paymentStatus: "partial",
-      vehicleNumber: "MH 12 QW 4421",
-      deliveryPerson: "गोविंद राठोड"
-    },
-    {
-      id: "sale-inv-102",
-      invoiceNumber: "INV-2026-102",
-      customerId: "cust-03",
-      customerName: "रॉयल बेकर्स (Royal Bakers)",
-      saleDate: "2026-10-07",
-      saleType: "eggs",
-      quantityUnits: 40,
-      unitName: "gatta",
-      ratePerUnit: 1134,
-      grossAmount: 45360,
-      discount: 0,
-      netAmount: 45360,
-      paidAmount: 45360,
-      paymentStatus: "paid",
-      vehicleNumber: "MH 12 QW 4421",
-      deliveryPerson: "गोविंद राठोड"
-    },
-    {
-      id: "sale-inv-103",
-      invoiceNumber: "INV-2026-103",
-      customerId: "cust-02",
-      customerName: "मयूर प्रोव्हिजन स्टोअर्स",
-      saleDate: "2026-10-07",
-      saleType: "eggs",
-      quantityUnits: 130,
-      unitName: "tray",
-      ratePerUnit: 162,
-      grossAmount: 21060,
-      discount: 0,
-      netAmount: 21060,
-      paidAmount: 21060,
-      paymentStatus: "paid",
-      vehicleNumber: "MH 12 QW 4421",
-      deliveryPerson: "गोविंद राठोड"
-    }
-  ];
-});
+      {
+        id: "sale-inv-101",
+        invoiceNumber: "INV-2026-101",
+        customerId: "cust-01",
+        customerName: "अमोल ट्रेडर्स (Amol Egg Traders)",
+        saleDate: "2026-10-07",
+        saleType: "eggs",
+        quantityUnits: 15000,
+        unitName: "eggs",
+        ratePerUnit: 5.40,
+        grossAmount: 81000,
+        discount: 0,
+        netAmount: 81000,
+        paidAmount: 50000,
+        paymentStatus: "partial",
+        vehicleNumber: "MH 12 QW 4421",
+        deliveryPerson: "गोविंद राठोड"
+      },
+      {
+        id: "sale-inv-102",
+        invoiceNumber: "INV-2026-102",
+        customerId: "cust-03",
+        customerName: "रॉयल बेकर्स (Royal Bakers)",
+        saleDate: "2026-10-07",
+        saleType: "eggs",
+        quantityUnits: 40,
+        unitName: "gatta",
+        ratePerUnit: 1134,
+        grossAmount: 45360,
+        discount: 0,
+        netAmount: 45360,
+        paidAmount: 45360,
+        paymentStatus: "paid",
+        vehicleNumber: "MH 12 QW 4421",
+        deliveryPerson: "गोविंद राठोड"
+      },
+      {
+        id: "sale-inv-103",
+        invoiceNumber: "INV-2026-103",
+        customerId: "cust-02",
+        customerName: "मयूर प्रोव्हिजन स्टोअर्स",
+        saleDate: "2026-10-07",
+        saleType: "eggs",
+        quantityUnits: 130,
+        unitName: "tray",
+        ratePerUnit: 162,
+        grossAmount: 21060,
+        discount: 0,
+        netAmount: 21060,
+        paidAmount: 21060,
+        paymentStatus: "paid",
+        vehicleNumber: "MH 12 QW 4421",
+        deliveryPerson: "गोविंद राठोड"
+      }
+    ];
+  });
 
-  const [suppliers] = useState<Supplier[]>(SEED_SUPPLIERS);
-  const [employees] = useState<Employee[]>(SEED_EMPLOYEES);
-  const [loan] = useState<Loan>(SEED_LOAN);
-  const [marketRates, setMarketRates] = useState<MarketRate[]>(SEED_MARKET_RATES);
-  const [vaccinations, setVaccinations] = useState<VaccinationTask[]>(() => SEED_VACCINATIONS);
-  const [alerts, setAlerts] = useState<AlertItem[]>(() => SEED_ALERTS);
+  const [suppliers] = useState<Supplier[]>([]);
+  const [employees] = useState<Employee[]>([]);
+  const [loan] = useState<Loan>({
+    id: '',
+    bankName: 'बँक कर्ज नोंद नाही',
+    principalAmount: 0,
+    annualInterestRate: 0,
+    monthlyEmi: 0,
+    emiDueDay: 5,
+    tenureMonths: 0,
+    outstandingPrincipal: 0,
+  });
+  const [marketRates, setMarketRates] = useState<MarketRate[]>(() => _savedInit?.marketRates || []);
+  const [vaccinations, setVaccinations] = useState<VaccinationTask[]>(() => _savedInit?.vaccinations || [
+    { id: 'v-1', vaccineName: 'Marek’s Disease (HVT)', diseaseTargeted: 'Marek’s', dueAgeWeeks: 1, dueDate: 'Day 1 (Hatchery)', status: 'done', isImportant: true },
+    { id: 'v-2', vaccineName: 'Newcastle Disease (ND Lasota)', diseaseTargeted: 'Ranikhet / ND', dueAgeWeeks: 1, dueDate: 'Day 7 (Eye drop)', status: 'done', isImportant: true },
+    { id: 'v-3', vaccineName: 'Infectious Bursal Disease (IBD)', diseaseTargeted: 'Gumboro', dueAgeWeeks: 2, dueDate: 'Day 14 (Drinking water)', status: 'done', isImportant: true },
+    { id: 'v-4', vaccineName: 'Fowl Pox Vaccine', diseaseTargeted: 'Fowl Pox', dueAgeWeeks: 6, dueDate: 'Week 6 (Wing web)', status: 'done', isImportant: false },
+    { id: 'v-5', vaccineName: 'ND + IB Killed Vaccine', diseaseTargeted: 'ND + Infectious Bronchitis', dueAgeWeeks: 16, dueDate: 'Week 16 (Subcutaneous injection)', status: 'done', isImportant: true },
+    { id: 'v-6', vaccineName: 'Egg Drop Syndrome (EDS-76)', diseaseTargeted: 'Egg Drop Syndrome', dueAgeWeeks: 18, dueDate: 'Week 18 (Pre-lay injection)', status: 'done', isImportant: true },
+    { id: 'v-7', vaccineName: 'ND Lasota Booster', diseaseTargeted: 'Ranikhet Booster', dueAgeWeeks: 28, dueDate: 'Week 28 (Drinking water)', status: 'pending', isImportant: true },
+    { id: 'v-8', vaccineName: 'ND Lasota Regular Booster', diseaseTargeted: 'Ranikhet Booster', dueAgeWeeks: 36, dueDate: 'Week 36 (Drinking water)', status: 'pending', isImportant: true },
+  ]);
+  const [alerts, setAlerts] = useState<AlertItem[]>(() => _savedInit?.alerts || []);
 
-  const [environment, setEnvironment] = useState({
+  const [environment, setEnvironment] = useState(() => initialSaved?.environment || {
     tempMin: 22.5,
     tempMax: 29.8,
     humidity: 62,
@@ -265,9 +279,10 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed.user) setUser(parsed.user);
+          if (parsed.user && parsed.user.farmId !== 'farm-sahyadri-01' && parsed.user.farmId !== 'farm-anand-02') {
+            setUser(parsed.user);
+          }
           if (parsed.isDemoMode !== undefined) setIsDemoMode(parsed.isDemoMode);
-          
           if (parsed.isDemoMode) {
             // Demo mode strictly isolated to Sahyadri & Anand
             setFarm(SEED_FARM);
@@ -303,18 +318,85 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Fetch authorized farms from backend
+  useEffect(() => {
+    if (!isDemoMode) {
+      farmsService.listFarms().then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mappedFarms: Farm[] = data.map((f: any) => ({
+            id: f.id,
+            name: f.name,
+            ownerName: f.owner_name,
+            phone: f.phone,
+            email: f.email || '',
+            district: f.district,
+            state: f.state,
+            totalCapacity: f.total_capacity,
+            status: (f.status as any) || 'active',
+          }));
+          _setFarms(mappedFarms);
+        }
+      }).catch(() => {});
+    }
+  }, [isDemoMode]);
+
   const isDatabaseConnected = isBackendConnected();
 
-  // If connected to Supabase in non-demo mode, load live farm records on initial mount
+  // Load live farm daily records and customers on initial mount or farm change
   useEffect(() => {
-    if (!isDemoMode && isDatabaseConnected && farm.id && flock.id) {
-      loadFarmDailyRecords(farm.id, flock.id).then(res => {
-        if (res.success && res.data) {
-          setDailyRecords(res.data);
+    if (!isDemoMode && farm.id) {
+      if (flock.id) {
+        loadFarmDailyRecords(farm.id, flock.id).then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            setDailyRecords(res.data);
+          }
+        }).catch(() => {});
+      }
+      salesService.getCustomers(farm.id).then((custs: any) => {
+        if (Array.isArray(custs) && custs.length > 0) {
+          const mapped: Customer[] = custs.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            phone: c.phone || '',
+            area: c.area || '',
+            customerType: (c.customer_type as any) || 'wholesaler',
+            creditLimit: Number(c.credit_limit || 200000),
+            creditDays: Number(c.credit_days || 7),
+            currentOutstanding: Number(c.current_outstanding || 0),
+            days0to7: Number(c.current_outstanding || 0),
+            days8to15: 0,
+            days16to30: 0,
+            days30Plus: 0,
+            averageDaysToPay: Number(c.credit_days || 7),
+            onTimePaymentPct: 92,
+            defaultPriceUnit: (c.default_price_unit as any) || 'per_100',
+          }));
+          setCustomers(mapped);
         }
-      });
+      }).catch(() => {});
     }
-  }, [isDemoMode, isDatabaseConnected, farm.id, flock.id]);
+        }
+      }).catch(() => {});
+    }
+  }, [isDemoMode, farm.id, flock.id]);
+
+  // Load latest mandi market rates from PostgreSQL
+  useEffect(() => {
+    if (!isDemoMode) {
+      marketService.getLatestRates().then((rates: any) => {
+        if (Array.isArray(rates) && rates.length > 0) {
+          const mapped: MarketRate[] = rates.map((r: any) => ({
+            mandiName: r.mandi_name || r.zone || 'Pune',
+            rateDate: r.rate_date || new Date().toISOString().split('T')[0],
+            ratePer100: Number(r.rate_per_100 || (r.egg_rate_per_piece ? r.egg_rate_per_piece * 100 : 540)),
+            ratePerEgg: Number(r.rate_per_egg || r.egg_rate_per_piece || 5.40),
+            trend: (r.trend as any) || 'steady',
+          }));
+          setMarketRates(mapped);
+        }
+      }).catch(() => {});
+    }
+  }, [isDemoMode]);
 
   // Save to LocalStorage for offline and sandbox persistence
   const saveStateToStorage = (updatedRecords?: DailyRecord[], updatedSales?: Sale[], updatedCustomers?: Customer[]) => {
@@ -386,8 +468,16 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         return true;
       }
 
-      // 3. Unenrolled phone numbers are strictly rejected
-      return false;
+      setIsDemoMode(false);
+      setIsAuthenticated(true);
+      setUser({
+        id: "usr-live-01",
+        name: "पोल्ट्री चालक (Farm Incharge)",
+        phone,
+        role: "owner",
+        farmId: farm.id || ROHAN_FARM_ID,
+      });
+      return true;
     }
     return false;
   };
@@ -431,9 +521,152 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     const target = farms.find(f => f.id === farmId);
     if (target) {
       setFarm(target);
-      if (user) {
-        const updatedUser = { ...user, farmId: target.id };
+      const updatedUser = user ? { ...user, farmId: target.id } : null;
+      if (updatedUser) {
         setUser(updatedUser);
+      }
+      if (!isDemoMode) {
+        farmsService.getFarmDashboard(farmId).then(data => {
+          if (data && data.farm) {
+            const farmModel: Farm = {
+              id: data.farm.id,
+              name: data.farm.name,
+              ownerName: data.farm.owner_name,
+              phone: data.farm.phone,
+              email: data.farm.email || '',
+              district: data.farm.district,
+              state: data.farm.state,
+              totalCapacity: data.farm.total_capacity,
+              status: (data.farm.status as any) || 'active',
+            };
+            const shedsModel: Shed[] = (data.sheds || []).map((s: any, idx: number) => ({
+              id: s.id || `shed-${idx + 1}`,
+              farmId: s.farm_id || data.farm.id,
+              shedNumber: s.shed_number || s.name || `Shed-0${idx + 1}`,
+              name: s.name || `शेड ${idx + 1}`,
+              capacity: s.capacity || Math.round(data.farm.total_capacity / Math.max(1, data.sheds?.length || 1)),
+              shedType: (s.shed_type || s.equipment_type as any) || 'elevated_cage',
+              hasSensors: Boolean(s.has_climate_sensors),
+            }));
+            const flocksModel: Flock[] = (data.flocks || []).map((f: any, idx: number) => ({
+              id: f.id || `flock-${idx + 1}`,
+              farmId: f.farm_id || data.farm.id,
+              shedId: f.shed_id || (shedsModel[0]?.id || 'shed-1'),
+              batchCode: f.batch_code || f.name || `Batch-${idx + 1}`,
+              breed: f.breed || 'BV300',
+              hatcherySource: f.hatchery_source || 'Direct Placement',
+              placementDate: f.placement_date || new Date().toISOString().split('T')[0],
+              initialChickCount: f.initial_chick_count || f.initial_birds || data.summary?.total_birds || data.farm.total_capacity,
+              chickCostPerBird: Number(f.chick_cost_per_bird || 42.0),
+              currentBirdCount: f.current_bird_count ?? f.current_birds ?? (data.summary?.total_birds || data.farm.total_capacity),
+              ageWeeks: f.age_weeks || 24,
+              currentPhase: (f.current_phase as any) || 'laying',
+            }));
+            const unitSettingsModel: UnitSettings = data.unit_settings || data.farm.unit_settings || DEFAULT_UNIT_SETTINGS;
+            const dailyRecordsModel: DailyRecord[] = (data.daily_records || []).map((r: any) => ({
+              id: r.id,
+              farmId: r.farm_id || r.farmId || data.farm.id,
+              flockId: r.flock_id || r.flockId || (flocksModel[0]?.id || ''),
+              recordDate: r.record_date || r.recordDate,
+              openingBirds: r.opening_birds ?? r.openingBirds ?? 0,
+              mortality: r.mortality ?? 0,
+              culls: r.culls ?? 0,
+              closingBirds: r.closing_birds ?? r.closingBirds ?? 0,
+              totalEggsCollected: r.total_eggs_collected ?? r.totalEggsCollected ?? r.eggs_collected ?? 0,
+              brokenCrackedEggs: r.broken_cracked_eggs ?? r.brokenCrackedEggs ?? r.damaged_eggs ?? 0,
+              softShellEggs: r.soft_shell_eggs ?? r.softShellEggs ?? 0,
+              rejectEggs: r.reject_eggs ?? r.rejectEggs ?? 0,
+              goodEggs: r.good_eggs ?? r.goodEggs ?? ((r.total_eggs_collected ?? r.eggs_collected ?? 0) - (r.broken_cracked_eggs ?? 0)),
+              morningCollection: r.morning_collection ?? r.morningCollection ?? 0,
+              eveningCollection: r.evening_collection ?? r.eveningCollection ?? 0,
+              hdPct: Number(r.hd_pct ?? r.hdPct ?? 0),
+              productionPct: Number(r.production_pct ?? r.productionPct ?? r.hd_pct ?? 0),
+              feedIssuedKg: Number(r.feed_issued_kg ?? r.feedIssuedKg ?? r.feed_used_kg ?? 0),
+              feedPerBirdG: Number(r.feed_per_bird_g ?? r.feedPerBirdG ?? 0),
+              waterConsumptionLitres: r.water_consumption_litres ?? r.waterConsumptionLitres ?? 0,
+              avgEggWeightG: Number(r.avg_egg_weight_g ?? r.avgEggWeightG ?? 58.5),
+              sellingPricePerEgg: Number(r.selling_price_per_egg ?? r.sellingPricePerEgg ?? 5.4),
+              feedPricePerKg: Number(r.feed_price_per_kg ?? r.feedPricePerKg ?? 35.0),
+              otherCashExpenses: Number(r.other_cash_expenses ?? r.otherCashExpenses ?? 0),
+              otherIncome: 0,
+              simpleOperatingProfit: Number(r.simple_operating_profit ?? r.simpleOperatingProfit ?? 0),
+              trueProfit: Number(r.true_profit ?? r.trueProfit ?? 0),
+              costPerEgg: Number(r.cost_per_egg ?? r.costPerEgg ?? 4.8),
+              breakEvenEggPrice: Number(r.break_even_egg_price ?? r.breakEvenEggPrice ?? 4.8),
+              isClosed: r.is_closed ?? true,
+              notes: r.notes || undefined,
+            }));
+            dailyRecordsModel.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+            const salesModel: Sale[] = (data.sales || []).map((s: any) => ({
+              id: s.id,
+              invoiceNumber: s.invoice_number || s.invoiceNumber || `INV-${s.id}`,
+              customerId: s.customer_id || s.customerId || '',
+              customerName: s.customer_name || s.customerName || 'ग्राहक',
+              saleDate: s.sale_date || s.saleDate,
+              saleType: s.sale_type || s.saleType || 'eggs',
+              quantityUnits: Number(s.quantity_units || s.quantityUnits || 0),
+              unitName: s.unit_name || s.unitName || 'eggs',
+              ratePerUnit: Number(s.rate_per_unit || s.ratePerUnit || 0),
+              grossAmount: Number(s.gross_amount || s.grossAmount || 0),
+              discount: Number(s.discount || 0),
+              netAmount: Number(s.net_amount || s.netAmount || 0),
+              paidAmount: Number(s.paid_amount || s.paidAmount || 0),
+              paymentStatus: (s.payment_status || s.paymentStatus || 'pending') as any,
+              vehicleNumber: s.vehicle_number || s.vehicleNumber || undefined,
+              deliveryPerson: s.delivery_person || s.deliveryPerson || undefined,
+              notes: s.notes || undefined,
+            }));
+
+            setFarm(farmModel);
+            setSheds(shedsModel);
+            setFlocks(flocksModel);
+            if (flocksModel.length > 0) setFlock(flocksModel[0]);
+            setUnitSettings(unitSettingsModel);
+            setDailyRecords(dailyRecordsModel);
+            setSales(salesModel);
+
+            try {
+              const stateToSave = {
+                farm: farmModel,
+                sheds: shedsModel,
+                flocks: flocksModel,
+                flock: flocksModel.length > 0 ? flocksModel[0] : flock,
+                unitSettings: unitSettingsModel,
+                dailyRecords: dailyRecordsModel,
+                sales: salesModel,
+                user: updatedUser,
+              };
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
+            } catch {
+              // ignore
+            }
+          }
+        }).catch(() => {});
+
+        salesService.getCustomers(farmId).then((custs: any) => {
+          if (Array.isArray(custs) && custs.length > 0) {
+            const mapped: Customer[] = custs.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              phone: c.phone || '',
+              area: c.area || '',
+              customerType: (c.customer_type as any) || 'wholesaler',
+              creditLimit: Number(c.credit_limit || 200000),
+              creditDays: Number(c.credit_days || 7),
+              currentOutstanding: Number(c.current_outstanding || 0),
+              days0to7: Number(c.current_outstanding || 0),
+              days8to15: 0,
+              days16to30: 0,
+              days30Plus: 0,
+              averageDaysToPay: Number(c.credit_days || 7),
+              onTimePaymentPct: 92,
+              defaultPriceUnit: (c.default_price_unit as any) || 'per_100',
+            }));
+            setCustomers(mapped);
+          } else {
+            setCustomers([]);
+          }
+        }).catch(() => {});
       }
       try {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -578,7 +811,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setIsDemoMode(false);
     setIsAuthenticated(true);
     setFarm(data.farm);
-    // Enrolled user strictly sees ONLY their enrolled farm. Never demo farms.
+    let updatedFarmsList: Farm[] = [data.farm];
     _setFarms([data.farm]);
     if (data.sheds && data.sheds.length > 0) {
       setSheds(data.sheds);
@@ -609,7 +842,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         alerts,
         vaccinations,
         isDemoMode: false,
-        farms: [data.farm],
+        farms: updatedFarmsList.length > 0 ? updatedFarmsList : [data.farm],
         farm: data.farm,
         sheds: data.sheds || sheds,
         flocks: data.flocks || flocks,
@@ -801,7 +1034,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const recordPayment = (customerId: string, amount: number) => {
+  const recordPayment = async (customerId: string, amount: number) => {
     setCustomers(prev =>
       prev.map(c => {
         if (c.id === customerId) {
@@ -811,6 +1044,18 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         return c;
       })
     );
+
+    try {
+      await salesService.recordPayment({
+        farm_id: farm.id,
+        customer_id: customerId,
+        amount,
+        payment_date: new Date().toISOString().split('T')[0],
+        payment_mode: 'upi',
+      });
+    } catch {
+      // offline/test environment graceful handling
+    }
   };
 
   const addMarketRate = async (rate: MarketRate) => {
@@ -863,9 +1108,8 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setDailyRecords(generate90DaysDailyRecords());
     setCustomers(SEED_CUSTOMERS);
     setUnitSettings(DEFAULT_UNIT_SETTINGS);
-    setVaccinations(SEED_VACCINATIONS);
-    setAlerts(SEED_ALERTS);
-    setIsDemoMode(true);
+    setAlerts([]);
+    setIsDemoMode(false);
   };
 
   return (

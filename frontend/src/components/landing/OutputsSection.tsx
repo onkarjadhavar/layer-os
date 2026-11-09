@@ -8,8 +8,6 @@ import {
   Sparkles,
   TrendingUp,
   CalendarCheck,
-  ShieldAlert,
-  BarChart3,
   BadgeAlert,
 } from 'lucide-react';
 
@@ -19,84 +17,94 @@ export function OutputsSection() {
   const outputs = [
     {
       title: t.getHd,
-      desc: 'दररोज पक्षांच्या क्षमतेनुसार अंड्यांची अचूक उत्पादकता टक्केवारी.',
+      desc: 'दररोज पक्षांच्या वयोमानानुसार व क्षमतेनुसार अंड्यांची अचूक उत्पादकता टक्केवारी.',
       metric: '९१.०२%',
+      sublabel: 'मानक: ९१.५%',
       icon: Percent,
-      color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30',
+      highlight: 'border-[var(--color-sage)]/50',
     },
     {
       title: t.getFeedPerBird,
       desc: 'प्रत्येक पक्षी किती ग्रॅम खाद्य खातो; प्रमाणापेक्षा जास्त खाल्ल्यास त्वरित इशारा.',
       metric: '११० ग्रॅम',
+      sublabel: 'प्रति पक्षी / दिवस',
       icon: Scale,
-      color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/30',
+      highlight: 'border-[var(--color-border)]',
     },
     {
       title: t.getBreakEven,
       desc: t.getBreakEvenDesc,
-      metric: '₹५.२१ / नग',
+      metric: '₹५.२१',
+      sublabel: 'प्रति अंडे (Break-Even)',
       icon: BadgeAlert,
-      color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30',
+      highlight: 'border-[var(--color-amber)]/40',
     },
     {
       title: t.getTrueProfit,
       desc: t.getTrueProfitDesc,
-      metric: '₹१९,९२० / दिवस',
+      metric: '₹१९,९२०',
+      sublabel: 'दैनिक खरा निव्वळ नफा',
       icon: TrendingUp,
-      color: 'text-emerald-700 bg-emerald-100/50 dark:bg-emerald-950/40',
+      highlight: 'border-[var(--color-forest)]/40',
     },
     {
       title: t.getFeedForecast,
-      desc: 'पुढील ३० दिवसांत किती खाद्य गोण्या लागतील आणि त्यासाठी किती रोकड लागेल.',
+      desc: 'पुढील ३० दिवसांत किती खाद्य गोण्या लागतील आणि त्यासाठी किती रोख रक्कम लागेल.',
       metric: '९९,००० कि.ग्रा.',
+      sublabel: '१,९८० पोती खुराक',
       icon: CalendarCheck,
-      color: 'text-purple-600 bg-purple-50 dark:bg-purple-950/30',
+      highlight: 'border-[var(--color-border)]',
     },
     {
       title: t.getAiAdvice,
       desc: t.getAiAdviceDesc,
       metric: '३ तत्काळ कृती',
+      sublabel: 'वैज्ञानिक शेड मार्गदर्शन',
       icon: Sparkles,
-      color: 'text-[#D9A441] bg-[#FCF6E9] dark:bg-[#2A2315]',
+      highlight: 'border-[var(--color-amber)]/40',
     },
   ];
 
   return (
-    <section className="py-12 sm:py-20 px-4 bg-[#FAF8F3] dark:bg-[#0F1A15] transition-colors">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 bg-[var(--color-background)] dark:bg-[#0E1713] transition-colors border-b border-[var(--color-border)] dark:border-[#23372E]">
+      <div className="max-w-6xl mx-auto">
+        {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#1F4D3A]/10 text-[#1F4D3A] dark:text-[#64D8A1]">
-            {t.whatYouGetTitle}
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#0B1E15] dark:text-white mt-3 mb-3 tracking-tight">
+          <h2 className="text-2xl sm:text-4xl font-black text-[var(--color-text-main)] dark:text-white mb-3 tracking-tight">
             उत्पादन, नफा आणि भविष्यातील खर्चाचे संपूर्ण गणित
           </h2>
-          <p className="text-sm sm:text-base text-[#3D5248] dark:text-[#CBDCD4]">
+          <p className="text-sm sm:text-base text-[var(--color-text-muted)] dark:text-[#9BAEA4] leading-relaxed">
             फक्त डेटा नोंदवून थांबू नका — अचूक विश्लेषण, वैज्ञानिक आकडेवारी आणि निर्णयक्षम सूचना थेट मिळवा.
           </p>
         </div>
 
+        {/* 6 Automated Output Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {outputs.map((out, idx) => {
             const Icon = out.icon;
             return (
               <div
                 key={idx}
-                className="bg-white dark:bg-[#16241D] p-5 sm:p-6 rounded-3xl border border-[#E7E2D6] dark:border-[#263B30] shadow-sm flex flex-col justify-between"
+                className={`bg-[var(--color-surface)] dark:bg-[#14221C] p-5 sm:p-6 rounded-2xl border ${out.highlight} dark:border-[#23372E] shadow-sm flex flex-col justify-between`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${out.color}`}>
-                      <Icon className="w-6 h-6" />
+                    <div className="w-10 h-10 rounded-xl bg-[var(--color-surface-subtle)] dark:bg-[#192B23] text-[var(--color-forest)] dark:text-[var(--color-sage)] flex items-center justify-center">
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-sm sm:text-base font-black text-[#1F4D3A] dark:text-[#D9A441] bg-[#FAF8F3] dark:bg-[#0F1A15] px-2.5 py-1 rounded-xl border border-[#E7E2D6] dark:border-[#263B30]">
-                      {out.metric}
-                    </span>
+                    <div className="text-right">
+                      <div className="text-base sm:text-lg font-black tabular-nums text-[var(--color-text-main)] dark:text-white">
+                        {out.metric}
+                      </div>
+                      <div className="text-[10px] text-[var(--color-text-muted)] font-medium">
+                        {out.sublabel}
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-base font-black text-[#0B1E15] dark:text-white mb-2">
+                  <h3 className="text-base font-bold text-[var(--color-text-main)] dark:text-white mb-2">
                     {out.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#5A6E64] dark:text-[#9FB1A7] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[var(--color-text-muted)] dark:text-[#9BAEA4] leading-relaxed">
                     {out.desc}
                   </p>
                 </div>
@@ -108,3 +116,4 @@ export function OutputsSection() {
     </section>
   );
 }
+export default OutputsSection;

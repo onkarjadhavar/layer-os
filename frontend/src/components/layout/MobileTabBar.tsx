@@ -21,19 +21,19 @@ export function MobileTabBar({ currentTab, onSelectTab, onOpenMoreMenu }: Mobile
   const { t } = useI18n();
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#16241D]/95 backdrop-blur-md border-t border-[#E7E2D6] dark:border-[#263B30] px-2 py-1.5 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#103528]/95 backdrop-blur-md border-t border-[var(--color-border)] dark:border-[#263B30] px-2 py-1.5 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
       <div className="grid grid-cols-5 gap-1 items-center max-w-lg mx-auto">
         {/* 1. Home (मुख्य) */}
         <button
           type="button"
           onClick={() => onSelectTab('home')}
-          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 ${
+          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 cursor-pointer ${
             currentTab === 'home'
-              ? 'text-[#1F4D3A] dark:text-[#42BF87] font-black'
-              : 'text-[#4D6558] dark:text-[#CBDCD4] font-semibold'
+              ? 'text-[#194B38] dark:text-[#87A96B] font-bold'
+              : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-colors ${currentTab === 'home' ? 'bg-[#EAF3EF] dark:bg-[#182B22]' : ''}`}>
+          <div className={`p-1.5 rounded-xl transition-colors ${currentTab === 'home' ? 'bg-[#E8EFE2] dark:bg-[#194B38]/60' : ''}`}>
             <LayoutDashboard className="w-5 h-5" />
           </div>
           <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center">
@@ -45,17 +45,17 @@ export function MobileTabBar({ currentTab, onSelectTab, onOpenMoreMenu }: Mobile
         <button
           type="button"
           onClick={() => onSelectTab('quick-log')}
-          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 relative ${
+          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 relative cursor-pointer ${
             currentTab === 'quick-log'
-              ? 'text-[#1F4D3A] dark:text-[#42BF87] font-black'
-              : 'text-[#4D6558] dark:text-[#CBDCD4] font-semibold'
+              ? 'text-[#194B38] dark:text-[#87A96B] font-bold'
+              : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-colors ${currentTab === 'quick-log' ? 'bg-[#FCF6E9] dark:bg-[#2E2413]' : ''}`}>
-            <Zap className="w-5 h-5 text-[#D9A441] fill-[#D9A441]" />
+          <div className={`p-1.5 rounded-xl transition-colors ${currentTab === 'quick-log' ? 'bg-[#F6E5C9] dark:bg-[#D5811F]/20' : ''}`}>
+            <Zap className="w-5 h-5 text-[#D5811F] fill-[#D5811F]" />
           </div>
-          <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center flex items-center gap-0.5 font-black text-[#D9A441]">
-            नोंद <span className="text-[9px] bg-[#D9A441] text-[#0B1E15] px-1 rounded-full">३०s</span>
+          <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center flex items-center gap-0.5 font-bold text-[#D5811F]">
+            नोंद <span className="text-[9px] bg-[#D5811F] text-white px-1 rounded-full font-bold">३०s</span>
           </span>
         </button>
 
@@ -63,13 +63,13 @@ export function MobileTabBar({ currentTab, onSelectTab, onOpenMoreMenu }: Mobile
         <button
           type="button"
           onClick={() => onSelectTab('sales')}
-          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 ${
+          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 cursor-pointer ${
             currentTab === 'sales'
-              ? 'text-[#1F4D3A] dark:text-[#42BF87] font-black'
-              : 'text-[#4D6558] dark:text-[#CBDCD4] font-semibold'
+              ? 'text-[#194B38] dark:text-[#87A96B] font-bold'
+              : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-colors ${currentTab === 'sales' ? 'bg-[#EAF3EF] dark:bg-[#182B22]' : ''}`}>
+          <div className={`p-1.5 rounded-xl transition-colors ${currentTab === 'sales' ? 'bg-[#E8EFE2] dark:bg-[#194B38]/60' : ''}`}>
             <CircleDollarSign className="w-5 h-5" />
           </div>
           <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center">
@@ -81,13 +81,13 @@ export function MobileTabBar({ currentTab, onSelectTab, onOpenMoreMenu }: Mobile
         <button
           type="button"
           onClick={() => onSelectTab('reports')}
-          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 ${
+          className={`touch-target flex flex-col items-center justify-center rounded-2xl py-1 transition-all active:scale-95 cursor-pointer ${
             currentTab === 'reports'
-              ? 'text-[#1F4D3A] dark:text-[#42BF87] font-black'
-              : 'text-[#4D6558] dark:text-[#CBDCD4] font-semibold'
+              ? 'text-[#194B38] dark:text-[#87A96B] font-bold'
+              : 'text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-colors ${currentTab === 'reports' ? 'bg-[#EAF3EF] dark:bg-[#182B22]' : ''}`}>
+          <div className={`p-1.5 rounded-xl transition-colors ${currentTab === 'reports' ? 'bg-[#E8EFE2] dark:bg-[#194B38]/60' : ''}`}>
             <FileSpreadsheet className="w-5 h-5" />
           </div>
           <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center">
@@ -99,9 +99,9 @@ export function MobileTabBar({ currentTab, onSelectTab, onOpenMoreMenu }: Mobile
         <button
           type="button"
           onClick={onOpenMoreMenu}
-          className="touch-target flex flex-col items-center justify-center rounded-2xl py-1 text-[#4D6558] dark:text-[#CBDCD4] font-semibold hover:text-[#0B1E15] active:scale-95 transition-all"
+          className="touch-target flex flex-col items-center justify-center rounded-2xl py-1 text-[var(--color-text-muted)] dark:text-[#E8EFE2]/70 font-medium hover:text-[#17251D] dark:hover:text-white active:scale-95 transition-all cursor-pointer"
         >
-          <div className="p-1 rounded-xl">
+          <div className="p-1.5 rounded-xl">
             <Menu className="w-5 h-5" />
           </div>
           <span className="text-[11px] mt-0.5 tracking-tight truncate max-w-[56px] text-center">

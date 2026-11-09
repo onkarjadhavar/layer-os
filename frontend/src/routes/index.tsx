@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { EnrollPage } from '@/pages/EnrollPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { AdminLoginPage } from '@/pages/AdminLoginPage';
+import { AdminProtectedRoute } from '@/components/admin/AdminProtectedRoute';
 
 export function AppRoutes() {
   return (
@@ -14,7 +15,14 @@ export function AppRoutes() {
       <Route path="/dashboard/:farmId" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/enroll" element={<EnrollPage />} />
-      <Route path="/admin" element={<AdminPage />} />
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminPage />
+          </AdminProtectedRoute>
+        }
+      />
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

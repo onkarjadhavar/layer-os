@@ -1,11 +1,11 @@
 import uuid
 from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.api.deps import get_current_user, get_current_user_optional
+from app.api.deps import get_current_user, get_current_user_optional, check_farm_access
 from app.core.security import get_password_hash, create_access_token
 from app.models.user import User
 from app.models.farm import Farm, UnitSettings, Shed, Flock, FarmMember
@@ -199,6 +199,36 @@ def enroll_farm(
     )
 
 
+@router.get("/", response_model=List[FarmResponse])
+@router.get("", response_model=List[FarmResponse])
+def list_farms(
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    """
+    List all active farms authorized for the current user, or active farms in the system.
+    Strictly filters out archived/demo farms.
+    """
+    if current_user:
+        memberships = db.query(FarmMember).filter(
+            FarmMember.user_id == current_user.id,
+            FarmMember.is_active == True
+        ).all()
+        farm_ids = [m.farm_id for m in memberships]
+        if current_user.farm_id and current_user.farm_id not in farm_ids:
+            farm_ids.append(current_user.farm_id)
+
+        farms = db.query(Farm).filter(
+            Farm.id.in_(farm_ids),
+            Farm.status == "active"
+        ).order_by(Farm.created_at.desc()).all()
+        return [FarmResponse.model_validate(f) for f in farms]
+
+    # If no token / visitor, return all active production farms (status == "active")
+    farms = db.query(Farm).filter(Farm.status == "active").order_by(Farm.created_at.desc()).all()
+    return [FarmResponse.model_validate(f) for f in farms]
+
+
 @router.get("/my", response_model=List[FarmResponse])
 def get_my_farms(
     current_user: User = Depends(get_current_user),
@@ -212,7 +242,7 @@ def get_my_farms(
     if current_user.farm_id and current_user.farm_id not in farm_ids:
         farm_ids.append(current_user.farm_id)
 
-    farms = db.query(Farm).filter(Farm.id.in_(farm_ids)).all()
+    farms = db.query(Farm).filter(Farm.id.in_(farm_ids), Farm.status == "active").all()
     return [FarmResponse.model_validate(f) for f in farms]
 
 
@@ -388,6 +418,9 @@ def get_farm_dashboard(
         return get_mock_farm_dashboard(farm_id)
 
     parsed_uuid = uuid.UUID(farm_id)
+    if current_user:
+        check_farm_access(parsed_uuid, current_user, db)
+
     farm = db.query(Farm).filter(Farm.id == parsed_uuid).first()
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
@@ -504,8 +537,12 @@ def get_farm_dashboard(
 def update_unit_settings(
     farm_id: uuid.UUID,
     settings_in: UnitSettingsUpdate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
+
     settings_obj = db.query(UnitSettings).filter(UnitSettings.farm_id == farm_id).first()
     if not settings_obj:
         settings_obj = UnitSettings(farm_id=farm_id)
@@ -521,7 +558,13 @@ def update_unit_settings(
 
 
 @router.get("/{farm_id}/sheds", response_model=List[ShedResponse])
-def list_sheds(farm_id: uuid.UUID, db: Session = Depends(get_db)):
+def list_sheds(
+    farm_id: uuid.UUID,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
     sheds = db.query(Shed).filter(Shed.farm_id == farm_id, Shed.is_active == True).all()
     return [ShedResponse.model_validate(s) for s in sheds]
 
@@ -530,8 +573,12 @@ def list_sheds(farm_id: uuid.UUID, db: Session = Depends(get_db)):
 def create_shed(
     farm_id: uuid.UUID,
     shed_in: ShedCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
+
     shed = Shed(
         farm_id=farm_id,
         shed_number=shed_in.shed_number,
@@ -548,7 +595,13 @@ def create_shed(
 
 
 @router.get("/{farm_id}/flocks", response_model=List[FlockResponse])
-def list_flocks(farm_id: uuid.UUID, db: Session = Depends(get_db)):
+def list_flocks(
+    farm_id: uuid.UUID,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
     flocks = db.query(Flock).filter(Flock.farm_id == farm_id).all()
     return [FlockResponse.model_validate(f) for f in flocks]
 
@@ -557,8 +610,12 @@ def list_flocks(farm_id: uuid.UUID, db: Session = Depends(get_db)):
 def create_flock(
     farm_id: uuid.UUID,
     flock_in: FlockCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
+    if current_user:
+        check_farm_access(farm_id, current_user, db)
+
     flock = Flock(
         farm_id=farm_id,
         shed_id=flock_in.shed_id,

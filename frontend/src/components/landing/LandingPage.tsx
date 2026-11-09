@@ -17,10 +17,10 @@ import { FAQSection } from './FAQSection';
 import { LandingFooter } from './LandingFooter';
 
 interface LandingPageProps {
-  onTryDemo: () => void;
+  onLogin?: () => void;
 }
 
-export function LandingPage({ onTryDemo }: LandingPageProps) {
+export function LandingPage({ onLogin }: LandingPageProps = {}) {
   const { language, t } = useI18n();
 
   // JSON-LD Structured Data for Search Engines & DPDP / SaaS compliance
@@ -50,11 +50,11 @@ export function LandingPage({ onTryDemo }: LandingPageProps) {
       </div>
 
       {/* 1. Header / TopBar */}
-      <LandingTopBar onTryDemo={onTryDemo} />
+      <LandingTopBar onLogin={onLogin} />
 
       <main className="flex-1">
         {/* 2. Hero Section */}
-        <HeroSection onTryDemo={onTryDemo} />
+        <HeroSection onLogin={onLogin} />
 
         {/* 3. What is LayerOS */}
         <WhatIsSection />
