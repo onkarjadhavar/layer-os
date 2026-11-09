@@ -204,7 +204,7 @@ export function AdminFarmsTab({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-[var(--color-surface-subtle)]/70 dark:bg-[#0E1A13]/70 border-b border-[var(--color-border)] dark:border-[#1A3024] text-[10px] uppercase font-bold text-[var(--color-text-muted)] dark:text-[var(--color-sage)]/70 tracking-wider">
+                <tr className="bg-[var(--color-surface-subtle)]/70 dark:bg-[#0E1A13]/70 border-b border-[var(--color-border)] dark:border-[#1A3024] text-[10px] uppercase font-bold text-[var(--color-text-muted)] dark:text-[var(--color-sage)]/70 tracking-wider whitespace-nowrap">
                   <th className="py-3 px-4">Farm Details / नाव</th>
                   <th className="py-3 px-3">Owner / मालक</th>
                   <th className="py-3 px-3">District / जिल्हा</th>
@@ -214,7 +214,7 @@ export function AdminFarmsTab({
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--color-border)]/50 dark:divide-[#1A3024]/50 font-medium">
+              <tbody className="divide-y divide-[var(--color-border)]/50 dark:divide-[#1A3024]/50 font-medium whitespace-nowrap">
                 {paginatedFarms.map((farm) => {
                   const cfg = FARM_STATUS_CONFIGS[farm.status] || FARM_STATUS_CONFIGS.active;
                   const statusLabels: Record<string, string> = {

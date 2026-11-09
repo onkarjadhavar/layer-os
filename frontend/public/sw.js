@@ -1,9 +1,12 @@
 // LayerOS Production Service Worker v2.0.0
 // Offline-first PWA support for poultry farms across rural Maharashtra
 
-const CACHE_NAME = 'layeros-v2';
+const CACHE_NAME = 'layeros-v3';
 const STATIC_ASSETS = [
   '/manifest.json',
+  '/favicon.ico',
+  '/favicon-32x32.png',
+  '/images/layer-os-circular-logo.png',
   '/icon.svg',
   '/icon-192.png',
   '/icon-512.png',

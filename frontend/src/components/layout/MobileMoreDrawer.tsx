@@ -32,6 +32,15 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
   const { t } = useI18n();
   const { farm, flock, user, logout } = useLayerOS();
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('drawer-open');
+      return () => {
+        document.body.classList.remove('drawer-open');
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const items: Array<{
@@ -184,7 +193,7 @@ export function MobileMoreDrawer({ isOpen, onClose, onSelectTab }: MobileMoreDra
             id="mobile-btn-logout"
             onClick={() => {
               logout();
-              window.location.href = '/?landing=true';
+              window.location.href = '/';
             }}
             className="w-full py-3 px-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center justify-center gap-2 hover:bg-rose-100 transition-colors cursor-pointer"
           >

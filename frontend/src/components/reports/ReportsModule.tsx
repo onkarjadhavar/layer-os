@@ -673,7 +673,7 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full text-xs text-left whitespace-nowrap">
               <thead className="bg-[#FAF8F3] dark:bg-[#1F3027] text-[#0B1E15] dark:text-white font-bold uppercase text-[10px]">
                 <tr>
                   <th className="p-3">ग्राहक</th>

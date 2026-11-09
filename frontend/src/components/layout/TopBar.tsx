@@ -47,7 +47,7 @@ export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarP
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/?landing=true';
+    window.location.href = '/';
   };
 
   const [showFarmDropdown, setShowFarmDropdown] = useState(false);
@@ -71,7 +71,7 @@ export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarP
     <header className="sticky top-0 z-30 bg-[var(--color-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)] px-3 sm:px-4 py-2.5 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Farm Avatar & Selector */}
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
           {currentTab && currentTab !== 'home' && onSelectTab && (
             <button
               type="button"
@@ -84,7 +84,7 @@ export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarP
             </button>
           )}
 
-          <Link href="/?landing=true" title="Layer OS Home" className="shrink-0 group flex items-center">
+          <Link href="/" title="Layer OS Home" className="shrink-0 group flex items-center">
             <img
               src="/images/layer-os-circular-logo.png"
               alt="Layer OS Circular Logo"
@@ -161,7 +161,7 @@ export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarP
                     <span>+ {t.landingEnrollBtn}</span>
                   </Link>
                   <Link
-                    href="/?landing=true"
+                    href="/"
                     onClick={() => setShowFarmDropdown(false)}
                     className="w-full text-left px-2 py-1.5 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-subtle)] rounded-lg transition-colors flex items-center gap-1.5"
                   >
@@ -278,12 +278,12 @@ export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarP
             )}
           </button>
 
-          {/* Subtle Logout Action */}
+          {/* Subtle Logout Action (Desktop/Laptop) */}
           <button
             type="button"
             id="topbar-btn-logout"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] border border-[var(--color-border)] hover:border-[var(--color-error)]/40 transition-all cursor-pointer"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-error)] border border-[var(--color-border)] hover:border-[var(--color-error)]/40 transition-all cursor-pointer"
             title="लॉगआउट (Logout)"
           >
             <LogOut className="w-3.5 h-3.5 text-[var(--color-error)]" />

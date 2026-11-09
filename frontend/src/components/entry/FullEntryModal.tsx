@@ -48,6 +48,15 @@ export function FullEntryModal({ isOpen, onClose, onSuccess }: FullEntryModalPro
     expenses: false,
   });
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      return () => {
+        document.body.classList.remove('modal-open');
+      };
+    }
+  }, [isOpen]);
+
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };

@@ -102,7 +102,7 @@ function AdminLoginContent() {
       {/* Top Bar */}
       <header className="flex items-center justify-between max-w-5xl mx-auto w-full pt-2">
         <Link
-          href="/?landing=true"
+          href="/"
           className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl bg-white/70 dark:bg-[#0F241A]/70 border border-[#DCD3C3] dark:border-[#1F3D2F] hover:border-[#1F4D3A] transition-all min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4 text-[#1F4D3A] dark:text-[#42BF87]" />
