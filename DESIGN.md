@@ -211,3 +211,69 @@
 - **DPDP 2023 Audit Logging**: Every administrative action logs actor, role, target farm, timestamp, IP, and reason.
 - **Support Impersonation Guard**: Support view explicitly banners that read-only platform monitoring is in progress.
 
+---
+
+## 8. Reference-Match Dashboard Redesign Specification (Option D Reference)
+
+### 8.1 Desktop Screen Architecture
+- **Sidebar**:
+  - Full-height deep forest-green (`var(--layer-forest)`: `#173F20`).
+  - Top: Circular Layer OS logo (white hen inside green leaf emblem) + bold white wordmark "Layer OS".
+  - Navigation Links (4 exact destinations):
+    1. `Dashboard` (active state): Background `#28572B`, golden rounded square with Home icon, bold white label. Navigates to `home`.
+    2. `Farm Info`: Shed/building icon, white/cream text. Navigates to `flocks`.
+    3. `Help & Support`: Question mark icon, white/cream text. Triggers `AskLayerOS` / Support modal.
+    4. `About`: Info circle icon, white/cream text. Triggers About modal.
+  - Bottom:
+    - Monochrome green farm illustration (`/images/sidebar-farm-illustration.png`).
+    - Tagline: *"Smart Poultry Better Tomorrow"* in elegant golden serif font (`#D5811F`).
+- **Main Workspace Canvas**:
+  - Warm cream canvas background (`var(--layer-cream)`: `#FFF9ED`).
+  - **Header**:
+    - Left: H1 "Hello, Farm Owner!" (font-extrabold, `#211F18`, 28px–32px), Subtitle "Let's manage your poultry farm efficiently." (`#625D50`, 14px–15px).
+    - Right:
+      - Calendar date pill (`Mon, 10 Nov 2025` / formatted today's date) with calendar icon in cream-tint pill (`#F7EEDB`).
+      - Profile avatar button with dark green circle (`#173F20`), bold white "OJ" initials, and dropdown chevron affordance.
+  - **Hero Banner**:
+    - Wide banner with warm cream-to-golden backdrop, bold headline "Healthy Flock. Higher Profit.", green smile underline accent, farm buildings, wicker basket with brown eggs, and white hen.
+    - Responsive asset: `/images/hero-banner-full.png` with semantic overlay.
+  - **9-Module Cards (3-Column × 3-Row Desktop Grid)**:
+    - Card 1: `Farm Entry` — *Add daily farm data* (`#E8F1C9` pale sage, green clipboard-check icon) -> opens `quick-log`.
+    - Card 2: `Sales Management` — *Eggs, Manure & Sales* (`#FBE5C2` warm peach, cart icon) -> opens `sales`.
+    - Card 3: `Reports` — *View Farm Reports* (`#E8F1C9` pale sage, rising bar chart icon) -> opens `reports`.
+    - Card 4: `Expense & Accounts` — *Track Expenses* (`#FBE5C2` warm peach, wallet icon) -> opens `expenses`.
+    - Card 5: `Vaccine & Health` — *Keep Flock Healthy* (`#E8F1C9` pale sage, heart pulse icon) -> opens `health`.
+    - Card 6: `AI 30-Day Forecast` — *Predict & Plan* (`#EADCF5` soft lavender, AI brain icon) -> opens `forecast`.
+    - Card 7: `Feed Management` — *Feed Records* (`#DCEBF2` pale blue, grain bowl icon) -> opens `flocks`.
+    - Card 8: `Calculator & Tools` — *Useful Tools* (`#FBE5C2` warm peach, calculator icon) -> opens `public-tools`.
+    - Card 9: `Settings & Team` — *Manage Farm* (`#E8F1C9` pale sage, gear icon) -> opens `settings`.
+  - **Bottom Landscape Strip**:
+    - Slim agricultural landscape illustration along the bottom of the workspace canvas (`/images/bottom-landscape-strip.png`).
+
+### 8.2 Android / Mobile Screen Architecture
+- **Compact Header Bar**:
+  - Left: Layer OS circular emblem + bold "Layer OS" brand.
+  - Right: Notification bell icon with unread badge + dark green "OJ" avatar.
+- **Greeting & Subtitle**:
+  - "Hello, Farm Owner!" and "Let's manage your poultry farm efficiently."
+- **Art-Directed Poultry Hero**:
+  - Cropped landscape (`/images/hero-mobile-banner.png`), rounded-2xl.
+- **Date Row**:
+  - Centered date badge with calendar icon.
+- **Module Grid (2-Column Grid + Full-Width Spanning Row)**:
+  - 2-Column layout for Cards 1 to 8:
+    - Col 1: Farm Entry, Reports, Vaccine & Health, Feed Management
+    - Col 2: Sales Management, Expense & Accounts, AI 30-Day Forecast, Calculator & Tools
+  - Full-Width row for Card 9 (`col-span-2`):
+    - Settings & Team (horizontal icon, title, chevron affordance).
+- **Bottom Landscape Strip**:
+  - Positioned neatly above the device base or footer.
+- **Zero Horizontal Overflow**:
+  - Validated down to 320px width; 44px+ touch targets; clean text wrapping.
+
+### 8.3 Invariant Rules & Boundaries
+- Strictly NO Mandi Rates card or primary navigation destination on dashboard.
+- Exactly ONE Farm Entry card (quick & detailed entry live inside the Farm Entry module).
+- All backend services, APIs, databases, authentication, and calculations remain 100% untouched.
+
+

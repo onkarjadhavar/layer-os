@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,13 +20,16 @@ import {
   Sun,
   Moon,
   LogOut,
+  ChevronLeft,
 } from 'lucide-react';
 
 interface TopBarProps {
   onOpenNotifications?: () => void;
+  currentTab?: string;
+  onSelectTab?: (tab: any) => void;
 }
 
-export function TopBar({ onOpenNotifications }: TopBarProps) {
+export function TopBar({ onOpenNotifications, currentTab, onSelectTab }: TopBarProps) {
   const navigate = useNavigate();
   const {
     farm,
@@ -69,6 +72,18 @@ export function TopBar({ onOpenNotifications }: TopBarProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Left: Farm Avatar & Selector */}
         <div className="flex items-center gap-2.5 min-w-0">
+          {currentTab && currentTab !== 'home' && onSelectTab && (
+            <button
+              type="button"
+              onClick={() => onSelectTab('home')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] hover:bg-[#d8e4b1] text-[#173F20] text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
+              title="Back to Dashboard"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </button>
+          )}
+
           <Link href="/?landing=true" title="Layer OS Home" className="shrink-0 group flex items-center">
             <img
               src="/images/layer-os-circular-logo.png"

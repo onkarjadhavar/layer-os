@@ -21,6 +21,8 @@ import {
   SEED_SHEDS,
   SEED_FLOCK,
   SEED_FLOCKS,
+  SEED_CUSTOMERS,
+  generate90DaysDailyRecords,
 } from './seedData';
 import {
   UnitSettings,
@@ -263,7 +265,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   ]);
   const [alerts, setAlerts] = useState<AlertItem[]>(() => _savedInit?.alerts || []);
 
-  const [environment, setEnvironment] = useState(() => initialSaved?.environment || {
+  const [environment, setEnvironment] = useState(() => _savedInit?.environment || {
     tempMin: 22.5,
     tempMax: 29.8,
     humidity: 62,
@@ -372,9 +374,6 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             defaultPriceUnit: (c.default_price_unit as any) || 'per_100',
           }));
           setCustomers(mapped);
-        }
-      }).catch(() => {});
-    }
         }
       }).catch(() => {});
     }

@@ -18,6 +18,7 @@ import { QuickEntryCard } from '@/components/entry/QuickEntryCard';
 import { FullEntryModal } from '@/components/entry/FullEntryModal';
 
 // Dashboard Components
+import { ReferenceDashboard } from '@/components/dashboard/ReferenceDashboard';
 import { KPIGrid } from '@/components/dashboard/KPIGrid';
 import { ActionCard } from '@/components/dashboard/ActionCard';
 import { QuickActionGrid } from '@/components/dashboard/QuickActionGrid';
@@ -107,9 +108,6 @@ export function HomePage() {
 
       // Automated tests or returning sessions remain on dashboard
       if (queryLive || hasEntered || isLive || isAutomatedTest) {
-        setShowLanding(false);
-        return;
-      }
         setShowLanding(false);
         return;
       }
@@ -511,184 +509,9 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-background)] transition-colors">
-      {/* Top Bar Navigation */}
-      <TopBar
-        onOpenNotifications={() => setShowNotificationsDrawer(true)}
-      />
-
-      <div className="flex-1 flex w-full">
-        {/* Desktop Sidebar */}
-        <Sidebar
-          currentTab={currentTab}
-          onSelectTab={tab => {
-            if (tab === 'full-entry') {
-              setShowFullEntryModal(true);
-            } else {
-              handleSelectTab(tab);
-            }
-          }}
-        />
-
-        {/* Main Workspace Content Area */}
-        <main className="flex-1 p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-12 space-y-4 sm:space-y-6">
-          {/* Supervisor / Role Context Ribbon */}
-          {user?.role === 'supervisor' && (
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)] border border-[var(--color-forest)]/30 flex items-center justify-between text-xs font-bold">
-              <span>
-                👷 सुपरवायझर मोड: केवळ दैनंदिन नोंदी व कामकाजाचा ॲक्सेस उपलब्ध आहे.
-              </span>
-              <button
-                type="button"
-                onClick={() => handleSelectTab('quick-log')}
-                className="underline hover:opacity-80 touch-target flex items-center"
-              >
-                नोंद सुरू करा →
-              </button>
-            </div>
-          )}
-
-          {/* TAB 1: HOME DASHBOARD */}
-          {currentTab === 'home' && (
-            <div className="space-y-4 sm:space-y-6 max-w-5xl mx-auto">
-              {/* 1. High-Impact KPI Grid with 3-Second Profit Banner (Essential Pulse First) */}
-              <KPIGrid onDrillDown={handleKPISelect} />
-
-              {/* 2. Quick Actions Shortcuts (4 Large Mobile Tiles) */}
-              <QuickActionGrid onSelectAction={handleQuickAction} />
-
-              {/* 3. Integrated LayerOS Farm Advisory Assistant Banner */}
-              <div className="p-4 sm:p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--color-amber-soft)] text-[var(--color-walnut)] dark:bg-[#2A1E0D] dark:text-[var(--color-amber)] flex items-center justify-center font-bold text-lg flex-shrink-0">
-                      <Sparkles className="w-5 h-5 text-[var(--color-amber)]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm sm:text-base font-bold text-[var(--color-text-main)]">
-                          दैनिक शेती सल्लागार (Farm Operations Advisor)
-                        </h3>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[var(--color-sage-pale)] text-[var(--color-forest)] dark:bg-[#1A3024] dark:text-[var(--color-sage)]">
-                          सक्रिय (Live)
-                        </span>
-                      </div>
-                      <p className="text-xs text-[var(--color-text-muted)] font-medium mt-0.5">
-                        उत्पादन व खताच्या आकड्यांवर आधारित व्यावसायिक मार्गदर्शन
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-stretch sm:self-auto">
-                    <button
-                      type="button"
-                      onClick={() => setShowDailyAdvisorModal(true)}
-                      className="flex-1 sm:flex-initial py-2 px-3.5 rounded-xl bg-[var(--color-forest)] hover:bg-[#143F2F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all touch-target cursor-pointer"
-                    >
-                      <Zap className="w-3.5 h-3.5 text-[var(--color-amber)] fill-[var(--color-amber)]" />
-                      <span>आजचा सल्ला पहा</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowAskLayerOsModal(true)}
-                      className="flex-1 sm:flex-initial py-2 px-3 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[var(--color-text-main)] text-xs font-bold flex items-center justify-center gap-1.5 hover:border-[var(--color-forest)] transition-all touch-target cursor-pointer"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5 text-[var(--color-amber)]" />
-                      <span>प्रश्न विचारा</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Quick Question Chips */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-3 mt-3 border-t border-[var(--color-border)]">
-                  <span className="text-[11px] font-bold text-[var(--color-text-muted)] flex-shrink-0">
-                    उदा:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowAskLayerOsModal(true)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
-                  >
-                    <Lightbulb className="w-3 h-3 text-[var(--color-amber)]" />
-                    <span>उद्या खुराक किती देऊ?</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAskLayerOsModal(true)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
-                  >
-                    <TrendingUp className="w-3 h-3 text-[var(--color-forest)] dark:text-[var(--color-sage)]" />
-                    <span>अंडी दर वाढतील का?</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAskLayerOsModal(true)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--color-surface-subtle)] border border-[var(--color-border)] text-[11px] font-medium text-[var(--color-text-main)] whitespace-nowrap hover:border-[var(--color-amber)] cursor-pointer"
-                  >
-                    <Shield className="w-3 h-3 text-[var(--color-error)]" />
-                    <span>मृत्यू कसा रोखायचा?</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 4. 30-Second Quick Entry Card */}
-              <QuickEntryCard
-                onSuccessCloseDay={() => setShowDailyAdvisorModal(true)}
-                onSwitchToFullEntry={() => setShowFullEntryModal(true)}
-              />
-
-              {/* 5. Today's AI Priority Action Card */}
-              <ActionCard
-                onNavigateTab={tab => {
-                  if (tab === 'full-entry') setShowFullEntryModal(true);
-                  else handleSelectTab(tab as any);
-                }}
-              />
-            </div>
-          )}
-
-          {/* TAB 2: QUICK LOG FOCUSED VIEW */}
-          {currentTab === 'quick-log' && (
-            <div className="space-y-4 max-w-3xl mx-auto">
-              <QuickEntryCard
-                onSuccessCloseDay={() => setShowDailyAdvisorModal(true)}
-                onSwitchToFullEntry={() => setShowFullEntryModal(true)}
-              />
-            </div>
-          )}
-
-          {/* TAB 3: FLOCKS & BATCHES */}
-          {currentTab === 'flocks' && <FlocksModule />}
-
-          {/* TAB 4: SALES & RECEIVABLES */}
-          {currentTab === 'sales' && <SalesModule />}
-
-          {/* TAB 5: EXPENSES & OVERHEADS */}
-          {currentTab === 'expenses' && <ExpensesModule />}
-
-          {/* TAB 6: VACCINES & HEALTH */}
-          {currentTab === 'health' && <HealthModule />}
-
-          {/* TAB 7: MANDI MARKET RATES */}
-          {currentTab === 'market-rates' && <MarketRatesModule />}
-
-          {/* TAB 8: AI 30-DAY FORECAST & SCENARIOS */}
-          {currentTab === 'forecast' && <ForecastModule />}
-
-          {/* TAB 9: REPORTS & EXPORTS */}
-          {currentTab === 'reports' && <ReportsModule />}
-
-          {/* TAB 10: FREE PUBLIC CALCULATORS */}
-          {currentTab === 'public-tools' && <PublicToolsModule />}
-
-          {/* TAB 11: SETTINGS & UNITS */}
-          {currentTab === 'settings' && <SettingsModule />}
-        </main>
-      </div>
-
-      {/* Mobile Bottom Tab Bar (Native Android Navigation) */}
-      <MobileTabBar
+    <div className="min-h-screen flex bg-[#FFF9ED] dark:bg-[#0B130E] text-[#211F18] transition-colors overflow-x-hidden">
+      {/* Desktop Full-Height Forest-Green Sidebar */}
+      <Sidebar
         currentTab={currentTab}
         onSelectTab={tab => {
           if (tab === 'full-entry') {
@@ -697,8 +520,216 @@ export function HomePage() {
             handleSelectTab(tab);
           }
         }}
-        onOpenMoreMenu={() => setShowMobileMoreDrawer(true)}
+        onOpenHelp={() => setShowAskLayerOsModal(true)}
+        onOpenAbout={() => setShowDailyAdvisorModal(true)}
       />
+
+      {/* Main Workspace Canvas Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[#FFF9ED] dark:bg-[#0B130E] min-h-screen">
+        {/* Render TopBar when inside an internal module for easy navigation */}
+        {currentTab !== 'home' && (
+          <TopBar
+            onOpenNotifications={() => setShowNotificationsDrawer(true)}
+            currentTab={currentTab}
+            onSelectTab={tab => handleSelectTab(tab)}
+          />
+        )}
+
+        {/* Main Workspace Content Area */}
+        <main className="flex-1 p-3 sm:p-5 lg:p-7 xl:p-8 max-w-6xl mx-auto w-full pb-20 lg:pb-12 space-y-4 sm:space-y-6">
+          {/* Supervisor / Role Context Ribbon */}
+          {user?.role === 'supervisor' && (
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#E8F1C9] text-[#173F20] dark:bg-[#1A3024] dark:text-[#E8F1C9] border border-[#173F20]/20 flex items-center justify-between text-xs font-bold">
+              <span>
+                👷 सुपरवायझर मोड: केवळ दैनंदिन नोंदी व कामकाजाचा ॲक्सेस उपलब्ध आहे.
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSelectTab('quick-log')}
+                className="underline hover:opacity-80 touch-target flex items-center cursor-pointer"
+              >
+                नोंद सुरू करा →
+              </button>
+            </div>
+          )}
+
+          {/* TAB 1: EXACT REFERENCE-MATCH DASHBOARD */}
+          {currentTab === 'home' && (
+            <ReferenceDashboard
+              onSelectTab={tab => {
+                if (tab === 'full-entry') setShowFullEntryModal(true);
+                else handleSelectTab(tab);
+              }}
+              onOpenNotifications={() => setShowNotificationsDrawer(true)}
+              onOpenHelp={() => setShowAskLayerOsModal(true)}
+              onOpenAbout={() => setShowDailyAdvisorModal(true)}
+            />
+          )}
+
+          {/* TAB 2: FARM ENTRY (Quick Log + Full Entry Modal option) */}
+          {currentTab === 'quick-log' && (
+            <div className="space-y-4 max-w-3xl mx-auto">
+              <div className="flex items-center justify-between pb-2 border-b border-[#47532B]/15">
+                <button
+                  type="button"
+                  onClick={() => handleSelectTab('home')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+                >
+                  ← {t.navHome || 'Dashboard'}
+                </button>
+                <h2 className="text-base font-bold text-[#211F18] dark:text-white">
+                  {t.navQuickLog || 'Farm Entry'}
+                </h2>
+              </div>
+              <QuickEntryCard
+                onSuccessCloseDay={() => setShowDailyAdvisorModal(true)}
+                onSwitchToFullEntry={() => setShowFullEntryModal(true)}
+              />
+            </div>
+          )}
+
+          {/* TAB 3: FLOCKS & BATCHES (Feed Management & Farm Info) */}
+          {currentTab === 'flocks' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <FlocksModule />
+            </div>
+          )}
+
+          {/* TAB 4: SALES & RECEIVABLES */}
+          {currentTab === 'sales' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <SalesModule />
+            </div>
+          )}
+
+          {/* TAB 5: EXPENSES & OVERHEADS */}
+          {currentTab === 'expenses' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <ExpensesModule />
+            </div>
+          )}
+
+          {/* TAB 6: VACCINES & HEALTH */}
+          {currentTab === 'health' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <HealthModule />
+            </div>
+          )}
+
+          {/* TAB 7: MANDI MARKET RATES (Internal route preserved, not on dashboard) */}
+          {currentTab === 'market-rates' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <MarketRatesModule />
+            </div>
+          )}
+
+          {/* TAB 8: AI 30-DAY FORECAST & SCENARIOS */}
+          {currentTab === 'forecast' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <ForecastModule />
+            </div>
+          )}
+
+          {/* TAB 9: REPORTS & EXPORTS */}
+          {currentTab === 'reports' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <ReportsModule />
+            </div>
+          )}
+
+          {/* TAB 10: FREE PUBLIC CALCULATORS */}
+          {currentTab === 'public-tools' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <PublicToolsModule />
+            </div>
+          )}
+
+          {/* TAB 11: SETTINGS & UNITS */}
+          {currentTab === 'settings' && (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleSelectTab('home')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E8F1C9] text-[#173F20] text-xs font-bold hover:bg-[#d8e4b1] transition-colors cursor-pointer"
+              >
+                ← {t.navHome || 'Dashboard'}
+              </button>
+              <SettingsModule />
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Mobile Bottom Tab Bar (shown when inside an internal module for fast thumb switching) */}
+      {currentTab !== 'home' && (
+        <MobileTabBar
+          currentTab={currentTab}
+          onSelectTab={tab => {
+            if (tab === 'full-entry') {
+              setShowFullEntryModal(true);
+            } else {
+              handleSelectTab(tab);
+            }
+          }}
+          onOpenMoreMenu={() => setShowMobileMoreDrawer(true)}
+        />
+      )}
 
       {/* MODALS & DRAWERS */}
       <FullEntryModal

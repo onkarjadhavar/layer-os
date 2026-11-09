@@ -3,22 +3,13 @@
 import React from 'react';
 import { useI18n } from '@/lib/i18n/context';
 import { useLayerOS } from '@/lib/store';
-import { LayerOSLogo } from '@/components/common/LayerOSLogo';
 import {
-  LayoutDashboard,
-  Zap,
-  ClipboardList,
-  Layers,
-  CircleDollarSign,
-  Receipt,
-  HeartPulse,
-  TrendingUp,
-  LineChart,
-  FileSpreadsheet,
-  Settings,
+  Home,
+  Warehouse,
   HelpCircle,
+  Info,
   LogOut,
-  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 
 export type NavTab =
@@ -38,147 +29,149 @@ export type NavTab =
 interface SidebarProps {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
+  onOpenHelp?: () => void;
+  onOpenAbout?: () => void;
 }
 
-interface NavItem {
-  id: NavTab;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-  badgeColor?: string;
-}
-
-interface NavGroup {
-  groupTitle?: string;
-  items: NavItem[];
-}
-
-export function Sidebar({ currentTab, onSelectTab }: SidebarProps) {
+export function Sidebar({ currentTab, onSelectTab, onOpenHelp, onOpenAbout }: SidebarProps) {
   const { t } = useI18n();
-  const { logout, isDatabaseConnected } = useLayerOS();
+  const { logout, isDatabaseConnected, farm } = useLayerOS();
 
-  const navigationGroups: NavGroup[] = [
-    {
-      groupTitle: t.groupOverview || 'Overview',
-      items: [
-        { id: 'home', label: t.navHome, icon: LayoutDashboard },
-      ],
-    },
-    {
-      groupTitle: t.groupOperations || 'Operations',
-      items: [
-        { id: 'quick-log', label: t.navQuickLog, icon: Zap, badge: '३०s' },
-        { id: 'full-entry', label: t.fullEntryTitle, icon: ClipboardList },
-        { id: 'flocks', label: t.navFlocks, icon: Layers },
-      ],
-    },
-    {
-      groupTitle: t.groupCommercial || 'Commercial',
-      items: [
-        { id: 'sales', label: t.navSales, icon: CircleDollarSign },
-        { id: 'market-rates', label: t.navMarketRates, icon: TrendingUp },
-        { id: 'forecast', label: t.navForecast, icon: LineChart, badge: 'AI' },
-      ],
-    },
-    {
-      groupTitle: t.groupAccountsHealth || 'Accounts & Health',
-      items: [
-        { id: 'expenses', label: t.navExpenses, icon: Receipt },
-        { id: 'health', label: t.navHealth, icon: HeartPulse },
-        { id: 'reports', label: t.navReports, icon: FileSpreadsheet },
-      ],
-    },
-    {
-      groupTitle: t.groupManagement || 'Management',
-      items: [
-        { id: 'public-tools', label: t.navPublicTools, icon: HelpCircle },
-        { id: 'settings', label: t.navSettings, icon: Settings },
-      ],
-    },
-  ];
+  const isDashboardActive = currentTab === 'home';
+  const isFarmInfoActive = currentTab === 'flocks';
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-[var(--color-forest-deep)] text-white flex-shrink-0 h-screen sticky top-0 border-r border-[#193F30] shadow-md z-20">
-      {/* Brand Header */}
-      <div className="p-4 border-b border-white/10 flex items-center gap-3">
-        <LayerOSLogo size={36} showText />
+    <aside
+      className="hidden lg:flex flex-col w-[240px] xl:w-[260px] bg-[#173F20] text-white flex-shrink-0 h-screen sticky top-0 z-30 select-none shadow-xl border-r border-[#12351B]"
+      style={{ backgroundColor: '#173F20' }}
+    >
+      {/* 1. Sidebar Brand Header: Layer OS Circular Logo + Wordmark */}
+      <div className="pt-6 pb-6 px-5 flex items-center gap-3">
+        <div className="w-11 h-11 rounded-2xl bg-[#28572B]/60 p-1 flex items-center justify-center shrink-0 border border-white/15 shadow-sm">
+          <img
+            src="/images/layer-os-circular-logo.png"
+            alt="Layer OS"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-extrabold text-xl tracking-tight text-white leading-none">
+            Layer OS
+          </span>
+          <span className="text-[10px] text-[#A6C48A] font-medium tracking-wide mt-1">
+            Poultry OS
+          </span>
+        </div>
       </div>
 
-      {/* Categorized Navigation Groups */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-        {navigationGroups.map((group, gIdx) => (
-          <div key={gIdx} className="space-y-1">
-            {group.groupTitle && (
-              <div className="px-3 pt-1 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--color-sage)]/80 select-none">
-                {group.groupTitle}
-              </div>
-            )}
-            {group.items.map(item => {
-              const Icon = item.icon;
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`sidebar-nav-${item.id}`}
-                  type="button"
-                  onClick={() => onSelectTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[var(--color-forest)] text-white font-bold shadow-xs border border-[var(--color-sage)]/40'
-                      : 'text-[var(--color-sage-pale)]/80 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon
-                      className={`w-4 h-4 flex-shrink-0 ${
-                        isActive ? 'text-[var(--color-amber)]' : 'text-[var(--color-sage)]'
-                      }`}
-                    />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                        isActive
-                          ? 'bg-[var(--color-amber)] text-[var(--color-forest-deep)]'
-                          : 'bg-white/15 text-[var(--color-amber)]'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
-      {/* Logout Action */}
-      <div className="p-3 border-t border-white/10">
+      {/* 2. Navigation Links: Dashboard, Farm Info, Help & Support, About */}
+      <nav className="flex-1 px-4 py-2 space-y-2">
+        {/* Dashboard Link */}
         <button
           type="button"
-          id="sidebar-btn-logout"
-          onClick={() => {
-            logout();
-            window.location.href = '/?landing=true';
-          }}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold text-xs text-[var(--color-sage-pale)]/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          id="sidebar-nav-dashboard"
+          onClick={() => onSelectTab('home')}
+          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
+            isDashboardActive
+              ? 'bg-[#28572B] text-white shadow-sm border border-white/10'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
+          }`}
         >
-          <LogOut className="w-4 h-4 text-[var(--color-amber)]" />
-          <span>{t.logout || 'Log Out'}</span>
+          <div
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform ${
+              isDashboardActive
+                ? 'bg-[#D5811F] text-[#173F20] shadow-sm'
+                : 'bg-white/10 text-white'
+            }`}
+          >
+            <Home className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-bold text-sm tracking-wide">
+            {t.navHome || 'Dashboard'}
+          </span>
         </button>
-      </div>
 
-      {/* Live System Status Indicator */}
-      <div className="px-4 py-3 border-t border-white/10 bg-[#0B251B] text-xs text-[var(--color-sage-pale)]/80 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 font-medium text-[11px]">
-          <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
-          <span>{isDatabaseConnected ? 'PostgreSQL Live' : 'Offline Storage'}</span>
+        {/* Farm Info Link */}
+        <button
+          type="button"
+          id="sidebar-nav-farm-info"
+          onClick={() => onSelectTab('flocks')}
+          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
+            isFarmInfoActive
+              ? 'bg-[#28572B] text-white shadow-sm border border-white/10'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
+          }`}
+        >
+          <div
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+              isFarmInfoActive
+                ? 'bg-[#D5811F] text-[#173F20]'
+                : 'bg-white/10 text-white/80'
+            }`}
+          >
+            <Warehouse className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-medium text-sm tracking-wide">
+            {t.navFlocks || 'Farm Info'}
+          </span>
+        </button>
+
+        {/* Help & Support Link */}
+        <button
+          type="button"
+          id="sidebar-nav-help"
+          onClick={() => {
+            if (onOpenHelp) onOpenHelp();
+          }}
+          className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+        >
+          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-white/80">
+            <HelpCircle className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm tracking-wide">
+            {t.help || 'Help & Support'}
+          </span>
+        </button>
+
+        {/* About Link */}
+        <button
+          type="button"
+          id="sidebar-nav-about"
+          onClick={() => {
+            if (onOpenAbout) onOpenAbout();
+          }}
+          className="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+        >
+          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-white/80">
+            <Info className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm tracking-wide">
+            {t.about || 'About'}
+          </span>
+        </button>
+      </nav>
+
+      {/* 3. Bottom Sidebar Farm Landscape Illustration & Tagline */}
+      <div className="p-4 pb-6 flex flex-col items-center">
+        <div className="w-full rounded-2xl overflow-hidden bg-[#12351B]/50 p-1 border border-white/10">
+          <img
+            src="/images/sidebar-farm-illustration.png"
+            alt="Poultry Farm Illustration"
+            className="w-full h-auto object-contain rounded-xl opacity-90 transition-opacity hover:opacity-100"
+          />
         </div>
-        <span className="text-[10px] text-[var(--color-sage)] font-bold">v2.4</span>
+        <p className="mt-3 text-[12px] font-serif italic text-[#F6E5C9] text-center font-medium tracking-wide">
+          Smart Poultry Better Tomorrow
+        </p>
+
+        {/* Subtle Database Connectivity Indicator */}
+        <div className="mt-2 text-[10px] text-[#A6C48A]/70 flex items-center gap-1.5">
+          <span className={`w-1.5 h-1.5 rounded-full ${isDatabaseConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+          <span>{isDatabaseConnected ? 'Live Farm Connected' : 'Offline Mode'}</span>
+        </div>
       </div>
     </aside>
   );
 }
+
 export default Sidebar;

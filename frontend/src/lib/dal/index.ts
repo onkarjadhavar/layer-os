@@ -189,7 +189,6 @@ export async function saveQuickDailyRecord(
   };
 
   try {
-  try {
     const res: any = await recordsService.saveQuickRecord({
       farm_id: input.farmId,
       flock_id: input.flockId,

@@ -28,10 +28,14 @@ import {
 } from '@/services/finance.service';
 
 export function ExpensesModule() {
-  const { loan, todayRecord, employees } = useLayerOS();
+  const { farm, loan, todayRecord, employees } = useLayerOS();
   const { t } = useI18n();
 
   const [activeTab, setActiveTab] = useState<'daily-expenses' | 'true-profit' | 'loan-schedule' | 'payroll'>('daily-expenses');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddEmpModal, setShowAddEmpModal] = useState(false);
+  const [showAddExp, setShowAddExp] = useState(false);
+  const displayEmployees = employees || [];
 
   // Daily cash expenses list
   const [expenses, setExpenses] = useState([
