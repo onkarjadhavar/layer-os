@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLayerOS } from '@/lib/store';
 import { useI18n } from '@/lib/i18n/context';
 import { farmsService } from '@/services/farms.service';
@@ -50,6 +50,7 @@ import { Sparkles, Zap, MessageSquare, AlertCircle, Lightbulb, TrendingUp, Shiel
 export function HomePage() {
   const { farmId } = useParams<{ farmId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, switchFarm, logout } = useLayerOS();
   const { t } = useI18n();
 
@@ -97,6 +98,11 @@ export function HomePage() {
   // Synchronize visitor vs returning dashboard state
   React.useEffect(() => {
     try {
+      const params = new URLSearchParams(location.search);
+      const isDemoParam = params.get('demo') === 'true';
+      const isLiveParam = params.get('live') === 'true';
+      const isLandingParam = params.get('landing') === 'true';
+
       if (farmId) {
         if (farmId === 'farm-sahyadri-01' || farmId === 'farm-anand-02') {
           loginAsDemo();
@@ -105,25 +111,29 @@ export function HomePage() {
           }
         }
         setShowLanding(false);
+        setFarmLoadError(null);
+        setIsLoadingFarm(false);
         return;
       }
 
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('landing') === 'true') {
+      if (isLandingParam) {
         setShowLanding(true);
         return;
       }
 
       // Explicit demo request: opens demo dashboard
-      if (params.get('demo') === 'true') {
+      if (isDemoParam) {
         loginAsDemo();
         setShowLanding(false);
+        setFarmLoadError(null);
+        setIsLoadingFarm(false);
         return;
       }
 
       // Explicit live request: opens dashboard
-      if (params.get('live') === 'true') {
+      if (isLiveParam) {
         setShowLanding(false);
+        setFarmLoadError(null);
         return;
       }
 
@@ -144,13 +154,21 @@ export function HomePage() {
     } catch {
       setShowLanding(true);
     }
-  }, [farmId]);
+  }, [farmId, location.search]);
 
   const activeFarmId = farmId || (!showLanding ? (user?.farmId || farm.id) : null);
 
   // When a farm is specified or active, fetch live farm data from FastAPI
   useEffect(() => {
     if (!activeFarmId) return;
+
+    // In demo mode, Sahyadri/Anand operate completely offline-first with pre-seeded fixtures:
+    // Never make a FastAPI backend request or report network error for demo farms!
+    if (isDemoMode || activeFarmId === 'farm-sahyadri-01' || activeFarmId === 'farm-anand-02') {
+      setIsLoadingFarm(false);
+      setFarmLoadError(null);
+      return;
+    }
 
     // Multi-tenant security check: Enrolled user can only access their own enrolled farm!
     if (user && !isDemoMode && user.farmId && farmId && user.farmId !== farmId) {

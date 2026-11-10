@@ -3,6 +3,7 @@
 import React from 'react';
 import { Link } from '@/components/common/Link';
 import { useI18n } from '@/lib/i18n/context';
+import { useLayerOS } from '@/lib/store';
 import { Language } from '@/lib/i18n/translations';
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 import { ArrowRight, User, Sparkles } from 'lucide-react';
@@ -13,6 +14,7 @@ interface LandingTopBarProps {
 
 export function LandingTopBar({ onLogin }: LandingTopBarProps = {}) {
   const { language, setLanguage, t } = useI18n();
+  const { loginAsDemo } = useLayerOS();
 
   return (
     <header className="sticky top-0 z-40 bg-[var(--color-surface)]/95 dark:bg-[#14221C]/95 backdrop-blur-md border-b border-[var(--color-border)] dark:border-[#23372E] px-4 py-3 transition-colors">
@@ -50,7 +52,8 @@ export function LandingTopBar({ onLogin }: LandingTopBarProps = {}) {
           <Link
             id="landing-topbar-demo-btn"
             href="/?demo=true"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-forest)] dark:text-[#A6C48A] hover:bg-[var(--color-sage-pale)] dark:hover:bg-[#1A2D23] transition-colors min-h-[40px] border border-[var(--color-forest)]/20"
+            onClick={() => loginAsDemo()}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold text-[var(--color-forest)] dark:text-[#A6C48A] hover:bg-[var(--color-sage-pale)] dark:hover:bg-[#1A2D23] transition-colors min-h-[40px] border border-[var(--color-forest)]/20 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-[var(--color-amber)]" />
             <span>{language === 'mr' ? 'डेमो पहा' : language === 'hi' ? 'डेमो देखें' : 'View Demo'}</span>

@@ -166,7 +166,13 @@ function getInitialSavedState(): any {
 
 export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   const _savedInit = getInitialSavedState();
+  const isDemoRequested = typeof window !== 'undefined' && (
+    new URLSearchParams(window.location.search).get('demo') === 'true' ||
+    window.location.pathname.includes('/farms/farm-sahyadri-01') ||
+    window.location.pathname.includes('/farms/farm-anand-02')
+  );
   const isEnrolledInit = Boolean(
+    !isDemoRequested &&
     _savedInit &&
     !_savedInit.isDemoMode &&
     _savedInit.farm &&
@@ -321,6 +327,34 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     queueMicrotask(() => {
       try {
+        const isDemoRequested = typeof window !== 'undefined' && (
+          new URLSearchParams(window.location.search).get('demo') === 'true' ||
+          window.location.pathname.includes('/farms/farm-sahyadri-01') ||
+          window.location.pathname.includes('/farms/farm-anand-02')
+        );
+        if (isDemoRequested) {
+          setIsDemoMode(true);
+          setIsAuthenticated(true);
+          setFarm(SEED_FARM);
+          _setFarms(SEED_FARMS);
+          setFlock(SEED_FLOCK);
+          setFlocks(SEED_FLOCKS);
+          setSheds(SEED_SHEDS);
+          setDailyRecords(generate90DaysDailyRecords());
+          setCustomers(SEED_CUSTOMERS);
+          setExpenses(SEED_EXPENSES);
+          setEmployees(SEED_EMPLOYEES);
+          setLoan(SEED_LOAN);
+          setUser({
+            id: "usr-demo-sahyadri",
+            name: "सचिन गायकवाड (मालक - सह्याद्री डेमो)",
+            phone: "9822012345",
+            role: "owner",
+            farmId: "farm-sahyadri-01",
+          });
+          return;
+        }
+
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
@@ -505,6 +539,16 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
       role: "owner",
       farmId: "farm-sahyadri-01",
     });
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        parsed.isDemoMode = true;
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+      }
+    } catch {
+      // ignore
+    }
   };
 
   const loginWithPhone = (phone: string, otp: string): boolean => {

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Link } from '@/components/common/Link';
 import { useI18n } from '@/lib/i18n/context';
+import { useLayerOS } from '@/lib/store';
 import {
   ArrowRight,
   ShieldCheck,
@@ -24,6 +25,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ onLogin }: HeroSectionProps) {
   const { t, language } = useI18n();
+  const { loginAsDemo } = useLayerOS();
 
   // Interactive Live Farm Simulation (The Taste-Skill "One Live Thing")
   const [flockScale, setFlockScale] = useState<number>(30000);
@@ -78,6 +80,7 @@ export function HeroSection({ onLogin }: HeroSectionProps) {
               <Link
                 id="landing-hero-demo-btn"
                 href="/?demo=true"
+                onClick={() => loginAsDemo()}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-base font-bold text-[#173F20] dark:text-[#E8F1C9] bg-[#E8F1C9] hover:bg-[#d8e4b1] dark:bg-[#1A3024] dark:hover:bg-[#234232] border border-[#718B35]/30 transition-all min-h-[48px] shadow-xs cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-[#D5811F]" />

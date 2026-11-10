@@ -61,6 +61,17 @@ export function ReferenceDashboard({
 
   const unreadAlerts = alerts.filter(a => !a.isResolved).length;
 
+  const hasEnrolledFarm = React.useMemo(() => {
+    try {
+      const saved = localStorage.getItem('layeros_app_state_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return Boolean(parsed.farm && parsed.farm.id !== 'farm-sahyadri-01' && parsed.farm.id !== 'farm-anand-02');
+      }
+    } catch {}
+    return false;
+  }, []);
+
   // Resolve enrolled customer name entered during enrollment (or user profile)
   const customerName = React.useMemo(() => {
     const raw = user?.name || farm?.ownerName || '';
@@ -193,12 +204,21 @@ export function ReferenceDashboard({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/enroll"
-              className="px-3.5 py-1.5 rounded-xl bg-[#173F20] hover:bg-[#12351B] text-white font-bold text-xs transition-colors shadow-2xs"
-            >
-              तुमच्या शेतीसाठी मोफत नोंदणी करा (Enroll Farm) →
-            </Link>
+            {hasEnrolledFarm ? (
+              <Link
+                href="/?live=true"
+                className="px-3.5 py-1.5 rounded-xl bg-[#173F20] hover:bg-[#12351B] text-white font-bold text-xs transition-colors shadow-2xs"
+              >
+                माझ्या फार्मवर जा (Go to My Farm) →
+              </Link>
+            ) : (
+              <Link
+                href="/enroll"
+                className="px-3.5 py-1.5 rounded-xl bg-[#173F20] hover:bg-[#12351B] text-white font-bold text-xs transition-colors shadow-2xs"
+              >
+                तुमच्या शेतीसाठी मोफत नोंदणी करा (Enroll Farm) →
+              </Link>
+            )}
             <Link
               href="/?landing=true"
               className="px-3 py-1.5 rounded-xl bg-white/70 hover:bg-white text-[#211F18] font-semibold text-xs transition-colors"
