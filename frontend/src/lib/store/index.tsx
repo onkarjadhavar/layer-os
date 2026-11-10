@@ -69,10 +69,13 @@ interface LayerOSStoreContextType {
   switchFarm: (farmId: string) => void;
   setActiveFarmData: (data: {
     farm: Farm;
+    farms?: Farm[];
     sheds?: Shed[];
     flocks?: Flock[];
+    flock?: Flock;
     unitSettings?: UnitSettings;
     dailyRecords?: DailyRecord[];
+    customers?: Customer[];
     sales?: Sale[];
     user?: UserProfile;
   }) => void;
@@ -147,7 +150,13 @@ function getInitialSavedState(): any {
 
 export function LayerOSProvider({ children }: { children: React.ReactNode }) {
   const _savedInit = getInitialSavedState();
-  const isEnrolledInit = _savedInit && !_savedInit.isDemoMode && _savedInit.farm;
+  const isEnrolledInit = Boolean(
+    _savedInit &&
+    !_savedInit.isDemoMode &&
+    _savedInit.farm &&
+    _savedInit.farm.id !== 'farm-sahyadri-01' &&
+    _savedInit.farm.id !== 'farm-anand-02'
+  );
 
   const [user, setUser] = useState<UserProfile | null>(() => {
     if (isEnrolledInit) return _savedInit.user || null;
@@ -171,7 +180,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
 
   const [dailyRecords, setDailyRecords] = useState<DailyRecord[]>(() => {
     if (isEnrolledInit) {
-      const records = _savedInit.dailyRecords || [];
+      const records = (_savedInit.dailyRecords || []).filter(
+        (r: DailyRecord) => r.farmId === _savedInit.farm.id && r.farmId !== 'farm-sahyadri-01' && r.farmId !== 'farm-anand-02'
+      );
       records.sort((a: any, b: any) => a.recordDate.localeCompare(b.recordDate));
       return records;
     }
@@ -294,19 +305,23 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             setSheds(SEED_SHEDS);
             setDailyRecords(generate90DaysDailyRecords());
             setCustomers(SEED_CUSTOMERS);
-          } else if (parsed.farm) {
+          } else if (parsed.farm && parsed.farm.id !== 'farm-sahyadri-01' && parsed.farm.id !== 'farm-anand-02') {
             // Enrolled user strictly isolated to their own enrolled farm: zero demo data
+            setIsDemoMode(false);
             setFarm(parsed.farm);
             _setFarms([parsed.farm]);
             if (parsed.flock) setFlock(parsed.flock);
             if (parsed.flocks && parsed.flocks.length > 0) setFlocks(parsed.flocks);
             if (parsed.sheds && parsed.sheds.length > 0) setSheds(parsed.sheds);
-            const records = parsed.dailyRecords || [];
+            const records = (parsed.dailyRecords || []).filter(
+              (r: any) => r.farmId === parsed.farm.id && r.farmId !== 'farm-sahyadri-01' && r.farmId !== 'farm-anand-02'
+            );
             records.sort((a: any, b: any) => a.recordDate.localeCompare(b.recordDate));
             setDailyRecords(records);
             setCustomers(parsed.customers || []);
             setSales(parsed.sales || []);
             setAlerts(parsed.alerts || []);
+            if (parsed.user) setUser(parsed.user);
           }
           if (parsed.sales && parsed.sales.length > 0) setSales(parsed.sales);
           if (parsed.marketRates && parsed.marketRates.length > 0) setMarketRates(parsed.marketRates);
@@ -346,11 +361,15 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
 
   // Load live farm daily records and customers on initial mount or farm change
   useEffect(() => {
-    if (!isDemoMode && farm.id) {
+    if (!isDemoMode && farm.id && farm.id !== 'farm-sahyadri-01' && farm.id !== 'farm-anand-02') {
       if (flock.id) {
         loadFarmDailyRecords(farm.id, flock.id).then(res => {
-          if (res.success && res.data && res.data.length > 0) {
-            setDailyRecords(res.data);
+          if (res.success && Array.isArray(res.data)) {
+            const clean = res.data.filter(
+              r => r.farmId === farm.id && r.farmId !== 'farm-sahyadri-01' && r.farmId !== 'farm-anand-02'
+            );
+            clean.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+            setDailyRecords(clean);
           }
         }).catch(() => {});
       }
@@ -800,52 +819,68 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
 
   const setActiveFarmData = (data: {
     farm: Farm;
+    farms?: Farm[];
     sheds?: Shed[];
     flocks?: Flock[];
+    flock?: Flock;
     unitSettings?: UnitSettings;
     dailyRecords?: DailyRecord[];
+    customers?: Customer[];
     sales?: Sale[];
     user?: UserProfile;
   }) => {
     setIsDemoMode(false);
     setIsAuthenticated(true);
     setFarm(data.farm);
-    let updatedFarmsList: Farm[] = [data.farm];
-    _setFarms([data.farm]);
-    if (data.sheds && data.sheds.length > 0) {
-      setSheds(data.sheds);
-    }
+    const updatedFarmsList: Farm[] = data.farms && data.farms.length > 0 ? data.farms : [data.farm];
+    _setFarms(updatedFarmsList);
+
+    setSheds(data.sheds || []);
+
     if (data.flocks && data.flocks.length > 0) {
       setFlocks(data.flocks);
-      setFlock(data.flocks[0]);
+      setFlock(data.flock || data.flocks[0]);
+    } else if (data.flock) {
+      setFlocks([data.flock]);
+      setFlock(data.flock);
     }
+
     if (data.unitSettings) {
       setUnitSettings(data.unitSettings);
     }
-    if (data.dailyRecords !== undefined) {
-      setDailyRecords(data.dailyRecords);
-    }
-    if (data.sales !== undefined) {
-      setSales(data.sales);
-    }
+
+    // For enrolled customer: strictly isolate daily records (empty array if newly enrolled, NEVER demo data)
+    const validRecords = (data.dailyRecords || []).filter(
+      r => r.farmId === data.farm.id && r.farmId !== 'farm-sahyadri-01' && r.farmId !== 'farm-anand-02'
+    );
+    validRecords.sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+    setDailyRecords(validRecords);
+
+    const validCustomers = data.customers || [];
+    setCustomers(validCustomers);
+
+    const validSales = data.sales || [];
+    setSales(validSales);
+
     if (data.user) {
       setUser(data.user);
     }
+
     try {
       const stateToSave = {
-        dailyRecords: data.dailyRecords !== undefined ? data.dailyRecords : dailyRecords,
+        dailyRecords: validRecords,
         unitSettings: data.unitSettings || unitSettings,
         user: data.user || user,
-        customers,
-        sales: data.sales !== undefined ? data.sales : sales,
-        alerts,
-        vaccinations,
+        customers: validCustomers,
+        sales: validSales,
+        alerts: [],
+        vaccinations: [],
         isDemoMode: false,
-        farms: updatedFarmsList.length > 0 ? updatedFarmsList : [data.farm],
+        farms: updatedFarmsList,
         farm: data.farm,
-        sheds: data.sheds || sheds,
-        flocks: data.flocks || flocks,
-        flock: (data.flocks && data.flocks[0]) || flock,
+        sheds: data.sheds || [],
+        flocks: data.flocks || (data.flock ? [data.flock] : []),
+        flock: data.flock || (data.flocks && data.flocks[0]) || flock,
       };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
     } catch {
@@ -1108,7 +1143,7 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setCustomers(SEED_CUSTOMERS);
     setUnitSettings(DEFAULT_UNIT_SETTINGS);
     setAlerts([]);
-    setIsDemoMode(false);
+    setIsDemoMode(true);
   };
 
   return (

@@ -118,7 +118,7 @@ export function HomePage() {
     if (!activeFarmId) return;
 
     // Multi-tenant security check: Enrolled user can only access their own enrolled farm!
-    if (user && !isDemoMode && user.farmId && user.farmId !== farmId) {
+    if (user && !isDemoMode && user.farmId && farmId && user.farmId !== farmId) {
       setFarmLoadError('forbidden');
       setIsLoadingFarm(false);
       setShowLanding(false);
@@ -268,7 +268,7 @@ export function HomePage() {
         } else {
           // Resilient recovery: If network fetch temporarily failed, check if farm is already present locally
           try {
-            const saved = localStorage.getItem('layeros_store_v1');
+            const saved = localStorage.getItem('layeros_app_state_v1') || localStorage.getItem('layeros_store_v1');
             if (saved) {
               const parsed = JSON.parse(saved);
               if (parsed.farm && (parsed.farm.id === farmId || parsed.user?.farmId === farmId)) {

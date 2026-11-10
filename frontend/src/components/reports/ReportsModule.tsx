@@ -35,10 +35,13 @@ export function ReportsModule() {
   // Tab: 'daily-card' | 'monthly-mis' | 'outstanding'
   const [reportType, setReportType] = useState<'daily-card' | 'monthly-mis' | 'outstanding'>('daily-card');
 
-  // Sorted chronological records
+  // Sorted chronological records strictly isolated to enrolled farm when not in demo mode
   const sortedRecords = useMemo(() => {
-    return [...dailyRecords].sort((a, b) => a.recordDate.localeCompare(b.recordDate));
-  }, [dailyRecords]);
+    const list = isDemoMode
+      ? dailyRecords
+      : dailyRecords.filter(r => r.farmId === farm.id && r.farmId !== 'farm-sahyadri-01' && r.farmId !== 'farm-anand-02');
+    return [...list].sort((a, b) => a.recordDate.localeCompare(b.recordDate));
+  }, [dailyRecords, isDemoMode, farm.id]);
 
   // Selected date index (default to latest recorded day)
   const [selectedDayIdx, setSelectedDayIdx] = useState<number>(() => {
@@ -202,17 +205,47 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
 
   return (
     <div className="space-y-5">
+      {/* 0. DEMO NOTICE BANNER (Strictly shown in demo preview mode only) */}
+      {isDemoMode && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">⚠️</span>
+            <div>
+              <strong className="text-amber-900 dark:text-amber-200 block font-bold">
+                प्रात्यक्षिक नमुना डेटा (Demo Preview Mode — सह्याद्री लेयर फार्म)
+              </strong>
+              <p className="text-amber-800 dark:text-amber-300">
+                हे नवीन ग्राहकांसाठी नमुना प्रात्यक्षिक आहे. आपल्या स्वतःच्या पोल्ट्री फार्मसाठी शून्य डेटासह नवीन लेयर ओएस सुरू करण्यासाठी येथे नोंदणी करा.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/enroll"
+            className="shrink-0 px-4 py-2 rounded-xl bg-[#173F20] hover:bg-[#1e4e29] text-white font-bold text-xs shadow-sm transition-all text-center"
+          >
+            नवीन फार्म नोंदवा (Enroll Farm) →
+          </a>
+        </div>
+      )}
+
       {/* 1. TOP HEADER & TENANT BRANDING */}
       <div className="card-layer p-5 border border-[#E7E2D6] dark:border-[#263B30] bg-white dark:bg-[#16241D] rounded-3xl shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[#E7E2D6] dark:border-[#263B30] gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-[#1F4D3A]/10 dark:bg-[#3BA378]/20 text-[#1F4D3A] dark:text-[#3BA378] flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                नोंदणीकृत पोल्ट्री (Enrolled Customer OS)
-              </span>
+              {isDemoMode ? (
+                <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 flex items-center gap-1 border border-amber-300">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  प्रात्यक्षिक नमुना (Demo Preview Data)
+                </span>
+              ) : (
+                <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-[#1F4D3A]/10 dark:bg-[#3BA378]/20 text-[#1F4D3A] dark:text-[#3BA378] flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  नोंदणीकृत पोल्ट्री (Enrolled Customer OS)
+                </span>
+              )}
               <span className="text-xs font-bold text-[#6B7280] dark:text-gray-400">
-                • स्वतंत्र सुरक्षित ॲक्सेस (Personalized Operational Data)
+                {isDemoMode ? '• नमुना डेटा (Sample Data)' : `• स्वतंत्र सुरक्षित ॲक्सेस (${farm.name})`}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#0B1E15] dark:text-white flex items-center gap-2">
@@ -598,58 +631,82 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
               </button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-[#FAF8F3] dark:bg-[#1F3027] text-[#0B1E15] dark:text-white font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="p-3">दिवस #</th>
-                    <th className="p-3">दिनांक</th>
-                    <th className="p-3">जिवंत पक्षी</th>
-                    <th className="p-3">अंडी संकलन</th>
-                    <th className="p-3">HD%</th>
-                    <th className="p-3">खुराक (kg)</th>
-                    <th className="p-3">मृत्यू</th>
-                    <th className="p-3">विक्री दर</th>
-                    <th className="p-3">थेट नफा</th>
-                    <th className="p-3 text-right">कृती</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-[#0B1E15] dark:text-white">
-                  {sortedRecords.map((r, idx) => (
-                    <tr
-                      key={r.id || r.recordDate}
-                      onClick={() => {
-                        setSelectedDayIdx(idx);
-                        setReportType('daily-card');
-                      }}
-                      className="hover:bg-gray-50/80 dark:hover:bg-[#1F3027]/70 cursor-pointer transition-colors"
-                    >
-                      <td className="p-3 font-black text-[#1F4D3A] dark:text-[#3BA378]">
-                        दिवस {idx + 1}
-                      </td>
-                      <td className="p-3 font-bold">{r.recordDate}</td>
-                      <td className="p-3 font-semibold">{formatIndianNumber(r.closingBirds)}</td>
-                      <td className="p-3 font-black text-[#1F4D3A] dark:text-[#3BA378]">
-                        {formatIndianNumber(r.totalEggsCollected)}
-                      </td>
-                      <td className="p-3 font-bold">{r.hdPct}%</td>
-                      <td className="p-3 font-medium">{formatIndianNumber(r.feedIssuedKg)}</td>
-                      <td className="p-3 text-red-600 font-black">{r.mortality}</td>
-                      <td className="p-3 font-bold text-[#D9A441]">₹{r.sellingPricePerEgg}</td>
-                      <td className="p-3 font-black text-emerald-700 dark:text-emerald-400">
-                        {formatIndianCurrency(r.simpleOperatingProfit)}
-                      </td>
-                      <td className="p-3 text-right">
-                        <span className="text-[11px] font-black text-[#1F4D3A] dark:text-[#3BA378] hover:underline flex items-center justify-end gap-1">
-                          <span>अहवाल पहा</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </span>
-                      </td>
+            {sortedRecords.length === 0 ? (
+              <div className="p-8 sm:p-12 text-center bg-[#FAF8F3] dark:bg-[#121E18] rounded-2xl border border-dashed border-[#DCD3C3] dark:border-[#263B30] space-y-4 my-2">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E8F1C9] dark:bg-[#1A3024] flex items-center justify-center text-[#173F20] dark:text-[#E8F1C9] text-2xl font-black">
+                  📊
+                </div>
+                <div className="max-w-md mx-auto space-y-1">
+                  <h4 className="text-base font-black text-[#0B1E15] dark:text-white">
+                    अद्याप कोणतीही दैनिक नोंद केलेली नाही (No Daily Records Yet)
+                  </h4>
+                  <p className="text-xs text-[#2D4538] dark:text-[#CBDCD4] leading-relaxed">
+                    तुमचा पोल्ट्री फार्म <strong>{farm.name}</strong> नोंदणीनुसार सज्ज आहे. जसे तुम्ही दररोज अंडी संकलन, खुराक व मृत्यूची नोंद कराल, तसे येथे महिना १, दिवस १ पासूनचा संपूर्ण ३०-दिवसीय अहवाल आपोआप साठवला जाईल.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddModal}
+                  className="py-3 px-6 rounded-2xl bg-[#173F20] hover:bg-[#123118] text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 text-[#D9A441]" />
+                  <span>+ पहिली दैनिक नोंद करा (Log Day 1 Record)</span>
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-[#FAF8F3] dark:bg-[#1F3027] text-[#0B1E15] dark:text-white font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3">दिवस #</th>
+                      <th className="p-3">दिनांक</th>
+                      <th className="p-3">जिवंत पक्षी</th>
+                      <th className="p-3">अंडी संकलन</th>
+                      <th className="p-3">HD%</th>
+                      <th className="p-3">खुराक (kg)</th>
+                      <th className="p-3">मृत्यू</th>
+                      <th className="p-3">विक्री दर</th>
+                      <th className="p-3">थेट नफा</th>
+                      <th className="p-3 text-right">कृती</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-[#0B1E15] dark:text-white">
+                    {sortedRecords.map((r, idx) => (
+                      <tr
+                        key={r.id || r.recordDate}
+                        onClick={() => {
+                          setSelectedDayIdx(idx);
+                          setReportType('daily-card');
+                        }}
+                        className="hover:bg-gray-50/80 dark:hover:bg-[#1F3027]/70 cursor-pointer transition-colors"
+                      >
+                        <td className="p-3 font-black text-[#1F4D3A] dark:text-[#3BA378]">
+                          दिवस {idx + 1}
+                        </td>
+                        <td className="p-3 font-bold">{r.recordDate}</td>
+                        <td className="p-3 font-semibold">{formatIndianNumber(r.closingBirds)}</td>
+                        <td className="p-3 font-black text-[#1F4D3A] dark:text-[#3BA378]">
+                          {formatIndianNumber(r.totalEggsCollected)}
+                        </td>
+                        <td className="p-3 font-bold">{r.hdPct}%</td>
+                        <td className="p-3 font-medium">{formatIndianNumber(r.feedIssuedKg)}</td>
+                        <td className="p-3 text-red-600 font-black">{r.mortality}</td>
+                        <td className="p-3 font-bold text-[#D9A441]">₹{r.sellingPricePerEgg}</td>
+                        <td className="p-3 font-black text-emerald-700 dark:text-emerald-400">
+                          {formatIndianCurrency(r.simpleOperatingProfit)}
+                        </td>
+                        <td className="p-3 text-right">
+                          <span className="text-[11px] font-black text-[#1F4D3A] dark:text-[#3BA378] hover:underline flex items-center justify-end gap-1">
+                            <span>अहवाल पहा</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -668,32 +725,43 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left whitespace-nowrap">
-              <thead className="bg-[#FAF8F3] dark:bg-[#1F3027] text-[#0B1E15] dark:text-white font-bold uppercase text-[10px]">
-                <tr>
-                  <th className="p-3">ग्राहक</th>
-                  <th className="p-3">परिसर</th>
-                  <th className="p-3">क्रेडिट मुदत</th>
-                  <th className="p-3">सरासरी भरणा दिवस</th>
-                  <th className="p-3 text-right">चालू बाकी</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-[#0B1E15] dark:text-white">
-                {customers.map(c => (
-                  <tr key={c.id}>
-                    <td className="p-3 font-bold">{c.name}</td>
-                    <td className="p-3 text-[#2D4538] dark:text-[#CBDCD4] font-medium">{c.area}</td>
-                    <td className="p-3 font-medium">{c.creditDays} दिवस</td>
-                    <td className="p-3 font-semibold text-emerald-600">{c.averageDaysToPay} दिवस</td>
-                    <td className="p-3 font-black text-right text-amber-700 dark:text-amber-400">
-                      {formatIndianCurrency(c.currentOutstanding)}
-                    </td>
+          {customers.length === 0 ? (
+            <div className="p-8 text-center bg-[#FAF8F3] dark:bg-[#121E18] rounded-2xl border border-dashed border-[#DCD3C3] dark:border-[#263B30] space-y-2">
+              <p className="text-xs font-bold text-[#2D4538] dark:text-[#CBDCD4]">
+                सध्या कोणतीही व्यापारी किंवा ग्राहक थकबाकी नोंद नाही (No Receivables Outstanding).
+              </p>
+              <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
+                नवीन अंडी विक्री आणि व्यापारी खात्यांच्या नोंदीनंतर येथे थेट लेजर दिसेल.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left whitespace-nowrap">
+                <thead className="bg-[#FAF8F3] dark:bg-[#1F3027] text-[#0B1E15] dark:text-white font-bold uppercase text-[10px]">
+                  <tr>
+                    <th className="p-3">ग्राहक</th>
+                    <th className="p-3">परिसर</th>
+                    <th className="p-3">क्रेडिट मुदत</th>
+                    <th className="p-3">सरासरी भरणा दिवस</th>
+                    <th className="p-3 text-right">चालू बाकी</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-[#0B1E15] dark:text-white">
+                  {customers.map(c => (
+                    <tr key={c.id}>
+                      <td className="p-3 font-bold">{c.name}</td>
+                      <td className="p-3 text-[#2D4538] dark:text-[#CBDCD4] font-medium">{c.area}</td>
+                      <td className="p-3 font-medium">{c.creditDays} दिवस</td>
+                      <td className="p-3 font-semibold text-emerald-600">{c.averageDaysToPay} दिवस</td>
+                      <td className="p-3 font-black text-right text-amber-700 dark:text-amber-400">
+                        {formatIndianCurrency(c.currentOutstanding)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
