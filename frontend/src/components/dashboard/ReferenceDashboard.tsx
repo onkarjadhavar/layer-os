@@ -61,6 +61,25 @@ export function ReferenceDashboard({
 
   const unreadAlerts = alerts.filter(a => !a.isResolved).length;
 
+  // Resolve enrolled customer name entered during enrollment (or user profile)
+  const customerName = React.useMemo(() => {
+    const raw = user?.name || farm?.ownerName || '';
+    if (!raw) return isDemoMode ? 'Onkar Jadhavar' : 'Farm Owner';
+    // Remove any trailing role annotations like "(मालक)" or "(मालक - सह्याद्री डेमो)"
+    const cleaned = raw.replace(/\s*\(.*?\)\s*/g, '').trim();
+    return cleaned || raw;
+  }, [user?.name, farm?.ownerName, isDemoMode]);
+
+  // Derive dynamic initials for customer avatar circle (replaces static "OJ")
+  const customerInitials = React.useMemo(() => {
+    if (!customerName || customerName === 'Farm Owner') return 'FO';
+    const parts = customerName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+    return customerName.substring(0, 2).toUpperCase();
+  }, [customerName]);
+
   // Format today's date to match reference: "Mon, 10 Nov 2025"
   const formattedDate = React.useMemo(() => {
     try {
@@ -191,13 +210,13 @@ export function ReferenceDashboard({
       )}
       {/* ─────────────────────────────────────────────────────────────
           1. DESKTOP WORKSPACE HEADER (Hidden on mobile)
-          "Hello, Farm Owner!" | "Let's manage your poultry farm efficiently."
-          [Date Pill] [OJ Profile Avatar]
+          "Hello, [Customer Name]!" | "Let's manage your poultry farm efficiently."
+          [Date Pill] [Customer Avatar & Name with Dropdown]
       ────────────────────────────────────────────────────────────── */}
       <div className="hidden lg:flex items-center justify-between gap-4 pt-1">
         <div>
           <h1 className="text-2xl xl:text-3xl font-extrabold text-[#211F18] dark:text-[#F8F6F0] tracking-tight">
-            Hello, {user?.name || 'Farm Owner'}!
+            Hello, {customerName}!
           </h1>
           <p className="text-sm text-[#625D50] dark:text-[#A6B29C] font-medium mt-0.5">
             Let's manage your poultry farm efficiently.
@@ -211,29 +230,43 @@ export function ReferenceDashboard({
             <span>{formattedDate}</span>
           </div>
 
-          {/* User Profile Avatar with Dropdown */}
+          {/* User Profile Avatar with Customer Name & Dropdown */}
           <div className="relative">
             <button
               type="button"
               id="desktop-profile-btn"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-2 p-1 pr-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-white/70 hover:bg-white dark:bg-[#1A3024] dark:hover:bg-[#234232] border border-[#718B35]/25 hover:border-[#718B35]/40 shadow-xs transition-all cursor-pointer group"
+              title={customerName}
             >
-              <div className="w-10 h-10 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white/80">
-                OJ
+              <div className="w-9 h-9 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white/80 shrink-0 group-hover:scale-105 transition-transform">
+                {customerInitials}
               </div>
-              <ChevronDown className="w-4 h-4 text-[#625D50] dark:text-[#A6B29C]" />
+              <span className="text-xs sm:text-sm font-bold text-[#211F18] dark:text-white max-w-[130px] xl:max-w-[170px] truncate text-left leading-tight">
+                {customerName}
+              </span>
+              <ChevronDown className="w-4 h-4 text-[#625D50] dark:text-[#A6B29C] shrink-0 group-hover:text-[#211F18] transition-colors" />
             </button>
 
             {/* Profile & Farm Settings Dropdown Menu */}
             {showProfileMenu && (
               <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#103528] rounded-2xl shadow-2xl border border-[var(--layer-border)] dark:border-white/10 p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="pb-3 border-b border-black/5 dark:border-white/10">
-                  <p className="font-bold text-sm text-[#211F18] dark:text-white truncate">
-                    {farm.name}
-                  </p>
-                  <p className="text-xs text-[#625D50] dark:text-white/70">
-                    {user?.role === 'owner' ? 'Farm Owner' : user?.role || 'Farm Owner'} • {farm.district}
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <div className="w-9 h-9 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-xs shrink-0 ring-1 ring-white/80">
+                      {customerInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-[#211F18] dark:text-white truncate">
+                        {customerName}
+                      </p>
+                      <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#E8F1C9] text-[#173F20] dark:bg-[#1A3024] dark:text-[#E8F1C9]">
+                        {user?.role === 'owner' ? 'Farm Owner (नोंदणीकृत मालक)' : user?.role || 'Farm Owner'}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#625D50] dark:text-white/70 font-medium truncate">
+                    {farm.name} • {farm.district}
                   </p>
                 </div>
 
@@ -357,13 +390,20 @@ export function ReferenceDashboard({
               )}
             </button>
 
-            {/* Mobile Profile Avatar */}
+            {/* Mobile Profile Avatar & Customer Name */}
             <button
               type="button"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="w-8 h-8 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-1 ring-black/10 cursor-pointer"
+              className="flex items-center gap-1.5 p-0.5 pr-2 rounded-full bg-white/80 dark:bg-[#1A3024] border border-[#718B35]/25 shadow-2xs cursor-pointer"
+              title={customerName}
             >
-              OJ
+              <div className="w-8 h-8 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-1 ring-black/10 shrink-0">
+                {customerInitials}
+              </div>
+              <span className="text-[11px] font-bold text-[#211F18] dark:text-white max-w-[80px] sm:max-w-[110px] truncate">
+                {customerName}
+              </span>
+              <ChevronDown className="w-3 h-3 text-[#625D50] dark:text-[#A6B29C] shrink-0" />
             </button>
           </div>
         </div>
@@ -371,7 +411,7 @@ export function ReferenceDashboard({
         {/* Mobile Greeting */}
         <div className="pt-1">
           <h1 className="text-xl font-extrabold text-[#211F18] dark:text-white tracking-tight">
-            Hello, {user?.name || 'Farm Owner'}!
+            Hello, {customerName}!
           </h1>
           <p className="text-xs text-[#625D50] dark:text-[#A6B29C] font-medium mt-0.5">
             Let's manage your poultry farm efficiently.

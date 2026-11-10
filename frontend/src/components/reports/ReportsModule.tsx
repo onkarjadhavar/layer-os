@@ -160,7 +160,7 @@ export function ReportsModule() {
   const waReportMessage = useMemo(() => {
     if (!activeRecord) return '';
     return encodeURIComponent(
-`*📊 ${farm.name} - दैनिक पोल्ट्री अहवाल*
+      `*📊 ${farm.name} - दैनिक पोल्ट्री अहवाल*
 📅 दिनांक: ${activeRecord.recordDate} (दिवस ${currentDayNumber} / ३० - महिना १)
 🐣 बॅच: ${flock.batchCode} (${flock.ageWeeks} आठवडे)
 
@@ -187,7 +187,7 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
 
   const handleExportCSV = () => {
     const headers = "DayNumber,Date,ClosingBirds,EggsCollected,HDPct,FeedKg,FeedPerBirdG,Mortality,SellingRate,OperatingProfit,TrueProfit\n";
-    const rows = sortedRecords.map((r, i) => 
+    const rows = sortedRecords.map((r, i) =>
       `Day ${i + 1},${r.recordDate},${r.closingBirds},${r.totalEggsCollected},${r.hdPct},${r.feedIssuedKg},${r.feedPerBirdG},${r.mortality},${r.sellingPricePerEgg},${r.simpleOperatingProfit},${r.trueProfit}`
     ).join("\n");
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
@@ -276,33 +276,30 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
         <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setReportType('daily-card')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              reportType === 'daily-card'
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${reportType === 'daily-card'
                 ? 'bg-[#1F4D3A] text-white shadow-sm'
                 : 'bg-[#FAF8F3] dark:bg-[#1F3027] text-[#2D4538] dark:text-[#CBDCD4] hover:text-[#0B1E15]'
-            }`}
+              }`}
           >
             <Egg className="w-4 h-4" />
             <span>दैनिक रिपोर्ट कार्ड (Day-by-Day Card)</span>
           </button>
           <button
             onClick={() => setReportType('monthly-mis')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              reportType === 'monthly-mis'
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${reportType === 'monthly-mis'
                 ? 'bg-[#1F4D3A] text-white shadow-sm'
                 : 'bg-[#FAF8F3] dark:bg-[#1F3027] text-[#2D4538] dark:text-[#CBDCD4] hover:text-[#0B1E15]'
-            }`}
+              }`}
           >
             <TrendingUp className="w-4 h-4" />
             <span>मासिक सारांश व ३० दिवस ट्रॅकर (Monthly MIS)</span>
           </button>
           <button
             onClick={() => setReportType('outstanding')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              reportType === 'outstanding'
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${reportType === 'outstanding'
                 ? 'bg-[#1F4D3A] text-white shadow-sm'
                 : 'bg-[#FAF8F3] dark:bg-[#1F3027] text-[#2D4538] dark:text-[#CBDCD4] hover:text-[#0B1E15]'
-            }`}
+              }`}
           >
             <CircleDollarSign className="w-4 h-4" />
             <span>थकबाकी व लेजर (Receivables)</span>
@@ -375,11 +372,10 @@ _LayerOS AI Poultry ERP द्वारे सुरक्षित संकल
                   <button
                     key={r.id || r.recordDate}
                     onClick={() => setSelectedDayIdx(i)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-black whitespace-nowrap transition-all ${
-                      i === selectedDayIdx
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black whitespace-nowrap transition-all ${i === selectedDayIdx
                         ? 'bg-[#1F4D3A] text-white shadow-xs'
                         : 'bg-[#FAF8F3] dark:bg-[#1F3027] text-[#2D4538] dark:text-[#CBDCD4] hover:bg-emerald-50 dark:hover:bg-emerald-950'
-                    }`}
+                      }`}
                   >
                     दिवस {i + 1}
                   </button>

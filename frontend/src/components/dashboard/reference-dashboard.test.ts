@@ -113,5 +113,17 @@ describe('Layer OS Reference-Match Dashboard & Shell Specification Suite', () =>
     // Navigation back to dashboard from modules
     expect(content).toContain('handleSelectTab');
   });
+
+  it('validates customer name and dynamic initials in ReferenceDashboard instead of hardcoded initials', () => {
+    const filePath = path.resolve(__dirname, 'ReferenceDashboard.tsx');
+    const content = fs.readFileSync(filePath, 'utf-8');
+
+    // Customer name resolution & dynamic initials
+    expect(content).toContain('customerName');
+    expect(content).toContain('customerInitials');
+    expect(content).toContain('{customerInitials}');
+    expect(content).toContain('{customerName}');
+    expect(content).not.toContain('<div className="w-10 h-10 rounded-full bg-[#173F20] text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white/80">\n                OJ');
+  });
 });
 

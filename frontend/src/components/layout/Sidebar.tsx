@@ -71,18 +71,16 @@ export function Sidebar({ currentTab, onSelectTab, onOpenHelp, onOpenAbout }: Si
           type="button"
           id="sidebar-nav-dashboard"
           onClick={() => onSelectTab('home')}
-          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
-            isDashboardActive
+          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${isDashboardActive
               ? 'bg-[#28572B] text-white shadow-sm border border-white/10'
               : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+            }`}
         >
           <div
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform ${
-              isDashboardActive
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform ${isDashboardActive
                 ? 'bg-[#D5811F] text-[#173F20] shadow-sm'
                 : 'bg-white/10 text-white'
-            }`}
+              }`}
           >
             <Home className="w-4 h-4 text-white" />
           </div>
@@ -96,18 +94,16 @@ export function Sidebar({ currentTab, onSelectTab, onOpenHelp, onOpenAbout }: Si
           type="button"
           id="sidebar-nav-farm-info"
           onClick={() => onSelectTab('flocks')}
-          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
-            isFarmInfoActive
+          className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${isFarmInfoActive
               ? 'bg-[#28572B] text-white shadow-sm border border-white/10'
               : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+            }`}
         >
           <div
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-              isFarmInfoActive
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isFarmInfoActive
                 ? 'bg-[#D5811F] text-[#173F20]'
                 : 'bg-white/10 text-white/80'
-            }`}
+              }`}
           >
             <Warehouse className="w-4 h-4 text-white" />
           </div>
