@@ -428,6 +428,27 @@ export function EnrollmentWizard() {
         dailyRecords: [],
         customers: [],
         sales: [],
+        expenses: [],
+        employees: [],
+        loan: formData.finance.monthlyLoanEmi > 0 ? {
+          id: `loan-${enrolledFarm.id}`,
+          bankName: 'बँक मुदत कर्ज (Poultry Term Loan)',
+          principalAmount: formData.finance.monthlyLoanEmi * 60,
+          annualInterestRate: 9.25,
+          monthlyEmi: formData.finance.monthlyLoanEmi,
+          emiDueDay: 5,
+          tenureMonths: 60,
+          outstandingPrincipal: formData.finance.monthlyLoanEmi * 50,
+        } : {
+          id: '',
+          bankName: 'बँक कर्ज नोंद नाही',
+          principalAmount: 0,
+          annualInterestRate: 0,
+          monthlyEmi: 0,
+          emiDueDay: 5,
+          tenureMonths: 0,
+          outstandingPrincipal: 0,
+        },
         user: {
           id: result.data.userId,
           name: `${result.data.ownerName} (मालक)`,
@@ -444,9 +465,9 @@ export function EnrollmentWizard() {
   const handleLaunchDashboard = () => {
     // Navigate straight to the farm-specific dashboard
     if (completedResult?.farmId) {
-      router.push(`/dashboard/farms/${completedResult.farmId}`);
+      navigate(`/dashboard/farms/${completedResult.farmId}`);
     } else {
-      router.push('/?live=true');
+      navigate('/?live=true');
     }
   };
 

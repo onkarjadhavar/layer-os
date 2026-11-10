@@ -38,4 +38,21 @@ describe('Layer OS Reports & Enrolled Customer Zero-Demo-Data Specification Suit
   it('provides an empty state for customer receivables ledger when no customers or balances exist', () => {
     expect(reportsContent).toContain('सध्या कोणतीही व्यापारी किंवा ग्राहक थकबाकी नोंद नाही');
   });
+
+  it('displays the active enrolled farm confirmation strip with customer data on ReferenceDashboard', () => {
+    const dashboardPath = path.resolve(__dirname, '../dashboard/ReferenceDashboard.tsx');
+    const dashboardContent = fs.readFileSync(dashboardPath, 'utf-8');
+    expect(dashboardContent).toContain('✓ नोंदणीकृत लेयर ओएस (Active Layer OS)');
+    expect(dashboardContent).toContain('farm.name');
+    expect(dashboardContent).toContain('flock?.breed');
+    expect(dashboardContent).toContain('customerName');
+  });
+
+  it('ensures HomePage seamlessly builds Layer OS from enrolled data without network failure blocking', () => {
+    const homePagePath = path.resolve(__dirname, '../../pages/HomePage.tsx');
+    const homePageContent = fs.readFileSync(homePagePath, 'utf-8');
+    expect(homePageContent).toContain('isAlreadyLoaded');
+    expect(homePageContent).toContain('layeros_app_state_v1');
+  });
 });
+

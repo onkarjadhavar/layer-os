@@ -168,6 +168,17 @@ export interface Loan {
   outstandingPrincipal: number;
 }
 
+export interface ExpenseItem {
+  id: string;
+  farmId?: string;
+  date: string;
+  category: string;
+  amount: number;
+  mode: 'bank' | 'cash' | 'upi' | 'cheque' | string;
+  vendor: string;
+  description?: string;
+}
+
 export interface AlertItem {
   id: string;
   severity: 'critical' | 'warning' | 'info' | 'safe';
@@ -272,6 +283,15 @@ export const SEED_LOAN: Loan = {
   tenureMonths: 84,
   outstandingPrincipal: 1985000
 };
+
+export const SEED_EXPENSES: ExpenseItem[] = [
+  { id: 'exp-01', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'खुराक खरेदी (Feed Purchase)', amount: 115500, mode: 'bank', vendor: 'गोदरेज ॲग्रोव्हेट' },
+  { id: 'exp-02', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'कामगार मजुरी (Labour Wages)', amount: 3500, mode: 'cash', vendor: 'शेड कामगार' },
+  { id: 'exp-03', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'औषध व लसी (Medicines)', amount: 1500, mode: 'upi', vendor: 'महाराष्ट्र व्हेटर्नरी' },
+  { id: 'exp-04', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'वीज व जनरेटर डिझेल (Power)', amount: 1200, mode: 'upi', vendor: 'हिंदुस्थान पेट्रोलियम' },
+  { id: 'exp-05', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'वाहतूक खर्च (Transport)', amount: 800, mode: 'cash', vendor: 'स्थानिक टेम्पो' },
+  { id: 'exp-06', farmId: 'farm-sahyadri-01', date: '2026-10-07', category: 'किरकोळ दुरुस्ती (Maintenance)', amount: 500, mode: 'cash', vendor: 'वेल्डिंग वर्कशॉप' },
+];
 
 export const SEED_MARKET_RATES: MarketRate[] = [
   { mandiName: "पुणे (Pune)", rateDate: "2026-10-07", ratePer100: 540, ratePerEgg: 5.40, trend: "up" },

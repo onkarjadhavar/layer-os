@@ -53,8 +53,9 @@ export function HomePage() {
   const { user, farm, isDemoMode, setActiveFarmData, loginAsDemo, switchFarm, logout } = useLayerOS();
   const { t } = useI18n();
 
-  // Root route visitor handoff state: default evaluated synchronously
-  // Root URL "/" ALWAYS defaults to the public Landing Page so prospective customers see the product first!
+  // Root route visitor handoff state:
+  // Root URL "/" opens the enrolled customer's dashboard if they have already enrolled,
+  // or the public Landing Page if they are a fresh visitor or requested ?landing=true.
   const [showLanding, setShowLanding] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
     const path = window.location.pathname;
@@ -64,14 +65,36 @@ export function HomePage() {
     if (params.get('landing') === 'true') return true;
     if (params.get('demo') === 'true' || params.get('live') === 'true') return false;
 
-    // Default to Landing Page on root "/"
+    // Check if user is an enrolled customer with their own active farm:
+    try {
+      const saved = localStorage.getItem('layeros_app_state_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.isDemoMode && parsed.farm && parsed.farm.id !== 'farm-sahyadri-01' && parsed.farm.id !== 'farm-anand-02') {
+          return false; // Open their personal enrolled Layer OS dashboard!
+        }
+      }
+    } catch {}
+
+    // Default to Landing Page on root "/" for fresh visitors
     return true;
   });
 
-  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(() => Boolean(farmId));
+  const [isLoadingFarm, setIsLoadingFarm] = useState<boolean>(() => {
+    if (!farmId) return false;
+    if (farm && (farm.id === farmId || user?.farmId === farmId) && !isDemoMode) return false;
+    try {
+      const saved = localStorage.getItem('layeros_app_state_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.farm && (parsed.farm.id === farmId || parsed.user?.farmId === farmId)) return false;
+      }
+    } catch {}
+    return false;
+  });
   const [farmLoadError, setFarmLoadError] = useState<string | null>(null);
 
-  // Synchronize visitor vs returning dashboard state: Home Landing Page is always the default entry point!
+  // Synchronize visitor vs returning dashboard state
   React.useEffect(() => {
     try {
       if (farmId) {
@@ -104,7 +127,19 @@ export function HomePage() {
         return;
       }
 
-      // In all default visits to root "/", ALWAYS open the Home Landing Page first!
+      // If user is an enrolled customer, keep their dashboard open:
+      try {
+        const saved = localStorage.getItem('layeros_app_state_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (!parsed.isDemoMode && parsed.farm && parsed.farm.id !== 'farm-sahyadri-01' && parsed.farm.id !== 'farm-anand-02') {
+            setShowLanding(false);
+            return;
+          }
+        }
+      } catch {}
+
+      // Fresh visitors on root "/" see the Home Landing Page
       setShowLanding(true);
     } catch {
       setShowLanding(true);
@@ -125,9 +160,41 @@ export function HomePage() {
       return;
     }
 
+    // Check if farm data is already active in local state or localStorage
+    let isAlreadyLoaded = false;
+    if (farm && (farm.id === activeFarmId || farm.id === farmId) && !isDemoMode) {
+      isAlreadyLoaded = true;
+    } else {
+      try {
+        const saved = localStorage.getItem('layeros_app_state_v1');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.farm && (parsed.farm.id === activeFarmId || parsed.farm.id === farmId)) {
+            setActiveFarmData({
+              farm: parsed.farm,
+              farms: parsed.farms || [parsed.farm],
+              sheds: parsed.sheds || [],
+              flocks: parsed.flocks || (parsed.flock ? [parsed.flock] : []),
+              flock: parsed.flock || parsed.flocks?.[0],
+              unitSettings: parsed.unitSettings,
+              dailyRecords: parsed.dailyRecords || [],
+              customers: parsed.customers || [],
+              sales: parsed.sales || [],
+              user: parsed.user,
+            });
+            isAlreadyLoaded = true;
+          }
+        }
+      } catch {}
+    }
+
+    if (isAlreadyLoaded) {
+      setIsLoadingFarm(false);
+      setFarmLoadError(null);
+      if (farmId) setShowLanding(false);
+    }
+
     let isMounted = true;
-    setIsLoadingFarm(true);
-    setFarmLoadError(null);
     if (farmId) {
       setShowLanding(false);
     }
@@ -261,30 +328,17 @@ export function HomePage() {
       .catch((err: any) => {
         if (!isMounted) return;
         const status = err?.response?.status || err?.status;
-        if (status === 404) {
-          setFarmLoadError('not_found');
-        } else if (status === 403) {
+        if (status === 403) {
           setFarmLoadError('forbidden');
+        } else if (status === 404 && !isAlreadyLoaded) {
+          setFarmLoadError('not_found');
         } else {
-          // Resilient recovery: If network fetch temporarily failed, check if farm is already present locally
-          try {
-            const saved = localStorage.getItem('layeros_app_state_v1') || localStorage.getItem('layeros_store_v1');
-            if (saved) {
-              const parsed = JSON.parse(saved);
-              if (parsed.farm && (parsed.farm.id === farmId || parsed.user?.farmId === farmId)) {
-                setIsLoadingFarm(false);
-                return;
-              }
-            }
-          } catch {
-            // ignore
-          }
-
-          if (farm && (farm.id === farmId || user?.farmId === farmId)) {
+          // If already loaded in local state (offline dev environment), gracefully keep running!
+          if (isAlreadyLoaded || (farm && (farm.id === activeFarmId || farm.id === farmId))) {
             setIsLoadingFarm(false);
+            setFarmLoadError(null);
             return;
           }
-
           setFarmLoadError(err?.message || 'फार्म माहिती आणण्यात त्रुटी आली.');
         }
         setIsLoadingFarm(false);

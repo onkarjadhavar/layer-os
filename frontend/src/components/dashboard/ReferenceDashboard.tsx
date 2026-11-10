@@ -52,7 +52,7 @@ export function ReferenceDashboard({
   onOpenHelp,
   onOpenAbout,
 }: ReferenceDashboardProps) {
-  const { farm, farms, switchFarm, user, logout, alerts, isDatabaseConnected, isDemoMode } = useLayerOS();
+  const { farm, farms, sheds, flock, switchFarm, user, logout, alerts, isDatabaseConnected, isDemoMode } = useLayerOS();
   const { language, setLanguage, t } = useI18n();
   const { theme, toggleTheme } = useTheme();
 
@@ -205,6 +205,26 @@ export function ReferenceDashboard({
             >
               मुख्य पान (Landing Page)
             </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Active Enrolled Farm Confirmation Strip */}
+      {!isDemoMode && (
+        <div className="w-full px-4 py-3 rounded-2xl bg-[#E8F1C9] dark:bg-[#1A3024] border border-[#173F20]/20 dark:border-[#718B35]/30 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs font-semibold text-[#173F20] dark:text-[#E8F1C9] shadow-2xs">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#173F20] text-white font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-2xs">
+              ✓ नोंदणीकृत लेयर ओएस (Active Layer OS)
+            </span>
+            <span className="font-extrabold text-sm sm:text-base text-[#173F20] dark:text-white">
+              {farm.name}
+            </span>
+            <span className="text-[#173F20]/80 dark:text-[#CBDCD4]">
+              • {farm.district} • {flock?.currentBirdCount ? flock.currentBirdCount.toLocaleString('en-IN') : farm.totalCapacity.toLocaleString('en-IN')} पक्षी ({flock?.breed || 'BV300'}) • {sheds?.length || 1} शेड
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#173F20] dark:text-white/90">
+            <span>मालक: <strong>{customerName}</strong></span>
           </div>
         </div>
       )}

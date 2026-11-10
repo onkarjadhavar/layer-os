@@ -22,6 +22,11 @@ import {
   SEED_FLOCK,
   SEED_FLOCKS,
   SEED_CUSTOMERS,
+  SEED_SUPPLIERS,
+  SEED_EMPLOYEES,
+  SEED_LOAN,
+  SEED_EXPENSES,
+  ExpenseItem,
   generate90DaysDailyRecords,
 } from './seedData';
 import {
@@ -77,6 +82,9 @@ interface LayerOSStoreContextType {
     dailyRecords?: DailyRecord[];
     customers?: Customer[];
     sales?: Sale[];
+    expenses?: ExpenseItem[];
+    employees?: Employee[];
+    loan?: Loan;
     user?: UserProfile;
   }) => void;
   sheds: Shed[];
@@ -118,6 +126,14 @@ interface LayerOSStoreContextType {
   loan: Loan;
   alerts: AlertItem[];
   dismissAlert: (id: string) => void;
+
+  // Expenses & Accounts
+  expenses: ExpenseItem[];
+  addExpense: (expense: Omit<ExpenseItem, 'id'>) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
+  addEmployee: (employee: Omit<Employee, 'id'>) => Promise<void>;
+  deleteEmployee: (id: string) => Promise<void>;
+  updateLoan: (loanData: Partial<Loan>) => void;
 
   // Environment
   environment: {
@@ -251,17 +267,33 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     ];
   });
 
-  const [suppliers] = useState<Supplier[]>([]);
-  const [employees] = useState<Employee[]>([]);
-  const [loan] = useState<Loan>({
-    id: '',
-    bankName: 'बँक कर्ज नोंद नाही',
-    principalAmount: 0,
-    annualInterestRate: 0,
-    monthlyEmi: 0,
-    emiDueDay: 5,
-    tenureMonths: 0,
-    outstandingPrincipal: 0,
+  const [suppliers] = useState<Supplier[]>(() => (isEnrolledInit ? [] : SEED_SUPPLIERS));
+  const [employees, setEmployees] = useState<Employee[]>(() => {
+    if (isEnrolledInit) return _savedInit?.employees || [];
+    return SEED_EMPLOYEES;
+  });
+  const [loan, setLoan] = useState<Loan>(() => {
+    if (isEnrolledInit) {
+      return _savedInit?.loan || {
+        id: '',
+        bankName: 'बँक कर्ज नोंद नाही',
+        principalAmount: 0,
+        annualInterestRate: 0,
+        monthlyEmi: 0,
+        emiDueDay: 5,
+        tenureMonths: 0,
+        outstandingPrincipal: 0,
+      };
+    }
+    return SEED_LOAN;
+  });
+  const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
+    if (isEnrolledInit) {
+      return (_savedInit?.expenses || []).filter(
+        (e: ExpenseItem) => e.farmId === _savedInit.farm?.id && e.farmId !== 'farm-sahyadri-01' && e.farmId !== 'farm-anand-02'
+      );
+    }
+    return SEED_EXPENSES;
   });
   const [marketRates, setMarketRates] = useState<MarketRate[]>(() => _savedInit?.marketRates || []);
   const [vaccinations, setVaccinations] = useState<VaccinationTask[]>(() => _savedInit?.vaccinations || [
@@ -305,6 +337,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             setSheds(SEED_SHEDS);
             setDailyRecords(generate90DaysDailyRecords());
             setCustomers(SEED_CUSTOMERS);
+            setExpenses(SEED_EXPENSES);
+            setEmployees(SEED_EMPLOYEES);
+            setLoan(SEED_LOAN);
           } else if (parsed.farm && parsed.farm.id !== 'farm-sahyadri-01' && parsed.farm.id !== 'farm-anand-02') {
             // Enrolled user strictly isolated to their own enrolled farm: zero demo data
             setIsDemoMode(false);
@@ -320,6 +355,12 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
             setDailyRecords(records);
             setCustomers(parsed.customers || []);
             setSales(parsed.sales || []);
+            const validExpenses = (parsed.expenses || []).filter(
+              (e: any) => e.farmId === parsed.farm.id && e.farmId !== 'farm-sahyadri-01' && e.farmId !== 'farm-anand-02'
+            );
+            setExpenses(validExpenses);
+            setEmployees(parsed.employees || []);
+            if (parsed.loan) setLoan(parsed.loan);
             setAlerts(parsed.alerts || []);
             if (parsed.user) setUser(parsed.user);
           }
@@ -425,6 +466,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         user,
         customers: updatedCustomers || customers,
         sales: updatedSales || sales,
+        expenses,
+        employees,
+        loan,
         alerts,
         vaccinations,
         isDemoMode,
@@ -450,6 +494,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setSheds(SEED_SHEDS);
     setDailyRecords(generate90DaysDailyRecords());
     setCustomers(SEED_CUSTOMERS);
+    setExpenses(SEED_EXPENSES);
+    setEmployees(SEED_EMPLOYEES);
+    setLoan(SEED_LOAN);
     setUnitSettings(DEFAULT_UNIT_SETTINGS);
     setUser({
       id: "usr-demo-sahyadri",
@@ -827,6 +874,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     dailyRecords?: DailyRecord[];
     customers?: Customer[];
     sales?: Sale[];
+    expenses?: ExpenseItem[];
+    employees?: Employee[];
+    loan?: Loan;
     user?: UserProfile;
   }) => {
     setIsDemoMode(false);
@@ -862,6 +912,27 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     const validSales = data.sales || [];
     setSales(validSales);
 
+    const validExpenses = (data.expenses || []).filter(
+      e => e.farmId === data.farm.id && e.farmId !== 'farm-sahyadri-01' && e.farmId !== 'farm-anand-02'
+    );
+    setExpenses(validExpenses);
+
+    const validEmployees = data.employees || [];
+    setEmployees(validEmployees);
+
+    const defaultEmptyLoan: Loan = {
+      id: '',
+      bankName: 'बँक कर्ज नोंद नाही',
+      principalAmount: 0,
+      annualInterestRate: 0,
+      monthlyEmi: 0,
+      emiDueDay: 5,
+      tenureMonths: 0,
+      outstandingPrincipal: 0,
+    };
+    const activeLoan = data.loan || defaultEmptyLoan;
+    setLoan(activeLoan);
+
     if (data.user) {
       setUser(data.user);
     }
@@ -873,6 +944,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         user: data.user || user,
         customers: validCustomers,
         sales: validSales,
+        expenses: validExpenses,
+        employees: validEmployees,
+        loan: activeLoan,
         alerts: [],
         vaccinations: [],
         isDemoMode: false,
@@ -1121,6 +1195,100 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     setEnvironment(prev => ({ ...prev, [control]: !prev[control] }));
   };
 
+  const addExpense = async (expData: Omit<ExpenseItem, 'id'>) => {
+    const newExpense: ExpenseItem = {
+      ...expData,
+      id: `exp-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      farmId: expData.farmId || farm.id,
+    };
+    setExpenses(prev => {
+      const updated = [newExpense, ...prev];
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.expenses = updated;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const deleteExpense = async (id: string) => {
+    setExpenses(prev => {
+      const updated = prev.filter(e => e.id !== id);
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.expenses = updated;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const addEmployee = async (empData: Omit<Employee, 'id'>) => {
+    const newEmp: Employee = {
+      ...empData,
+      id: `emp-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    };
+    setEmployees(prev => {
+      const updated = [...prev, newEmp];
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.employees = updated;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const deleteEmployee = async (id: string) => {
+    setEmployees(prev => {
+      const updated = prev.filter(e => e.id !== id);
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.employees = updated;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const updateLoan = (loanData: Partial<Loan>) => {
+    setLoan(prev => {
+      const updated = { ...prev, ...loanData };
+      try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          parsed.loan = updated;
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
   const resetDemoData = () => {
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -1141,6 +1309,9 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
     });
     setDailyRecords(generate90DaysDailyRecords());
     setCustomers(SEED_CUSTOMERS);
+    setExpenses(SEED_EXPENSES);
+    setEmployees(SEED_EMPLOYEES);
+    setLoan(SEED_LOAN);
     setUnitSettings(DEFAULT_UNIT_SETTINGS);
     setAlerts([]);
     setIsDemoMode(true);
@@ -1187,7 +1358,13 @@ export function LayerOSProvider({ children }: { children: React.ReactNode }) {
         toggleVaccinationStatus,
         suppliers,
         employees,
+        addEmployee,
+        deleteEmployee,
         loan,
+        updateLoan,
+        expenses,
+        addExpense,
+        deleteExpense,
         alerts,
         dismissAlert,
         environment,
